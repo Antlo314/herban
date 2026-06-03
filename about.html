@@ -15,14 +15,36 @@
                 <img src="assets/herban.jpg" class="w-8 h-8 rounded-full" alt="">
                 <span class="font-black text-2xl tracking-tighter">HERBAN ALCHEMY</span>
             </a>
-            <div class="flex gap-x-7 text-sm">
-                <a href="shop.html">Shop</a>
-                <a href="index.html#ingredients">Ingredients</a>
-                <a href="about.html" class="font-semibold">About</a>
-                <a href="index.html">Home</a>
+            <div class="flex items-center gap-x-4 text-sm">
+                <div class="hidden md:flex items-center gap-x-6">
+                    <a href="shop.html">Shop</a>
+                    <a href="index.html#ingredients">Ingredients</a>
+                    <a href="about.html" class="font-semibold">About</a>
+                    <a href="index.html">Home</a>
+                </div>
+                <a href="https://www.instagram.com/herban_alchemynaturalskincare" target="_blank" class="text-lg hover:text-[#C5A26F]">
+                    <i class="fa-brands fa-instagram"></i>
+                </a>
+                <button onclick="toggleMobileMenu()" class="md:hidden p-1 text-lg">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
             </div>
         </div>
     </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white border-b">
+        <div class="px-6 py-4 space-y-2 text-sm">
+            <a href="index.html" class="block py-2 hover:text-[#C5A26F]">Home</a>
+            <a href="shop.html" class="block py-2 hover:text-[#C5A26F]">Shop</a>
+            <a href="about.html" class="block py-2 hover:text-[#C5A26F]">About</a>
+            <a href="index.html#quiz" class="block py-2 hover:text-[#C5A26F]">Find Your Scent</a>
+            <a href="ingredients.html" class="block py-2 hover:text-[#C5A26F]">Ingredients</a>
+            <div class="pt-2 border-t">
+                <a href="https://www.instagram.com/herban_alchemynaturalskincare" target="_blank" class="text-xl"><i class="fa-brands fa-instagram"></i></a>
+            </div>
+        </div>
+    </div>
 
     <div class="max-w-4xl mx-auto px-6 py-16">
         <div class="max-w-xl">
@@ -57,5 +79,17 @@
             <p class="mt-4 max-w-md mx-auto text-white/70">Inspired by the best (Fenty energy + focused Crowned-style curation) but made unmistakably ours.</p>
         </div>
     </div>
+    <script>
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                menu.classList.add('block');
+            } else {
+                menu.classList.add('hidden');
+                menu.classList.remove('block');
+            }
+        }
+    </script>
 </body>
 </html>
