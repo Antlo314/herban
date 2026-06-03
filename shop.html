@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="w-full max-w-[100vw] overflow-x-hidden">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
+        html, body { max-width: 100vw; overflow-x: hidden; width: 100%; }
+        img, video { max-width: 100%; height: auto; }
         body { font-family: 'Inter', system_ui, sans-serif; }
         .heading-serif { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; letter-spacing: -0.03em; }
         
@@ -19,7 +21,7 @@
         .fenty-card { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
     </style>
 </head>
-<body class="bg-white">
+<body class="bg-white text-[#111111] w-full max-w-[100vw] overflow-x-hidden">
     <!-- Nav (same as index) -->
     <nav class="bg-white border-b sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -84,16 +86,16 @@
     </div>
 
     <!-- Filters -->
-    <div class="max-w-7xl mx-auto px-6 pb-5 flex items-center gap-x-3 text-sm border-b pb-6">
-        <div class="font-medium mr-3">Filter:</div>
+    <div class="max-w-7xl mx-auto px-4 md:px-6 pb-5 flex flex-wrap items-center gap-x-2 md:gap-x-3 gap-y-2 text-sm border-b pb-6">
+        <div class="font-medium mr-2 md:mr-3 text-xs md:text-sm">Filter:</div>
         
-        <button onclick="filterProducts('all')" class="active-filter px-4 py-1.5 rounded-full bg-[#111] text-white text-xs font-medium">ALL</button>
-        <button onclick="filterProducts('butter')" class="px-4 py-1.5 rounded-full border text-xs font-medium hover:bg-gray-50">BODY BUTTER GLAZE</button>
-        <button onclick="filterProducts('oil')" class="px-4 py-1.5 rounded-full border text-xs font-medium hover:bg-gray-50">FULL BODY OIL</button>
+        <button onclick="filterProducts('all')" class="active-filter px-3 md:px-4 py-1.5 rounded-full bg-[#111] text-white text-[10px] md:text-xs font-medium">ALL</button>
+        <button onclick="filterProducts('butter')" class="px-3 md:px-4 py-1.5 rounded-full border text-[10px] md:text-xs font-medium hover:bg-gray-50">BODY BUTTER GLAZE</button>
+        <button onclick="filterProducts('oil')" class="px-3 md:px-4 py-1.5 rounded-full border text-[10px] md:text-xs font-medium hover:bg-gray-50">FULL BODY OIL</button>
         
-        <div class="flex-1"></div>
+        <div class="hidden sm:block flex-1"></div>
         
-        <div class="text-xs text-gray-400">12+ scents available across both formulas</div>
+        <div class="w-full sm:w-auto text-[10px] text-gray-400 sm:ml-auto">12+ scents available</div>
     </div>
 
     <!-- Products Grid - Fenty Juicy Cards -->
@@ -404,19 +406,19 @@
     </script>
 
     <!-- Footer -->
-    <footer class="border-t bg-white py-12">
-        <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-y-10 text-sm">
+    <footer class="border-t bg-white py-12 md:py-20">
+        <div class="max-w-7xl mx-auto px-4 md:px-6 grid grid-cols-2 md:grid-cols-4 gap-x-8 md:gap-x-10 gap-y-12 md:gap-y-16 text-sm">
             <div>
-                <div class="font-black tracking-tighter text-xl mb-4">HERBAN ALCHEMY</div>
+                <div class="font-black tracking-tighter text-xl mb-5">HERBAN ALCHEMY</div>
                 <div class="text-xs text-gray-500">Luxury body care for melanated skin.</div>
             </div>
-            <div class="space-y-1.5 text-sm">
+            <div class="space-y-4 md:space-y-5 text-sm">
                 <div><a href="shop.html" class="hover:text-[#C5A26F]">Shop</a></div>
                 <div><a href="ingredients.html" class="hover:text-[#C5A26F]">Ingredients</a></div>
                 <div><a href="about.html" class="hover:text-[#C5A26F]">Our Story</a></div>
                 <div><a href="journal.html" class="hover:text-[#C5A26F]">Journal</a></div>
             </div>
-            <div class="space-y-1.5 text-sm">
+            <div class="space-y-4 md:space-y-5 text-sm">
                 <div><a href="index.html#quiz" class="hover:text-[#C5A26F]">Find Your Scent</a></div>
                 <div><a href="shipping-returns.html" class="hover:text-[#C5A26F]">Shipping &amp; Returns</a></div>
                 <div><a href="contact.html" class="hover:text-[#C5A26F]">Contact</a></div>
@@ -424,14 +426,14 @@
             </div>
             <div>
                 <div class="font-medium mb-2">Stay in the glow.</div>
-                <div class="flex mb-3">
-                    <input type="email" placeholder="Your email" class="flex-1 border border-gray-300 px-3 py-2 text-sm rounded-l-lg focus:outline-none">
-                    <button class="bg-[#111111] text-white px-5 rounded-r-lg text-sm font-semibold">JOIN</button>
+                <div class="flex flex-col sm:flex-row mb-4 gap-2">
+                    <input type="email" placeholder="Your email" class="flex-1 border border-gray-300 px-3 py-2 text-sm rounded-lg sm:rounded-l-lg sm:rounded-r-none focus:outline-none">
+                    <button class="bg-[#111111] text-white px-5 py-2 rounded-lg sm:rounded-l-none sm:rounded-r-lg text-sm font-semibold whitespace-nowrap">JOIN</button>
                 </div>
                 <div class="flex items-center gap-x-3 text-lg">
                     <a href="https://www.instagram.com/herban_alchemynaturalskincare" target="_blank" class="hover:text-[#C5A26F]"><i class="fa-brands fa-instagram"></i></a>
                 </div>
-                <div class="text-[10px] text-gray-400 mt-4">© Herban Alchemy 2026. All rights reserved.</div>
+                <div class="text-[10px] text-gray-400 mt-5">© Herban Alchemy 2026. All rights reserved.</div>
             </div>
         </div>
     </footer>
