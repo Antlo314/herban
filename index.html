@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Herban Alchemy • Luxury Body Care for Melanated Skin</title>
+    <link rel="preload" as="image" href="assets/models/model-mobile-hero.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="assets/card-layout.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&amp;family=Inter:wght@300;400;500;600&amp;display=swap');
         
@@ -115,6 +117,140 @@
         .fenty-product {
             box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
         }
+
+        .le-section {
+            background: linear-gradient(180deg, #0a0a0a 0%, #141210 45%, #1a1510 100%);
+        }
+
+        .le-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+            border: 1px solid rgba(197, 162, 111, 0.25);
+            backdrop-filter: blur(8px);
+        }
+
+        .le-card:hover {
+            border-color: rgba(197, 162, 111, 0.55);
+            box-shadow: 0 24px 48px -12px rgba(197, 162, 111, 0.2);
+        }
+
+        .le-product-img {
+            filter: drop-shadow(0 20px 28px rgba(0,0,0,0.45));
+        }
+
+        .modal-overlay {
+            animation: fadeIn 0.35s ease;
+        }
+
+        .modal-panel {
+            animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(24px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .cookie-banner {
+            animation: cookieSlide 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes cookieSlide {
+            from { opacity: 0; transform: translateY(100%); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tone-console-section {
+            background: #080808;
+            color: #f5f0e8;
+        }
+
+        .tone-console-mesh {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 70% 50% at 20% 20%, rgba(197, 162, 111, 0.14) 0%, transparent 55%),
+                radial-gradient(ellipse 60% 45% at 85% 75%, rgba(255, 107, 53, 0.08) 0%, transparent 50%),
+                linear-gradient(180deg, #0a0a0a 0%, #111010 50%, #0a0a0a 100%);
+            pointer-events: none;
+        }
+
+        .tone-console-mesh::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(rgba(197, 162, 111, 0.15) 1px, transparent 1px);
+            background-size: 28px 28px;
+            opacity: 0.35;
+            mask-image: linear-gradient(180deg, black 0%, transparent 85%);
+        }
+
+        .tone-scanline {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(197, 162, 111, 0.6), transparent);
+            animation: toneScan 6s ease-in-out infinite;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        @keyframes toneScan {
+            0%, 100% { top: 8%; opacity: 0; }
+            10% { opacity: 0.5; }
+            50% { top: 72%; opacity: 0.35; }
+            90% { opacity: 0; }
+        }
+
+        @keyframes tonePulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(197, 162, 111, 0.4); }
+            50% { box-shadow: 0 0 24px 4px rgba(197, 162, 111, 0.25); }
+        }
+
+        @keyframes barGrow {
+            from { width: 0; }
+        }
+
+        .ha-metric-bar-fill {
+            animation: barGrow 0.9s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .ha-cell-active {
+            animation: tonePulse 2s ease-in-out infinite;
+        }
+
+        .glow-reveal {
+            opacity: 0;
+            transform: translateY(28px);
+            transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glow-reveal--in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .glow-float {
+            will-change: transform;
+            transition: transform 0.2s ease-out;
+        }
+
+        .glow-glass {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .glow-layer-bg { z-index: 0; }
+        .glow-layer-mid { z-index: 5; }
+        .glow-layer-fg { z-index: 15; }
+        .glow-layer-content { z-index: 25; }
     </style>
 </head>
 <body class="bg-white text-[#111111] w-full max-w-[100vw] overflow-x-hidden">
@@ -209,27 +345,37 @@
         </div>
     </div>
 
-    <!-- HERO - Fenty Style: Large, Vibrant, Bold -->
-    <header class="relative h-[92vh] min-h-[620px] flex items-center bg-[#111111] overflow-hidden">
-        <!-- 720p Video Background - vibrant colorful no text -->
-        <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover" style="object-position: center 30%;">
+    <!-- Top tagline strip -->
+    <div class="border-b border-white/10 bg-[#0a0a0a] py-2.5 text-center">
+        <span class="text-[9px] tracking-[0.35em] text-[#C5A26F] font-semibold">HEALED · HYDRATED · LUMINOUS</span>
+        <span class="text-[9px] tracking-[0.35em] text-white/35 mx-3">·</span>
+        <span class="text-[9px] tracking-[0.35em] text-white/40">FOR MELANIN-RICH SKIN</span>
+    </div>
+
+    <!-- HERO — video + one editorial portrait (desktop) -->
+    <header id="hero" class="relative min-h-[88svh] md:min-h-[100svh] flex items-end md:items-center bg-[#080808] overflow-hidden">
+        <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover opacity-45 md:opacity-35" style="object-position: center 30%;">
             <source src="assets/hero_alchemy_pour.mp4" type="video/mp4">
         </video>
-        <!-- Stronger overlay for text readability over video -->
-        <div class="absolute inset-0 bg-gradient-to-r from-black/75 via-black/55 to-black/35"></div>
-        <!-- Additional left panel for text contrast -->
-        <div class="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent md:w-2/3"></div>
-        
-        <div class="relative max-w-5xl mx-auto px-6 text-white">
-            <div class="max-w-xl bg-black/30 backdrop-blur-sm p-6 md:p-10 rounded-3xl mt-8 md:mt-0">
+        <img src="assets/models/model-mobile-hero.jpg" alt="Healthy glowing skin" class="hidden md:block absolute inset-y-0 right-0 w-[44%] max-w-[520px] h-full object-cover object-top pointer-events-none" loading="eager">
+        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/75 to-black/40 md:bg-gradient-to-r md:from-black/92 md:via-black/70 md:to-black/25 pointer-events-none"></div>
+
+        <div class="relative w-full max-w-7xl mx-auto px-4 sm:px-6 pb-8 pt-28 md:py-0 glow-layer-content">
+            <div class="max-w-xl glow-glass rounded-3xl p-5 sm:p-6 md:p-10 text-white md:mt-0">
                 <!-- Small badge -->
                 <div class="inline-flex items-center gap-x-2 bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-xs tracking-widest mb-4 md:mb-6 border border-white/30">
-                    <span class="font-semibold">NEW SCENTS JUST DROPPED</span>
+                    <span class="font-semibold">ATLANTA COLLECTION • LIMITED EDITION</span>
                 </div>
 
-                <h1 class="text-5xl md:text-[72px] lg:text-[86px] leading-[0.9] font-black tracking-[-4.5px] mb-4">
-                    THE<br>GLAZE.<br>THE GLOW.
+                <h1 class="text-5xl md:text-[64px] lg:text-[76px] leading-[0.92] font-black tracking-[-4px] mb-2">
+                    HERBAN<br>ALCHEMY
                 </h1>
+                <p class="text-sm md:text-base text-white/80 font-light mb-4 md:mb-5 max-w-md leading-relaxed">
+                    <span class="text-white/90">(HER-bən</span> · sounds like <span class="text-[#C5A26F] font-medium">Urban Alchemy</span><span class="text-white/90"> — the H is silent)</span>
+                </p>
+                <p class="text-2xl md:text-4xl lg:text-5xl font-black tracking-[-2px] mb-4 md:mb-6 leading-tight">
+                    THE GLAZE.<br>THE GLOW.
+                </p>
                 
                 <p class="text-lg md:text-2xl lg:text-3xl font-light tracking-tight mb-6 md:mb-8 max-w-md">
                     Luxurious body care for melanated skin.<br>
@@ -237,9 +383,9 @@
                 </p>
 
                 <div class="flex flex-col sm:flex-row flex-wrap gap-3 md:gap-4">
-                    <a href="shop.html" 
+                    <a href="#atlanta-collection" 
                        class="vibrant-btn inline-flex items-center justify-center bg-white text-[#111111] hover:bg-[#C5A26F] hover:text-white font-semibold px-8 py-3 md:px-10 md:py-4 rounded-full text-sm md:text-base transition-all active:scale-[0.985]">
-                        SHOP THE COLLECTION
+                        SHOP THE DROP
                     </a>
                     
                     <a href="#quiz" 
@@ -250,22 +396,174 @@
 
                 <div class="mt-6 md:mt-8 flex items-center gap-x-3 text-xs md:text-sm">
                     <div class="flex -space-x-2">
-                        <div class="w-5 h-5 md:w-6 md:h-6 bg-white rounded-full border border-white overflow-hidden"><img src="assets/herban1.jpg" class="object-cover"></div>
-                        <div class="w-5 h-5 md:w-6 md:h-6 bg-white rounded-full border border-white overflow-hidden"><img src="assets/herban2.jpg" class="object-cover"></div>
+                        <img src="assets/herban1.jpg" alt="" class="w-7 h-7 md:w-8 md:h-8 rounded-full border-2 border-white object-cover">
+                        <img src="assets/herban2.jpg" alt="" class="w-7 h-7 md:w-8 md:h-8 rounded-full border-2 border-white object-cover">
                     </div>
                     <span class="text-white/80 text-xs tracking-wider">JOIN 12K+ GLOWING WOMEN</span>
                 </div>
             </div>
         </div>
 
-        <!-- Scroll indicator -->
-        <div class="absolute bottom-8 left-1/2 hidden md:block">
-            <div class="flex flex-col items-center text-white/60 text-xs">
-                <span>SCROLL TO DISCOVER</span>
-                <i class="fa-solid fa-chevron-down mt-1"></i>
-            </div>
+        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center text-white/50 text-[10px] tracking-widest pointer-events-none">
+            <span>SCROLL</span>
+            <i class="fa-solid fa-chevron-down mt-1"></i>
         </div>
     </header>
+
+    <!-- Atlanta Collection — Limited Edition (extracted from client flyer) -->
+    <section id="atlanta-collection" class="le-section text-white py-16 md:py-24 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-30 pointer-events-none" style="background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(197,162,111,0.35) 0%, transparent 70%);"></div>
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            <div class="text-center max-w-3xl mx-auto mb-12 md:mb-16">
+                <div class="inline-flex items-center gap-2 border border-[#C5A26F]/40 text-[#C5A26F] px-4 py-1 rounded-full text-[10px] md:text-xs tracking-[0.25em] font-semibold mb-5">
+                    <i class="fa-solid fa-sparkles text-[10px]"></i>
+                    LIMITED EDITION • HANDCRAFTED IN ATLANTA
+                </div>
+                <h2 class="heading-serif text-4xl md:text-6xl lg:text-7xl tracking-tight mb-4">
+                    The <span class="text-[#C5A26F]">Atlanta</span> Collection
+                </h2>
+                <p class="text-white/75 text-base md:text-xl font-light leading-relaxed">
+                    Atlanta's essence. Nourished. Radiant. Iconic. Three brand-new Luxury Body Butter Glaze scents — available for a limited time only.
+                </p>
+                <p class="text-white/45 text-xs mt-3 tracking-wide">Real product photos appear in your cart after you add</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6 lg:gap-10">
+                <!-- Sweet Auburn -->
+                <article class="le-card ha-card le-card-wrap group rounded-3xl overflow-hidden transition-all duration-500 shadow-2xl shadow-black/40">
+                    <div class="ha-card-media ha-card-media--dark">
+                        <div class="ha-card-frame">
+                            <img src="assets/atlanta-collection/sweet-auburn-le-card.jpg" alt="Sweet Auburn limited edition" class="ha-card-img" loading="eager">
+                        </div>
+                    </div>
+                    <div class="ha-card-body p-5 md:p-6 bg-[#0d0d0d] border-t border-[#C5A26F]/20">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-[10px] tracking-[0.2em] text-white/50 font-medium">8 OZ • NOURISH • HYDRATE • GLOW</span>
+                            <span class="text-[#C5A26F] text-xl font-semibold">$38</span>
+                        </div>
+                        <button type="button" onclick="addAtlantaToCart('Sweet Auburn')" class="w-full bg-white text-[#111] hover:bg-[#C5A26F] hover:text-white font-semibold py-3.5 rounded-full text-sm tracking-wider transition-all">
+                            ADD TO CART
+                        </button>
+                    </div>
+                </article>
+
+                <!-- Peachtree -->
+                <article class="le-card ha-card le-card-wrap group rounded-3xl overflow-hidden transition-all duration-500 md:-translate-y-4 shadow-2xl shadow-black/40 ring-1 ring-[#FF6B35]/30">
+                    <div class="ha-card-media ha-card-media--dark">
+                        <div class="ha-card-frame">
+                            <img src="assets/atlanta-collection/peachtree-le-card.jpg" alt="Peachtree limited edition" class="ha-card-img" loading="lazy">
+                        </div>
+                    </div>
+                    <div class="ha-card-body p-5 md:p-6 bg-[#1a0f05] border-t border-[#FF6B35]/25">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-[10px] tracking-[0.2em] text-white/50 font-medium">8 OZ • NOURISH • HYDRATE • GLOW</span>
+                            <span class="text-[#FF9F6B] text-xl font-semibold">$38</span>
+                        </div>
+                        <button type="button" onclick="addAtlantaToCart('Peachtree')" class="w-full bg-[#FF6B35] text-white hover:bg-white hover:text-[#111] font-semibold py-3.5 rounded-full text-sm tracking-wider transition-all">
+                            ADD TO CART
+                        </button>
+                    </div>
+                </article>
+
+                <!-- Lenox -->
+                <article class="le-card ha-card le-card-wrap group rounded-3xl overflow-hidden transition-all duration-500 shadow-2xl shadow-black/40">
+                    <div class="ha-card-media ha-card-media--dark">
+                        <div class="ha-card-frame">
+                            <img src="assets/atlanta-collection/lenox-le-card.jpg" alt="Lenox limited edition" class="ha-card-img" loading="lazy">
+                        </div>
+                    </div>
+                    <div class="ha-card-body p-5 md:p-6 bg-[#0d0d0d] border-t border-white/15">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-[10px] tracking-[0.2em] text-white/50 font-medium">8 OZ • NOURISH • HYDRATE • GLOW</span>
+                            <span class="text-[#C5A26F] text-xl font-semibold">$38</span>
+                        </div>
+                        <button type="button" onclick="addAtlantaToCart('Lenox')" class="w-full border border-white/60 text-white hover:bg-white hover:text-[#111] font-semibold py-3.5 rounded-full text-sm tracking-wider transition-all">
+                            ADD TO CART
+                        </button>
+                    </div>
+                </article>
+            </div>
+
+            <div class="mt-12 md:mt-16 flex flex-wrap items-center justify-center gap-6 md:gap-10 text-[10px] md:text-xs tracking-[0.2em] text-white/50 font-medium">
+                <span class="flex items-center gap-2"><i class="fa-solid fa-leaf text-[#C5A26F]"></i> PLANT BASED</span>
+                <span class="flex items-center gap-2"><i class="fa-solid fa-droplet text-[#C5A26F]"></i> INTENSE HYDRATION</span>
+                <span class="flex items-center gap-2"><i class="fa-solid fa-star text-[#C5A26F]"></i> RADIANT GLOW</span>
+                <span class="flex items-center gap-2"><i class="fa-solid fa-heart text-[#C5A26F]"></i> CLEAN &amp; LUXURIOUS</span>
+            </div>
+            <p class="text-center text-[#C5A26F]/80 text-sm mt-8 tracking-widest font-medium">FROM OUR CITY TO YOUR SKIN — LIVE. LOVE. GLOW. ATL</p>
+        </div>
+    </section>
+
+    <!-- Raw Ingredients -->
+    <section id="raw-ingredients" class="bg-white py-14 md:py-20 border-b relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10 md:mb-12">
+                <div>
+                    <div class="text-xs tracking-[0.25em] text-[#C5A26F] font-semibold mb-2">PURE • UNREFINED • READY TO USE</div>
+                    <h2 class="text-3xl md:text-5xl font-black tracking-[-2px]">Raw Shea &amp; Mango Butter</h2>
+                    <p class="text-gray-600 mt-2 max-w-lg text-sm md:text-base">Packaged in our signature black bags — <strong class="text-[#111]">16 oz (1 lb)</strong> total, pre-portioned as <strong class="text-[#111]">four 4 oz blocks</strong> so melting and measuring stays effortless.</p>
+                    <p class="text-gray-400 text-xs mt-2">Packaging photos show in your cart when you add</p>
+                </div>
+                <a href="shop.html#raw-ingredients" class="text-sm font-semibold hover:text-[#C5A26F] shrink-0">SHOP RAW <i class="fa-solid fa-arrow-right-long ml-1"></i></a>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 max-w-5xl mx-auto">
+                <article class="ha-card le-card-wrap group rounded-3xl overflow-hidden border border-gray-100 shadow-lg hover:shadow-2xl transition-shadow bg-white">
+                    <div class="ha-card-media">
+                        <div class="ha-card-frame">
+                            <img src="assets/raw-white-shea-le-card.jpg" alt="Raw White Shea Butter" class="ha-card-img" loading="lazy">
+                        </div>
+                    </div>
+                    <div class="ha-card-body p-5 md:p-6 bg-[#0d0d0d] border-t border-[#C5A26F]/20">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] tracking-[0.2em] text-white/50">16 OZ · 4 × 4 OZ BLOCKS</span>
+                            <span class="text-[#C5A26F] text-xl font-semibold">$34</span>
+                        </div>
+                        <button type="button" onclick="addRawToCart('Raw White Shea Butter', 34, 'assets/raw-white-shea-le-card.jpg')" class="w-full mt-4 bg-white text-[#111] hover:bg-[#C5A26F] hover:text-white font-semibold py-3.5 rounded-full text-sm tracking-wider transition-all">
+                            ADD TO CART
+                        </button>
+                    </div>
+                </article>
+                <article class="ha-card le-card-wrap group rounded-3xl overflow-hidden border border-gray-100 shadow-lg hover:shadow-2xl transition-shadow bg-white">
+                    <div class="ha-card-media">
+                        <div class="ha-card-frame">
+                            <img src="assets/raw-mango-butter-le-card.jpg" alt="Raw Mango Butter" class="ha-card-img" loading="lazy">
+                        </div>
+                    </div>
+                    <div class="ha-card-body p-5 md:p-6 bg-[#1a0f05] border-t border-[#FF6B35]/25">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] tracking-[0.2em] text-white/50">16 OZ · 4 × 4 OZ BLOCKS</span>
+                            <span class="text-[#FF9F6B] text-xl font-semibold">$36</span>
+                        </div>
+                        <button type="button" onclick="addRawToCart('Raw Mango Butter', 36, 'assets/raw-mango-butter-le-card.jpg')" class="w-full mt-4 bg-[#FF6B35] text-white hover:bg-white hover:text-[#111] font-semibold py-3.5 rounded-full text-sm tracking-wider transition-all">
+                            ADD TO CART
+                        </button>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skin Spectrum Console — interactive tone × product intelligence -->
+    <section id="every-shade" class="tone-console-section relative overflow-hidden py-16 md:py-24 border-y border-[#C5A26F]/20">
+        <div class="tone-console-mesh" aria-hidden="true"></div>
+        <div class="tone-scanline" aria-hidden="true"></div>
+        <div class="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
+            <div class="text-center max-w-2xl mx-auto mb-8 md:mb-12">
+                <div class="inline-flex items-center gap-2 border border-[#C5A26F]/40 text-[#C5A26F] px-3 py-1 rounded-full text-[10px] tracking-[0.25em] font-semibold mb-4">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#C5A26F] animate-pulse"></span>
+                    LIVE SKIN SPECTRUM
+                </div>
+                <h2 class="text-3xl md:text-5xl lg:text-6xl font-black tracking-[-2px] text-white">Every Shade.<br class="hidden sm:block"> One Ritual.</h2>
+                <p class="text-white/55 mt-4 text-sm md:text-base leading-relaxed">
+                    Select your tone on the spectrum. Watch how each formula maps to melanin-rich skin — hydration, glow, and everyday comfort, calibrated in real time.
+                </p>
+            </div>
+            <div id="skin-spectrum-console" class="w-full"></div>
+            <p class="text-center text-[10px] text-white/35 mt-8 max-w-lg mx-auto leading-relaxed">
+                Cosmetic guidance only — not medical advice. Individual results vary.
+            </p>
+        </div>
+    </section>
 
     <!-- Trust Bar - Fenty Vibes -->
     <div class="bg-white border-b py-2.5 md:py-3 overflow-x-hidden">
@@ -297,25 +595,19 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Body Butter Glaze Card -->
-            <div class="product-card group bg-white border border-gray-100 rounded-3xl overflow-hidden">
-                <div class="relative h-[320px] sm:h-[380px] md:h-[420px] bg-[#F8F1E9]">
-                    <img src="assets/amber_spice_butter.jpg" alt="Herban Alchemy Luxury Body Butter Glaze" 
-                         class="product-img absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
-                    
-                    <div class="absolute top-5 right-5">
-                        <div class="bg-white px-4 py-1 rounded-full text-xs font-bold tracking-widest shadow">12 SCENTS</div>
-                    </div>
-                    
-                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 sm:p-6 text-white">
-                        <div class="flex items-center gap-x-2 mb-1">
-                            <span class="text-xs bg-white/90 text-black px-3 py-px rounded">BESTSELLER</span>
-                        </div>
-                        <h3 class="text-2xl sm:text-3xl font-black tracking-tight">LUXURY BODY BUTTER GLAZE</h3>
-                        <p class="text-xs sm:text-sm opacity-90">Nourish • Hydrate • Glow</p>
+            <div class="product-card ha-card group bg-white border border-gray-100 rounded-3xl overflow-hidden">
+                <div class="ha-card-media bg-[#F8F1E9]">
+                    <div class="ha-card-frame ha-card-frame--hero">
+                        <img src="assets/amber_spice_butter.jpg" alt="Herban Alchemy Luxury Body Butter Glaze" class="ha-card-img product-img">
                     </div>
                 </div>
-                
-                <div class="p-4 sm:p-6">
+                <div class="ha-card-body p-4 sm:p-6">
+                    <div class="ha-card-meta">
+                        <span class="ha-card-badge bg-[#111] text-white">BESTSELLER</span>
+                        <span class="ha-card-badge bg-white border border-gray-200 text-[#111]">12 SCENTS</span>
+                    </div>
+                    <h3 class="text-2xl sm:text-3xl font-black tracking-tight mt-1">LUXURY BODY BUTTER GLAZE</h3>
+                    <p class="text-sm text-gray-500 mt-1">Nourish • Hydrate • Glow</p>
                     <div class="flex justify-between items-baseline mb-4">
                         <div>
                             <span class="text-2xl sm:text-3xl font-semibold">$38</span>
@@ -336,25 +628,19 @@
             </div>
 
             <!-- Body Fragrance Oil Card -->
-            <div class="product-card group bg-white border border-gray-100 rounded-3xl overflow-hidden">
-                <div class="relative h-[320px] sm:h-[380px] md:h-[420px] bg-gradient-to-br from-[#FFF5F0] to-white">
-                    <img src="assets/mango_dream_oil.jpg" alt="Herban Alchemy Full Body Fragrance Oil" 
-                         class="product-img absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
-                    
-                    <div class="absolute top-5 right-5">
-                        <div class="bg-white px-4 py-1 rounded-full text-xs font-bold tracking-widest shadow">14 SCENTS</div>
-                    </div>
-                    
-                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 sm:p-6 text-white">
-                        <div class="flex items-center gap-x-2 mb-1">
-                            <span class="text-xs bg-white/90 text-black px-3 py-px rounded">NEW SHADES</span>
-                        </div>
-                        <h3 class="text-2xl sm:text-3xl font-black tracking-tight">FULL BODY FRAGRANCE OIL</h3>
-                        <p class="text-xs sm:text-sm opacity-90">Lightweight. Long-lasting. Layerable.</p>
+            <div class="product-card ha-card group bg-white border border-gray-100 rounded-3xl overflow-hidden">
+                <div class="ha-card-media bg-gradient-to-br from-[#FFF5F0] to-white">
+                    <div class="ha-card-frame ha-card-frame--hero">
+                        <img src="assets/mango_dream_oil.jpg" alt="Herban Alchemy Full Body Fragrance Oil" class="ha-card-img product-img">
                     </div>
                 </div>
-                
-                <div class="p-4 sm:p-6">
+                <div class="ha-card-body p-4 sm:p-6">
+                    <div class="ha-card-meta">
+                        <span class="ha-card-badge bg-[#111] text-white">NEW SHADES</span>
+                        <span class="ha-card-badge bg-white border border-gray-200 text-[#111]">14 SCENTS</span>
+                    </div>
+                    <h3 class="text-2xl sm:text-3xl font-black tracking-tight mt-1">FULL BODY FRAGRANCE OIL</h3>
+                    <p class="text-sm text-gray-500 mt-1">Lightweight. Long-lasting. Layerable.</p>
                     <div class="flex justify-between items-baseline mb-4">
                         <div>
                             <span class="text-2xl sm:text-3xl font-semibold">$32</span>
@@ -385,52 +671,35 @@
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
-                <!-- Scent Cards - Real branded images like Fenty, with logo -->
-                <div class="bg-white rounded-2xl p-4 shadow-sm product-card cursor-pointer" onclick="quickAddToCart('Mango Dream', 'butter')">
-                    <img src="assets/mango_dream_butter.jpg" alt="Mango Dream Body Butter Glaze" class="w-full h-40 object-cover rounded-xl mb-3">
-                    <div class="font-semibold">Mango Dream</div>
+                <div class="ha-scent-card ha-card bg-white rounded-2xl p-3 md:p-4 shadow-sm product-card cursor-pointer overflow-hidden" onclick="quickAddToCart('Mango Dream', 'butter')">
+                    <div class="ha-card-media rounded-xl overflow-hidden mb-3"><div class="ha-card-frame"><img src="assets/mango_dream_butter.jpg" alt="Mango Dream Body Butter Glaze" class="ha-card-img"></div></div>
+                    <div class="font-semibold text-sm md:text-base">Mango Dream</div>
                     <div class="text-xs text-gray-500">Body Butter Glaze • 8oz</div>
-                    <div class="flex justify-between items-center mt-2">
-                        <span class="font-semibold">$38</span>
-                        <span class="text-emerald-600 text-xs font-medium">BESTSELLER</span>
-                    </div>
+                    <div class="flex justify-between items-center mt-2 gap-2"><span class="font-semibold">$38</span><span class="text-emerald-600 text-[10px] font-medium">BESTSELLER</span></div>
                 </div>
-
-                <div class="bg-white rounded-2xl p-4 shadow-sm product-card cursor-pointer" onclick="quickAddToCart('Vanilla Orchid', 'butter')">
-                    <img src="assets/vanilla_orchid_butter.jpg" alt="Vanilla Orchid Body Butter Glaze" class="w-full h-40 object-cover rounded-xl mb-3">
-                    <div class="font-semibold">Vanilla Orchid</div>
+                <div class="ha-scent-card ha-card bg-white rounded-2xl p-3 md:p-4 shadow-sm product-card cursor-pointer overflow-hidden" onclick="quickAddToCart('Vanilla Orchid', 'butter')">
+                    <div class="ha-card-media rounded-xl overflow-hidden mb-3"><div class="ha-card-frame"><img src="assets/vanilla_orchid_butter.jpg" alt="Vanilla Orchid Body Butter Glaze" class="ha-card-img"></div></div>
+                    <div class="font-semibold text-sm md:text-base">Vanilla Orchid</div>
                     <div class="text-xs text-gray-500">Body Butter Glaze • 8oz</div>
-                    <div class="flex justify-between items-center mt-2">
-                        <span class="font-semibold">$38</span>
-                    </div>
+                    <div class="flex justify-between items-center mt-2"><span class="font-semibold">$38</span></div>
                 </div>
-
-                <div class="bg-white rounded-2xl p-4 shadow-sm product-card cursor-pointer" onclick="quickAddToCart('Citrus Zest', 'oil')">
-                    <img src="assets/citrus_zest_oil.jpg" alt="Citrus Zest Full Body Oil" class="w-full h-40 object-cover rounded-xl mb-3">
-                    <div class="font-semibold">Citrus Zest</div>
+                <div class="ha-scent-card ha-card bg-white rounded-2xl p-3 md:p-4 shadow-sm product-card cursor-pointer overflow-hidden" onclick="quickAddToCart('Citrus Zest', 'oil')">
+                    <div class="ha-card-media rounded-xl overflow-hidden mb-3"><div class="ha-card-frame"><img src="assets/citrus_zest_oil.jpg" alt="Citrus Zest Full Body Oil" class="ha-card-img"></div></div>
+                    <div class="font-semibold text-sm md:text-base">Citrus Zest</div>
                     <div class="text-xs text-gray-500">Full Body Oil • 2oz</div>
-                    <div class="flex justify-between items-center mt-2">
-                        <span class="font-semibold">$32</span>
-                        <span class="text-xs px-2 py-px bg-pink-100 text-pink-700 rounded">NEW</span>
-                    </div>
+                    <div class="flex justify-between items-center mt-2 gap-2"><span class="font-semibold">$32</span><span class="text-[10px] px-2 py-0.5 bg-pink-100 text-pink-700 rounded-full">NEW</span></div>
                 </div>
-
-                <div class="bg-white rounded-2xl p-4 shadow-sm product-card cursor-pointer" onclick="quickAddToCart('Amber Spice', 'oil')">
-                    <img src="assets/amber_spice_oil.jpg" alt="Amber Spice Full Body Oil" class="w-full h-40 object-cover rounded-xl mb-3">
-                    <div class="font-semibold">Amber Spice</div>
+                <div class="ha-scent-card ha-card bg-white rounded-2xl p-3 md:p-4 shadow-sm product-card cursor-pointer overflow-hidden" onclick="quickAddToCart('Amber Spice', 'oil')">
+                    <div class="ha-card-media rounded-xl overflow-hidden mb-3"><div class="ha-card-frame"><img src="assets/amber_spice_oil.jpg" alt="Amber Spice Full Body Oil" class="ha-card-img"></div></div>
+                    <div class="font-semibold text-sm md:text-base">Amber Spice</div>
                     <div class="text-xs text-gray-500">Full Body Oil • 2oz</div>
-                    <div class="flex justify-between items-center mt-2">
-                        <span class="font-semibold">$32</span>
-                    </div>
+                    <div class="flex justify-between items-center mt-2"><span class="font-semibold">$32</span></div>
                 </div>
-
-                <div class="bg-white rounded-2xl p-4 shadow-sm product-card cursor-pointer" onclick="quickAddToCart('Rose Petal', 'butter')">
-                    <img src="assets/rose_petal_butter.jpg" alt="Rose Petal Body Butter Glaze" class="w-full h-40 object-cover rounded-xl mb-3">
-                    <div class="font-semibold">Rose Petal</div>
+                <div class="ha-scent-card ha-card bg-white rounded-2xl p-3 md:p-4 shadow-sm product-card cursor-pointer overflow-hidden col-span-2 md:col-span-1" onclick="quickAddToCart('Rose Petal', 'butter')">
+                    <div class="ha-card-media rounded-xl overflow-hidden mb-3"><div class="ha-card-frame"><img src="assets/rose_petal_butter.jpg" alt="Rose Petal Body Butter Glaze" class="ha-card-img"></div></div>
+                    <div class="font-semibold text-sm md:text-base">Rose Petal</div>
                     <div class="text-xs text-gray-500">Body Butter Glaze • 8oz</div>
-                    <div class="flex justify-between items-center mt-2">
-                        <span class="font-semibold">$38</span>
-                    </div>
+                    <div class="flex justify-between items-center mt-2"><span class="font-semibold">$38</span></div>
                 </div>
             </div>
         </div>
@@ -446,17 +715,16 @@
 
         <div class="grid md:grid-cols-2 gap-8">
             <!-- Butter Video - Integrated storytelling -->
-            <div class="group">
-                <div class="relative rounded-3xl overflow-hidden border border-gray-100 shadow-xl bg-black">
-                    <video autoplay muted loop playsinline class="w-full aspect-video object-cover">
+            <div class="group ha-card rounded-3xl overflow-hidden border border-gray-100 shadow-xl bg-white">
+                <div class="aspect-video overflow-hidden bg-black">
+                    <video autoplay muted loop playsinline class="w-full h-full object-cover">
                         <source src="assets/mango_butter_scoop.mp4" type="video/mp4">
                     </video>
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
-                    <div class="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8 text-white text-center md:text-left">
-                        <div class="uppercase tracking-[2px] text-xs text-[#C5A26F] mb-1">SIGNATURE GLAZE</div>
-                        <h3 class="text-2xl sm:text-3xl font-semibold tracking-tight">The Slow Scoop</h3>
-                        <p class="mt-2 text-white/90 text-sm sm:text-base max-w-full md:max-w-[28ch] mx-auto md:mx-0">Velvety richness meets skin. Witness the deliberate, hypnotic pour that delivers deep nourishment with every layer.</p>
-                    </div>
+                </div>
+                <div class="p-4 sm:p-6 md:p-8 text-center md:text-left">
+                    <div class="uppercase tracking-[2px] text-xs text-[#C5A26F] mb-1">SIGNATURE GLAZE</div>
+                    <h3 class="text-2xl sm:text-3xl font-semibold tracking-tight text-[#111]">The Slow Scoop</h3>
+                    <p class="mt-2 text-gray-600 text-sm sm:text-base max-w-full md:max-w-[28ch] mx-auto md:mx-0">Velvety richness meets skin. Witness the deliberate, hypnotic pour that delivers deep nourishment with every layer.</p>
                 </div>
                 <div class="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs sm:text-sm px-1 gap-y-1">
                     <div class="text-gray-500">Mango Dream • 8oz Body Butter Glaze</div>
@@ -465,17 +733,16 @@
             </div>
 
             <!-- Oil Video - Integrated storytelling -->
-            <div class="group">
-                <div class="relative rounded-3xl overflow-hidden border border-gray-100 shadow-xl bg-black">
-                    <video autoplay muted loop playsinline class="w-full aspect-video object-cover">
+            <div class="group ha-card rounded-3xl overflow-hidden border border-gray-100 shadow-xl bg-white">
+                <div class="aspect-video overflow-hidden bg-black">
+                    <video autoplay muted loop playsinline class="w-full h-full object-cover">
                         <source src="assets/mango_oil_pour.mp4" type="video/mp4">
                     </video>
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
-                    <div class="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8 text-white text-center md:text-left">
-                        <div class="uppercase tracking-[2px] text-xs text-[#C5A26F] mb-1">FRAGRANCE OIL</div>
-                        <h3 class="text-2xl sm:text-3xl font-semibold tracking-tight">The Mesmerizing Pour</h3>
-                        <p class="mt-2 text-white/90 text-sm sm:text-base max-w-full md:max-w-[28ch] mx-auto md:mx-0">Light as air. Infused with intention. See the luminous oil cascade — designed for effortless layering and all-day radiance.</p>
-                    </div>
+                </div>
+                <div class="p-4 sm:p-6 md:p-8 text-center md:text-left">
+                    <div class="uppercase tracking-[2px] text-xs text-[#C5A26F] mb-1">FRAGRANCE OIL</div>
+                    <h3 class="text-2xl sm:text-3xl font-semibold tracking-tight text-[#111]">The Mesmerizing Pour</h3>
+                    <p class="mt-2 text-gray-600 text-sm sm:text-base max-w-full md:max-w-[28ch] mx-auto md:mx-0">Light as air. Infused with intention. See the luminous oil cascade — designed for effortless layering and all-day radiance.</p>
                 </div>
                 <div class="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs sm:text-sm px-1 gap-y-1">
                     <div class="text-gray-500">Mango Dream • 2oz Full Body Fragrance Oil</div>
@@ -486,8 +753,8 @@
     </section>
 
     <!-- WHY HERBAN + FENTY ENERGY -->
-    <section class="max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-12 gap-x-8 items-center">
-        <div class="md:col-span-5">
+    <section class="relative max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-12 gap-x-8 items-center overflow-hidden">
+        <div class="md:col-span-5 relative z-10" data-glow-reveal>
             <div class="uppercase text-xs font-semibold tracking-[2px] text-[#C5A26F]">FOR MELANATED SKIN</div>
             <h2 class="text-4xl sm:text-5xl md:text-6xl leading-none font-black tracking-[-3px] mt-2">Rich. Hydrated.<br>Glowing.</h2>
             
@@ -593,6 +860,58 @@
     </footer>
 
     <!-- Simple Cart Drawer -->
+    <!-- Launch popup: email + shop (dismissible) -->
+    <div id="launch-modal" class="hidden fixed inset-0 z-[110] modal-overlay items-center justify-center p-4 md:p-6" role="dialog" aria-labelledby="launch-modal-title" aria-modal="true">
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="dismissLaunchModal()"></div>
+        <div class="modal-panel relative w-full max-w-lg bg-white text-[#111] rounded-3xl shadow-2xl overflow-hidden">
+            <button type="button" onclick="dismissLaunchModal()" class="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-black/5 hover:bg-black/10 text-2xl leading-none" aria-label="Close">&times;</button>
+            <div class="bg-[#111] text-white px-8 pt-10 pb-8 text-center">
+                <div class="text-[10px] tracking-[0.3em] text-[#C5A26F] font-semibold mb-3">LIMITED EDITION DROP</div>
+                <h2 id="launch-modal-title" class="heading-serif text-3xl md:text-4xl mb-2">The Atlanta Collection</h2>
+                <p class="text-white/80 text-sm md:text-base font-light">Three new glazes. One iconic city. Be first to shop &amp; glow.</p>
+            </div>
+            <div class="p-8">
+                <form id="launch-email-form" onsubmit="submitLaunchEmail(event)" class="space-y-4">
+                    <label for="launch-email" class="block text-xs font-semibold tracking-widest text-gray-500 uppercase">Email for drop alerts</label>
+                    <input type="email" id="launch-email" required placeholder="you@email.com" class="w-full border border-gray-200 rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:border-[#C5A26F]">
+                    <button type="submit" class="w-full bg-[#111] hover:bg-[#C5A26F] text-white font-semibold py-4 rounded-2xl tracking-wider text-sm transition-colors">
+                        NOTIFY ME &amp; GET EARLY ACCESS
+                    </button>
+                </form>
+                <div id="launch-email-success" class="hidden text-center py-4 text-sm text-green-700 font-medium">
+                    <i class="fa-solid fa-check-circle text-[#C5A26F] mr-1"></i> You're on the list. We'll email you when the drop restocks.
+                </div>
+                <div class="flex flex-col gap-3 mt-6">
+                    <button type="button" onclick="shopFromLaunchModal()" class="w-full border-2 border-[#111] text-[#111] hover:bg-[#111] hover:text-white font-semibold py-3.5 rounded-2xl text-sm tracking-wider transition-colors">
+                        SHOP THE ATLANTA COLLECTION
+                    </button>
+                    <button type="button" onclick="dismissLaunchModal()" class="text-xs text-gray-400 hover:text-[#111] tracking-wider">
+                        No thanks, I'll browse
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cookie consent (appears after delay) -->
+    <div id="cookie-banner" class="hidden fixed bottom-0 left-0 right-0 z-[105] p-4 md:p-6 pointer-events-none">
+        <div class="cookie-banner max-w-4xl mx-auto bg-[#111] text-white rounded-2xl md:rounded-3xl shadow-2xl border border-white/10 p-5 md:p-6 flex flex-col md:flex-row md:items-center gap-4 pointer-events-auto">
+            <div class="flex-1 text-sm text-white/85 leading-relaxed">
+                <span class="font-semibold text-white">Cookies &amp; your glow.</span>
+                We use cookies to improve your experience, remember your cart, and understand how you shop. See our
+                <a href="shipping-returns.html" class="text-[#C5A26F] underline hover:no-underline">privacy details</a>.
+            </div>
+            <div class="flex flex-wrap gap-2 shrink-0">
+                <button type="button" onclick="acceptCookies()" class="bg-[#C5A26F] hover:bg-[#d4b07a] text-[#111] font-semibold px-5 py-2.5 rounded-full text-xs tracking-wider transition-colors">
+                    ACCEPT ALL
+                </button>
+                <button type="button" onclick="acceptCookies('essential')" class="border border-white/30 hover:bg-white/10 font-medium px-5 py-2.5 rounded-full text-xs tracking-wider transition-colors">
+                    ESSENTIAL ONLY
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div id="cart-drawer" onclick="if (event.target.id === 'cart-drawer') hideCart()" class="hidden fixed inset-0 bg-black/50 z-[100]">
         <div onclick="event.stopImmediatePropagation()" class="absolute right-0 top-0 h-full w-full max-w-md bg-white p-6 shadow-2xl flex flex-col">
             <div class="flex justify-between items-center mb-6">
@@ -619,6 +938,7 @@
         </div>
     </div>
 
+    <script src="assets/cart-images.js"></script>
     <script>
         // Tailwind script
         function initializeTailwind() {
@@ -628,6 +948,66 @@
         // Simple Cart System (localStorage)
         let cart = JSON.parse(localStorage.getItem('herbanCart') || '[]');
 
+        // Scent to image mapping - match the dynamic ones used in shop modal & product cards (logo branded)
+        const butterImages = {
+            "Mango Dream": "assets/mango_dream_butter.jpg",
+            "Vanilla Orchid": "assets/vanilla_orchid_butter.jpg",
+            "Citrus Zest": "assets/citrus_zest_butter.jpg",
+            "Lavender Haze": "assets/lavender_haze_butter.jpg",
+            "Amber Spice": "assets/amber_spice_butter.jpg",
+            "Rose Petal": "assets/rose_petal_butter.jpg",
+            "Coconut Kiss": "assets/coconut_kiss_butter.jpg",
+            "Eucalyptus Fresh": "assets/eucalyptus_fresh_butter.jpg",
+            "Jasmine Nights": "assets/jasmine_nights_butter.jpg",
+            "Sandalwood Warm": "assets/sandalwood_warm_butter.jpg",
+            "Grapefruit Glow": "assets/grapefruit_glow_butter.jpg",
+            "Patchouli Earth": "assets/patchouli_earth_butter.jpg",
+            "Sweet Auburn": "assets/atlanta-collection/sweet-auburn-photo-enhanced.jpg",
+            "Peachtree": "assets/atlanta-collection/peachtree-photo-enhanced.jpg",
+            "Lenox": "assets/atlanta-collection/lenox-photo-enhanced.jpg"
+        };
+
+        function resolveCartImage(type, scent, name = '', imageOverride = '') {
+            if (imageOverride) return imageOverride;
+            if (type === 'raw') {
+                return name.includes('Mango') ? 'assets/raw-mango-butter-le-card.jpg' : 'assets/raw-white-shea-le-card.jpg';
+            }
+            if (type === 'butter' && scent && butterImages[scent]) return butterImages[scent];
+            if (type === 'oil' && scent && oilImages[scent]) return oilImages[scent];
+            if (type === 'butter') return 'assets/amber_spice_butter.jpg';
+            if (type === 'oil') return 'assets/mango_dream_oil.jpg';
+            return 'assets/herban.jpg';
+        }
+
+        const atlantaProducts = {
+            "Sweet Auburn": { image: "assets/atlanta-collection/sweet-auburn-le-card.jpg", tagline: "Warm. Rich. Timeless." },
+            "Peachtree": { image: "assets/atlanta-collection/peachtree-le-card.jpg", tagline: "Fresh. Vibrant. Iconic." },
+            "Lenox": { image: "assets/atlanta-collection/lenox-le-card.jpg", tagline: "Bold. Luxe. Unapologetic." }
+        };
+        const oilImages = {
+            "Mango Dream": "assets/mango_dream_oil.jpg",
+            "Vanilla Orchid": "assets/vanilla_orchid_oil.jpg",
+            "Citrus Zest": "assets/citrus_zest_oil.jpg",
+            "Amber Spice": "assets/amber_spice_oil.jpg",
+            "Rose Petal": "assets/rose_petal_oil.jpg",
+            "Coconut Kiss": "assets/coconut_kiss_oil.jpg",
+            "Sandalwood Warm": "assets/sandalwood_warm_oil.jpg",
+            "Grapefruit Glow": "assets/grapefruit_glow_oil.jpg",
+            "Ylang Ylang": "assets/ylang_ylang_oil.jpg",
+            "Tonka Bean": "assets/tonka_bean_oil.jpg",
+            "Fig Leaf": "assets/fig_leaf_oil.jpg",
+            "Oud & Saffron": "assets/oud_saffron_oil.jpg",
+            "Blue Lotus": "assets/blue_lotus_oil.jpg",
+            "White Tea": "assets/white_tea_oil.jpg",
+            "Lavender Haze": "assets/lavender_haze_oil.jpg"
+        };
+
+        function getCartImage(item) {
+            if (window.HERBAN_CART_IMAGES) return window.HERBAN_CART_IMAGES.getCartImage(item);
+            if (!item) return 'assets/herban.jpg';
+            return resolveCartImage(item.type, item.scent, item.name || '');
+        }
+
         function updateCartCount() {
             const countEl = document.getElementById('cart-count');
             const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
@@ -635,18 +1015,21 @@
             countEl.style.display = totalItems > 0 ? 'flex' : 'none';
         }
 
-        function addToCart(name, type, price, scent = '') {
+        function addToCart(name, type, price, scent = '', imageOverride = '') {
             const existing = cart.findIndex(item => item.name === name && item.scent === scent);
             
             if (existing > -1) {
                 cart[existing].qty += 1;
+                cart[existing].image = resolveCartImage(type, scent, name, imageOverride);
             } else {
-                cart.push({ 
+                const image = resolveCartImage(type, scent, name, imageOverride);
+                cart.push({
                     id: Date.now(), 
                     name, 
                     type, 
                     price, 
                     scent: scent || '', 
+                    image,
                     qty: 1 
                 });
             }
@@ -675,6 +1058,72 @@
             addToCart(name, productType, price, scent);
         }
 
+        function addAtlantaToCart(scent) {
+            if (!atlantaProducts[scent]) return;
+            addToCart('Luxury Body Butter Glaze', 'butter', 38, scent);
+        }
+
+        function addRawToCart(name, price, image) {
+            addToCart(name, 'raw', price, '', image);
+        }
+
+        // Launch modal
+        function showLaunchModal() {
+            const modal = document.getElementById('launch-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function dismissLaunchModal() {
+            const modal = document.getElementById('launch-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = '';
+            localStorage.setItem('herbanLaunchDismissed', '1');
+        }
+
+        function shopFromLaunchModal() {
+            dismissLaunchModal();
+            document.getElementById('atlanta-collection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function submitLaunchEmail(e) {
+            e.preventDefault();
+            const input = document.getElementById('launch-email');
+            const email = (input?.value || '').trim().toLowerCase();
+            if (!email) return;
+
+            const list = JSON.parse(localStorage.getItem('herbanEmailList') || '[]');
+            if (!list.includes(email)) list.push(email);
+            localStorage.setItem('herbanEmailList', JSON.stringify(list));
+
+            document.getElementById('launch-email-form')?.classList.add('hidden');
+            document.getElementById('launch-email-success')?.classList.remove('hidden');
+            localStorage.setItem('herbanLaunchDismissed', '1');
+
+            setTimeout(() => {
+                dismissLaunchModal();
+                document.getElementById('launch-email-form')?.classList.remove('hidden');
+                document.getElementById('launch-email-success')?.classList.add('hidden');
+                if (input) input.value = '';
+            }, 2200);
+        }
+
+        // Cookie banner (5s delay)
+        const COOKIE_DELAY_MS = 5000;
+
+        function showCookieBanner() {
+            const banner = document.getElementById('cookie-banner');
+            if (!banner || localStorage.getItem('herbanCookieConsent')) return;
+            banner.classList.remove('hidden');
+        }
+
+        function acceptCookies(level = 'all') {
+            localStorage.setItem('herbanCookieConsent', level);
+            document.getElementById('cookie-banner')?.classList.add('hidden');
+        }
+
         function showCart() {
             const drawer = document.getElementById('cart-drawer');
             const itemsContainer = document.getElementById('cart-items');
@@ -687,7 +1136,11 @@
                 totalEl.textContent = '$0';
             } else {
                 let total = 0;
-                
+                cart.forEach((it) => {
+                    it.image = resolveCartImage(it.type, it.scent, it.name);
+                });
+                localStorage.setItem('herbanCart', JSON.stringify(cart));
+
                 cart.forEach((item, index) => {
                     total += item.price * item.qty;
                     
@@ -695,7 +1148,7 @@
                     el.className = 'flex gap-3 border-b pb-4';
                     el.innerHTML = `
                         <div class="w-14 h-14 bg-gray-100 rounded-xl flex-shrink-0 overflow-hidden">
-                            <img src="assets/herban.jpg" class="w-full h-full object-cover">
+                            <img src="${getCartImage(item)}" class="w-full h-full object-cover" alt="${item.scent || item.name}">
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="font-medium">${item.name}</div>
@@ -726,6 +1179,8 @@
         function changeQty(index, delta) {
             cart[index].qty += delta;
             if (cart[index].qty < 1) cart[index].qty = 1;
+            const it = cart[index];
+            it.image = resolveCartImage(it.type, it.scent, it.name);
             localStorage.setItem('herbanCart', JSON.stringify(cart));
             showCart();
             updateCartCount();
@@ -817,19 +1272,12 @@
             const modal = document.createElement('div');
             modal.className = `fixed inset-0 bg-black/70 flex items-center justify-center z-[200] p-4`;
             
-            let rec = "Luxury Body Butter Glaze in Mango Dream";
-            let rec2 = "Full Body Fragrance Oil in Citrus Zest";
-            let butterImg = "assets/mango_dream_butter.jpg";
-            let oilImg = "assets/citrus_zest_oil.jpg";
-            
-            if (answers[0] === "1") {
-                rec = "Luxury Body Butter Glaze in Rose Petal";
-                butterImg = "assets/rose_petal_butter.jpg";
-            }
-            if (answers[1] === "1") {
-                rec2 = "Full Body Fragrance Oil in Amber Spice";
-                oilImg = "assets/amber_spice_oil.jpg";
-            }
+            let butterScent = (answers[0] === "1") ? "Rose Petal" : "Mango Dream";
+            let oilScent = (answers[1] === "1") ? "Amber Spice" : "Citrus Zest";
+            const butterImg = butterImages[butterScent] || "assets/mango_dream_butter.jpg";
+            const oilImg = oilImages[oilScent] || "assets/citrus_zest_oil.jpg";
+            const rec = `Luxury Body Butter Glaze — ${butterScent}`;
+            const rec2 = `Full Body Fragrance Oil — ${oilScent}`;
             
             modal.innerHTML = `
                 <div class="bg-white rounded-3xl max-w-lg w-full p-8 text-center">
@@ -856,7 +1304,7 @@
                         </div>
                     </div>
                     
-                    <button onclick="addRecommendedToCart('${rec}', '${rec2}', this)" 
+                    <button onclick="addRecommendedToCart('${butterScent}', '${oilScent}', this)" 
                             class="w-full bg-[#111111] hover:bg-black transition text-white font-semibold py-3.5 rounded-2xl">
                         ADD BOTH TO CART — $70
                     </button>
@@ -867,10 +1315,10 @@
             document.body.appendChild(modal);
         }
         
-        function addRecommendedToCart(rec1, rec2, btn) {
-            addToCart(rec1, 'butter', 38, rec1.includes('Butter') ? 'Mango Dream' : 'Rose Petal');
+        function addRecommendedToCart(butterScent, oilScent, btn) {
+            addToCart('Luxury Body Butter Glaze', 'butter', 38, butterScent);
             setTimeout(() => {
-                addToCart(rec2, 'oil', 32, rec2.includes('Oil') ? 'Citrus Zest' : 'Amber Spice');
+                addToCart('Full Body Fragrance Oil', 'oil', 32, oilScent);
             }, 250);
             
             btn.textContent = "ADDED! ✓";
@@ -892,9 +1340,23 @@
             const count = document.getElementById('cart-count');
             if (count) count.style.display = 'flex';
             
-            // Bonus: clicking logo goes home
-            console.log('%c[Herban Alchemy] Site initialized. Fenty layout + vibrant colorful energy applied.', 'color:#666');
+            // Launch modal after brief delay (if not dismissed before)
+            if (!localStorage.getItem('herbanLaunchDismissed')) {
+                setTimeout(showLaunchModal, 1200);
+            }
+
+            // Cookie banner after user has been on page a few seconds
+            if (!localStorage.getItem('herbanCookieConsent')) {
+                setTimeout(showCookieBanner, COOKIE_DELAY_MS);
+            }
         }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const launch = document.getElementById('launch-modal');
+                if (launch && !launch.classList.contains('hidden')) dismissLaunchModal();
+            }
+        });
 
         // Boot
         window.onload = initializeEverything;
@@ -914,5 +1376,7 @@
             }
         }
     </script>
+    <script src="assets/skin-tone-experience.js"></script>
+    <script src="assets/glow-experience.js"></script>
 </body>
 </html>

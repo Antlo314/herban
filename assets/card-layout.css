@@ -1,0 +1,151 @@
+/**
+ * Herban card system — image fills media box; text never stacks on imagery.
+ */
+
+.ha-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.ha-card-media {
+    position: relative;
+    flex-shrink: 0;
+    background: #f8f5f0;
+    overflow: hidden;
+}
+
+.ha-card-media--dark {
+    background: #0d0d0d;
+}
+
+.ha-card-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.ha-card-frame--wide {
+    aspect-ratio: 4 / 5;
+}
+
+.ha-card-frame--hero {
+    aspect-ratio: 5 / 6;
+}
+
+@media (min-width: 768px) {
+    .ha-card-frame--hero {
+        aspect-ratio: 4 / 5;
+    }
+}
+
+.ha-card-img,
+.ha-card-frame .gallery-main {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    min-height: 100%;
+    object-fit: cover;
+    object-position: center top;
+}
+
+.ha-card-wrap:hover .ha-card-img {
+    transform: scale(1.03);
+}
+
+.ha-card-frame .ha-card-img {
+    transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ha-card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Product gallery — stacked, no absolute overlays on image */
+.product-gallery {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.product-gallery .gallery-media {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    background: #f8f5f0;
+}
+
+.product-gallery .gallery-main {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: center top;
+}
+
+.product-gallery .gallery-label {
+    display: none;
+}
+
+.product-gallery .gallery-thumbs-row {
+    position: static;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 0.75rem;
+    background: #f9f7f4;
+    border-top: 1px solid #e8e4de;
+}
+
+.product-gallery--dark .gallery-thumbs-row {
+    background: rgba(0, 0, 0, 0.35);
+    border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+.product-gallery .gallery-thumb {
+    flex-shrink: 0;
+}
+
+.product-gallery .gallery-prev,
+.product-gallery .gallery-next {
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.ha-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.ha-card-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    border-radius: 9999px;
+    line-height: 1.2;
+}
+
+.ha-scent-card .ha-card-frame {
+    aspect-ratio: 1 / 1;
+}
+
+.ha-scent-card .ha-card-img {
+    object-position: center center;
+}

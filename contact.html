@@ -361,6 +361,7 @@
         </div>
     </div>
 
+    <script src="assets/cart-images.js"></script>
     <script>
         // Tailwind config
         function initializeTailwind() {
@@ -376,6 +377,46 @@
 
         // Simple Cart (shared)
         let cart = JSON.parse(localStorage.getItem('herbanCart') || '[]');
+
+        // Scent to image mapping for cart (and future adds) - keeps cart images matching the chosen scent
+        const butterImages = {
+            "Mango Dream": "assets/mango_dream_butter.jpg",
+            "Vanilla Orchid": "assets/vanilla_orchid_butter.jpg",
+            "Citrus Zest": "assets/citrus_zest_butter.jpg",
+            "Lavender Haze": "assets/lavender_haze_butter.jpg",
+            "Amber Spice": "assets/amber_spice_butter.jpg",
+            "Rose Petal": "assets/rose_petal_butter.jpg",
+            "Coconut Kiss": "assets/coconut_kiss_butter.jpg",
+            "Eucalyptus Fresh": "assets/eucalyptus_fresh_butter.jpg",
+            "Jasmine Nights": "assets/jasmine_nights_butter.jpg",
+            "Sandalwood Warm": "assets/sandalwood_warm_butter.jpg",
+            "Grapefruit Glow": "assets/grapefruit_glow_butter.jpg",
+            "Patchouli Earth": "assets/patchouli_earth_butter.jpg"
+        };
+        const oilImages = {
+            "Mango Dream": "assets/mango_dream_oil.jpg",
+            "Vanilla Orchid": "assets/vanilla_orchid_oil.jpg",
+            "Citrus Zest": "assets/citrus_zest_oil.jpg",
+            "Amber Spice": "assets/amber_spice_oil.jpg",
+            "Rose Petal": "assets/rose_petal_oil.jpg",
+            "Coconut Kiss": "assets/coconut_kiss_oil.jpg",
+            "Sandalwood Warm": "assets/sandalwood_warm_oil.jpg",
+            "Grapefruit Glow": "assets/grapefruit_glow_oil.jpg",
+            "Ylang Ylang": "assets/ylang_ylang_oil.jpg",
+            "Tonka Bean": "assets/tonka_bean_oil.jpg",
+            "Fig Leaf": "assets/fig_leaf_oil.jpg",
+            "Oud & Saffron": "assets/oud_saffron_oil.jpg",
+            "Blue Lotus": "assets/blue_lotus_oil.jpg",
+            "White Tea": "assets/white_tea_oil.jpg",
+            "Lavender Haze": "assets/lavender_haze_oil.jpg"
+        };
+
+        function getCartImage(item) {
+            if (window.HERBAN_CART_IMAGES) return window.HERBAN_CART_IMAGES.getCartImage(item);
+            if (!item || !item.scent) return 'assets/herban.jpg';
+            const map = item.type === 'butter' ? butterImages : oilImages;
+            return map[item.scent] || (item.type === 'butter' ? 'assets/amber_spice_butter.jpg' : 'assets/mango_dream_oil.jpg');
+        }
 
         function updateCartCount() {
             const countEls = document.querySelectorAll('#cart-count, #cart-count-header');
@@ -406,7 +447,7 @@
                     el.className = 'flex gap-3 border-b pb-4';
                     el.innerHTML = `
                         <div class="w-14 h-14 bg-gray-100 rounded-xl flex-shrink-0 overflow-hidden">
-                            <img src="assets/herban.jpg" class="w-full h-full object-cover">
+                            <img src="${getCartImage(item)}" class="w-full h-full object-cover" alt="${item.scent || item.name}">
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="font-medium">${item.name}</div>
