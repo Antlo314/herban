@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shipping &amp; Returns • Herban Alchemy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&amp;family=Inter:wght@300;400;500;600&amp;display=swap');
+        
+        body {
+            font-family: 'Inter', system_ui, sans-serif;
+        }
+        
+        .heading-serif {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+        }
+
+        .herban-logo {
+            font-weight: 900;
+            letter-spacing: -0.05em;
+        }
+
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 1.5px;
+            bottom: -2px;
+            left: 0;
+            background-color: #111111;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover:after {
+            width: 100%;
+        }
+
+        .policy-section {
+            scroll-margin-top: 80px;
+        }
+    </style>
+</head>
+<body class="bg-white text-[#111111]">
+    <!-- Top Bar -->
+    <div class="bg-[#111111] text-white text-xs py-2 px-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-x-4">
+                <span class="hidden md:inline">FREE shipping on orders over $65</span>
+            </div>
+            <div class="flex items-center gap-x-4 text-[10px]">
+                <a href="#" class="hover:underline">TRACK ORDER</a>
+                <span>|</span>
+                <a href="contact.html#chat" class="hover:underline">LIVE CHAT</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-gray-100 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex items-center justify-between px-6 py-5">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="index.html" class="flex items-center gap-x-3">
+                        <img src="assets/herban.jpg" alt="Herban Alchemy Logo" class="h-9 w-9 object-contain rounded-full border border-gray-200" onerror="this.style.display='none'">
+                        <div>
+                            <div class="herban-logo text-2xl tracking-tighter font-black">HERBAN</div>
+                            <div class="text-[9px] text-[#C5A26F] -mt-1.5 font-medium tracking-[2px]">ALCHEMY</div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Desktop Nav -->
+                <div class="hidden md:flex items-center gap-x-8 text-sm font-medium">
+                    <a href="index.html" class="nav-link">Home</a>
+                    <a href="shop.html" class="nav-link">Shop</a>
+                    <a href="ingredients.html" class="nav-link">Ingredients</a>
+                    <a href="about.html" class="nav-link">About</a>
+                    <a href="journal.html" class="nav-link">Journal</a>
+                    <a href="index.html#quiz" class="nav-link">Find Your Scent</a>
+                </div>
+
+                <div class="flex items-center gap-x-3">
+                    <!-- Search -->
+                    <div class="hidden md:block relative w-64">
+                        <input type="text" 
+                               placeholder="Search scents or products..." 
+                               class="w-full bg-gray-50 border border-gray-200 rounded-full py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-[#C5A26F]">
+                        <i class="fa-solid fa-search absolute left-4 top-3 text-gray-400 text-sm"></i>
+                    </div>
+
+                    <!-- Account -->
+                    <button class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                        <i class="fa-regular fa-user text-xl"></i>
+                    </button>
+
+                    <!-- Instagram -->
+                    <a href="https://www.instagram.com/herban_alchemynaturalskincare" target="_blank" class="p-2 hover:bg-gray-100 rounded-full transition-colors text-xl">
+                        <i class="fa-brands fa-instagram"></i>
+                    </a>
+
+                    <!-- Cart -->
+                    <button onclick="showCart()" 
+                            class="flex items-center gap-x-1.5 px-4 py-2 hover:bg-gray-100 rounded-full transition-colors relative">
+                        <i class="fa-solid fa-shopping-bag text-xl"></i>
+                        <span id="cart-count" 
+                              class="absolute -top-1 -right-1 bg-[#FF2E63] text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">0</span>
+                        <span class="hidden md:inline text-sm font-medium">Cart</span>
+                    </button>
+
+                    <!-- Mobile Menu Button -->
+                    <button onclick="toggleMobileMenu()" class="md:hidden p-2">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white border-b">
+        <div class="px-6 py-4 space-y-2 text-sm">
+            <a href="index.html" class="block py-2 hover:text-[#C5A26F]">Home</a>
+            <a href="shop.html" class="block py-2 hover:text-[#C5A26F]">Shop</a>
+            <a href="ingredients.html" class="block py-2 hover:text-[#C5A26F]">Ingredients</a>
+            <a href="about.html" class="block py-2 hover:text-[#C5A26F]">About</a>
+            <a href="journal.html" class="block py-2 hover:text-[#C5A26F]">Journal</a>
+            <a href="index.html#quiz" class="block py-2 hover:text-[#C5A26F]">Find Your Scent</a>
+            <div class="pt-2 border-t flex items-center gap-4">
+                <a href="https://www.instagram.com/herban_alchemynaturalskincare" target="_blank" class="text-xl"><i class="fa-brands fa-instagram"></i></a>
+                <button onclick="showCart(); toggleMobileMenu();" class="text-sm">Cart</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Header -->
+    <div class="bg-[#F9F7F4] py-16">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <div class="uppercase text-xs tracking-[3px] text-[#C5A26F] font-semibold mb-2">POLICIES</div>
+            <h1 class="text-6xl font-black tracking-[-2.5px]">Shipping &amp; Returns</h1>
+            <p class="mt-4 text-xl text-gray-600 max-w-md mx-auto">Clear, fair, and designed to make your glow journey effortless.</p>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto px-6 py-16">
+        <div class="prose prose-lg max-w-none text-gray-700">
+            
+            <!-- Shipping -->
+            <div id="shipping" class="policy-section mb-16">
+                <h2 class="text-3xl font-semibold tracking-tight text-[#111] mb-6">Shipping Policy</h2>
+                
+                <div class="space-y-8">
+                    <div>
+                        <h3 class="font-semibold text-xl mb-3">Domestic Shipping (United States)</h3>
+                        <ul class="list-disc pl-5 space-y-2 text-sm">
+                            <li>Standard Shipping: 3–7 business days • $8 (Free on orders $65+)</li>
+                            <li>Expedited Shipping: 2–3 business days • $15</li>
+                            <li>Next Day Delivery: Order by 12pm EST • $25 (available in select areas)</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3 class="font-semibold text-xl mb-3">International Shipping</h3>
+                        <p class="text-sm mb-2">We ship to Canada, UK, EU, and select countries. Rates and delivery times vary by location (typically 7–14 business days).</p>
+                        <ul class="list-disc pl-5 space-y-1 text-sm">
+                            <li>Canada: Starting at $18 USD</li>
+                            <li>UK / EU: Starting at $22 USD</li>
+                            <li>Rest of World: Starting at $28 USD</li>
+                        </ul>
+                        <p class="text-xs text-gray-500 mt-2">Duties and taxes may apply and are the responsibility of the customer.</p>
+                    </div>
+
+                    <div>
+                        <h3 class="font-semibold text-xl mb-3">Processing Time</h3>
+                        <p class="text-sm">All orders are processed within 1–2 business days (excluding weekends and holidays). You will receive a shipping confirmation email with tracking once your order has shipped.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Returns -->
+            <div id="returns" class="policy-section mb-16">
+                <h2 class="text-3xl font-semibold tracking-tight text-[#111] mb-6">Returns &amp; Exchanges</h2>
+                
+                <div class="space-y-8">
+                    <div>
+                        <h3 class="font-semibold text-xl mb-3">30-Day Satisfaction Guarantee</h3>
+                        <p class="text-sm">We want you to love your rituals. If you're not completely satisfied, you may return or exchange unopened products within 30 days of delivery.</p>
+                    </div>
+
+                    <div>
+                        <h3 class="font-semibold text-xl mb-3">Return Process</h3>
+                        <ol class="list-decimal pl-5 space-y-2 text-sm">
+                            <li>Email <a href="mailto:hello@herbanalchemy.com" class="text-[#C5A26F] underline">hello@herbanalchemy.com</a> with your order number and reason.</li>
+                            <li>We will send you a prepaid return label (US only) or instructions.</li>
+                            <li>Return the product(s) in original packaging.</li>
+                            <li>Once received and inspected, we will issue a refund to your original payment method within 5–7 business days.</li>
+                        </ol>
+                    </div>
+
+                    <div>
+                        <h3 class="font-semibold text-xl mb-3">Exchanges</h3>
+                        <p class="text-sm">We’re happy to exchange for a different scent or product of equal value. Just let us know in your return request.</p>
+                    </div>
+
+                    <div class="bg-[#F9F7F4] p-6 rounded-2xl text-sm">
+                        <strong class="block mb-2">What cannot be returned:</strong>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li>Opened or used products (for hygiene reasons)</li>
+                            <li>Gift cards</li>
+                            <li>Products purchased during final sale events</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Refunds -->
+            <div class="policy-section">
+                <h2 class="text-3xl font-semibold tracking-tight text-[#111] mb-6">Refunds</h2>
+                <div class="space-y-4 text-sm">
+                    <p>Refunds will be issued to the original form of payment. Please allow 3–5 business days for the refund to appear on your statement (longer for some credit cards or international orders).</p>
+                    
+                    <p>If your return is approved, you will receive a confirmation email.</p>
+                </div>
+            </div>
+
+            <div class="mt-12 pt-8 border-t text-xs text-gray-500">
+                <p>Have more questions? Visit our <a href="contact.html" class="text-[#C5A26F] underline">Contact page</a> or start a <a href="contact.html#chat" class="text-[#C5A26F] underline">Live Chat</a>.</p>
+                <p class="mt-1">This page is a placeholder. Final legal language will be reviewed by our team before launch.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t bg-white py-12">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-y-10 text-sm">
+            <div>
+                <div class="font-black tracking-tighter text-xl mb-4">HERBAN ALCHEMY</div>
+                <div class="text-xs text-gray-500">Luxury body care for melanated skin.</div>
+            </div>
+            <div class="space-y-1.5 text-sm">
+                <div><a href="shop.html" class="hover:text-[#C5A26F]">Shop</a></div>
+                <div><a href="ingredients.html" class="hover:text-[#C5A26F]">Ingredients</a></div>
+                <div><a href="about.html" class="hover:text-[#C5A26F]">Our Story</a></div>
+                <div><a href="journal.html" class="hover:text-[#C5A26F]">Journal</a></div>
+            </div>
+            <div class="space-y-1.5 text-sm">
+                <div><a href="index.html#quiz" class="hover:text-[#C5A26F]">Find Your Scent</a></div>
+                <div><a href="shipping-returns.html" class="hover:text-[#C5A26F]">Shipping &amp; Returns</a></div>
+                <div><a href="contact.html" class="hover:text-[#C5A26F]">Contact</a></div>
+                <div><a href="contact.html#chat" class="hover:text-[#C5A26F]">Chat with us</a></div>
+            </div>
+            <div>
+                <div class="font-medium mb-2">Stay in the glow.</div>
+                <div class="flex mb-3">
+                    <input type="email" placeholder="Your email" class="flex-1 border border-gray-300 px-3 py-2 text-sm rounded-l-lg focus:outline-none">
+                    <button class="bg-[#111111] text-white px-5 rounded-r-lg text-sm font-semibold">JOIN</button>
+                </div>
+                <div class="flex items-center gap-x-3 text-lg">
+                    <a href="https://www.instagram.com/herban_alchemynaturalskincare" target="_blank" class="hover:text-[#C5A26F]"><i class="fa-brands fa-instagram"></i></a>
+                </div>
+                <div class="text-[10px] text-gray-400 mt-4">© Herban Alchemy 2026. All rights reserved.</div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Simple Cart Drawer -->
+    <div id="cart-drawer" onclick="if (event.target.id === 'cart-drawer') hideCart()" class="hidden fixed inset-0 bg-black/50 z-[100]">
+        <div onclick="event.stopImmediatePropagation()" class="absolute right-0 top-0 h-full w-full max-w-md bg-white p-6 shadow-2xl flex flex-col">
+            <div class="flex justify-between items-center mb-6">
+                <div class="font-semibold text-xl">Your Cart</div>
+                <button onclick="hideCart()" class="text-2xl leading-none">&times;</button>
+            </div>
+            
+            <div id="cart-items" class="flex-1 overflow-auto space-y-5 text-sm">
+                <div class="text-center py-8 text-gray-400">Your cart is empty.</div>
+            </div>
+            
+            <div class="border-t pt-5 mt-auto">
+                <div class="flex justify-between font-semibold text-lg mb-4">
+                    <span>Total</span>
+                    <span id="cart-total">$0</span>
+                </div>
+                
+                <button onclick="checkout()" 
+                        class="w-full bg-[#111111] hover:bg-black text-white py-4 rounded-2xl font-semibold tracking-wider">
+                    CHECKOUT
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function initializeTailwind() {
+            document.documentElement.style.setProperty('--accent-gold', '#C5A26F');
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+            menu.classList.toggle('block');
+        }
+
+        let cart = JSON.parse(localStorage.getItem('herbanCart') || '[]');
+
+        function updateCartCount() {
+            const countEls = document.querySelectorAll('#cart-count, #cart-count-header');
+            const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+            countEls.forEach(el => {
+                if (el) {
+                    el.textContent = totalItems;
+                    el.style.display = totalItems > 0 ? 'flex' : 'none';
+                }
+            });
+        }
+
+        function showCart() {
+            const drawer = document.getElementById('cart-drawer');
+            const itemsContainer = document.getElementById('cart-items');
+            const totalEl = document.getElementById('cart-total');
+            
+            itemsContainer.innerHTML = '';
+            
+            if (cart.length === 0) {
+                itemsContainer.innerHTML = `<div class="text-center py-10 text-gray-400">Your cart is empty.<br><a href="shop.html" class="text-[#111] underline">Start shopping</a></div>`;
+                totalEl.textContent = '$0';
+            } else {
+                let total = 0;
+                cart.forEach((item, index) => {
+                    total += item.price * item.qty;
+                    const el = document.createElement('div');
+                    el.className = 'flex gap-3 border-b pb-4';
+                    el.innerHTML = `
+                        <div class="w-14 h-14 bg-gray-100 rounded-xl flex-shrink-0 overflow-hidden">
+                            <img src="assets/herban.jpg" class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="font-medium">${item.name}</div>
+                            <div class="text-xs text-gray-500">${item.scent ? item.scent + ' • ' : ''}${item.type}</div>
+                            
+                            <div class="flex items-center justify-between mt-2">
+                                <div class="flex items-center border rounded">
+                                    <button onclick="changeQty(${index}, -1)" class="px-2 py-px text-lg leading-none">-</button>
+                                    <span class="px-2.5 text-sm font-medium">${item.qty}</span>
+                                    <button onclick="changeQty(${index}, 1)" class="px-2 py-px text-lg leading-none">+</button>
+                                </div>
+                                <div class="font-semibold">$${(item.price * item.qty).toFixed(0)}</div>
+                            </div>
+                        </div>
+                        <button onclick="removeFromCart(${index})" class="text-gray-300 hover:text-red-500 text-xl leading-none self-start">×</button>
+                    `;
+                    itemsContainer.appendChild(el);
+                });
+                totalEl.textContent = '$' + total;
+            }
+            
+            drawer.classList.remove('hidden');
+            drawer.classList.add('flex');
+        }
+
+        function changeQty(index, delta) {
+            cart[index].qty += delta;
+            if (cart[index].qty < 1) cart[index].qty = 1;
+            localStorage.setItem('herbanCart', JSON.stringify(cart));
+            showCart();
+            updateCartCount();
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            localStorage.setItem('herbanCart', JSON.stringify(cart));
+            showCart();
+            updateCartCount();
+        }
+
+        function hideCart() {
+            const drawer = document.getElementById('cart-drawer');
+            drawer.classList.add('hidden');
+            drawer.classList.remove('flex');
+        }
+
+        function checkout() {
+            const total = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+            alert(`Thank you! This is a demo checkout.\n\nYour order total would be $${total}.\n\nIn a real build we would integrate Stripe / Shopify checkout here.`);
+            cart = [];
+            localStorage.setItem('herbanCart', '[]');
+            updateCartCount();
+            hideCart();
+        }
+
+        function initializeEverything() {
+            initializeTailwind();
+            updateCartCount();
+            
+            const count = document.getElementById('cart-count');
+            if (count) count.style.display = 'flex';
+            
+            console.log('%c[Herban Alchemy] Shipping & Returns page ready (placeholder).', 'color:#666');
+        }
+
+        window.onload = initializeEverything;
+    </script>
+</body>
+</html>
