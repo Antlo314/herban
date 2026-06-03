@@ -188,11 +188,14 @@
 
     <!-- HERO - Fenty Style: Large, Vibrant, Bold -->
     <header class="relative h-[92vh] min-h-[620px] flex items-center bg-[#111111] overflow-hidden">
-        <!-- Background vibrant image treatment (using provided asset style) -->
-        <div class="absolute inset-0 bg-cover bg-center" 
-             style="background-image: url('assets/herban3.jpg'); background-position: center 30%;">
-            <div class="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-black/30"></div>
-        </div>
+        <!-- 720p Video Background - vibrant colorful no text -->
+        <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover" style="object-position: center 30%;">
+            <source src="assets/hero_background.mp4" type="video/mp4">
+        </video>
+        <!-- Stronger overlay for text readability over video -->
+        <div class="absolute inset-0 bg-gradient-to-r from-black/75 via-black/55 to-black/35"></div>
+        <!-- Additional left panel for text contrast -->
+        <div class="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent md:w-2/3"></div>
         
         <div class="relative max-w-5xl mx-auto px-6 text-white">
             <div class="max-w-xl">
@@ -774,9 +777,17 @@
             
             let rec = "Luxury Body Butter Glaze in Mango Dream";
             let rec2 = "Full Body Fragrance Oil in Citrus Zest";
+            let butterImg = "assets/mango_dream_butter.jpg";
+            let oilImg = "assets/citrus_zest_oil.jpg";
             
-            if (answers[0] === "1") rec = "Luxury Body Butter Glaze in Rose Petal";
-            if (answers[1] === "1") rec2 = "Full Body Fragrance Oil in Amber Spice";
+            if (answers[0] === "1") {
+                rec = "Luxury Body Butter Glaze in Rose Petal";
+                butterImg = "assets/rose_petal_butter.jpg";
+            }
+            if (answers[1] === "1") {
+                rec2 = "Full Body Fragrance Oil in Amber Spice";
+                oilImg = "assets/amber_spice_oil.jpg";
+            }
             
             modal.innerHTML = `
                 <div class="bg-white rounded-3xl max-w-lg w-full p-8 text-center">
@@ -787,13 +798,19 @@
                     <h3 class="font-black text-3xl">Your perfect ritual:</h3>
                     
                     <div class="my-6 space-y-3 text-left max-w-xs mx-auto">
-                        <div class="bg-[#F9F7F4] rounded-2xl p-4">
-                            <div class="font-semibold">1. ${rec}</div>
-                            <div class="text-xs mt-1 text-gray-500">The rich, creamy hero for deep nourishment</div>
+                        <div class="bg-[#F9F7F4] rounded-2xl p-4 flex gap-3">
+                            <img src="${butterImg}" class="w-16 h-16 object-cover rounded-xl flex-shrink-0" alt="Recommended Butter">
+                            <div>
+                                <div class="font-semibold">1. ${rec}</div>
+                                <div class="text-xs mt-1 text-gray-500">The rich, creamy hero for deep nourishment</div>
+                            </div>
                         </div>
-                        <div class="bg-[#F9F7F4] rounded-2xl p-4">
-                            <div class="font-semibold">2. ${rec2}</div>
-                            <div class="text-xs mt-1 text-gray-500">Lightweight layer for all-day scent + glow</div>
+                        <div class="bg-[#F9F7F4] rounded-2xl p-4 flex gap-3">
+                            <img src="${oilImg}" class="w-16 h-16 object-cover rounded-xl flex-shrink-0" alt="Recommended Oil">
+                            <div>
+                                <div class="font-semibold">2. ${rec2}</div>
+                                <div class="text-xs mt-1 text-gray-500">Lightweight layer for all-day scent + glow</div>
+                            </div>
                         </div>
                     </div>
                     
