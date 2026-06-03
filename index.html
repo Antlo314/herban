@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Herban Alchemy • Luxury Body Care for Melanated Skin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&amp;family=Inter:wght@300;400;500;600&amp;display=swap');
+        
+        :root {
+            --gold: #C5A26F;
+        }
+        
+        body {
+            font-family: 'Inter', system_ui, sans-serif;
+        }
+        
+        .heading-serif {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+        }
+
+        .fenty-hero {
+            background: linear-gradient(rgba(0,0,0,0.15), rgba(0,0,0,0.25));
+        }
+
+        .product-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+
+        .vibrant-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .vibrant-btn:hover {
+            transform: scale(1.02);
+        }
+
+        .section-header {
+            letter-spacing: -0.03em;
+        }
+
+        .luxury-text {
+            color: #111111;
+        }
+
+        .gold-accent {
+            color: #C5A26F;
+        }
+
+        .herban-logo {
+            font-weight: 900;
+            letter-spacing: -0.05em;
+        }
+
+        .scent-chip {
+            transition: all 0.2s ease;
+        }
+        
+        .scent-chip.active {
+            background-color: #111111;
+            color: white;
+            border-color: #111111;
+        }
+
+        .fenty-grid {
+            scrollbar-width: thin;
+        }
+
+        .product-img {
+            transition: transform 0.5s ease;
+        }
+        
+        .product-card:hover .product-img {
+            transform: scale(1.04);
+        }
+
+        .vibrant-gradient {
+            background: linear-gradient(135deg, #FF2E63 0%, #FFC107 50%, #9C27B0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+            line-height: 1;
+        }
+
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 1.5px;
+            bottom: -2px;
+            left: 0;
+            background-color: #111111;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover:after {
+            width: 100%;
+        }
+
+        .fenty-product {
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+    </style>
+</head>
+<body class="bg-white text-[#111111] overflow-x-hidden">
+    <!-- Top Bar -->
+    <div class="bg-[#111111] text-white text-xs py-2 px-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-x-4">
+                <span class="hidden md:inline">FREE shipping on orders over $65</span>
+            </div>
+            <div class="flex items-center gap-x-4 text-[10px]">
+                <a href="#" class="hover:underline">TRACK ORDER</a>
+                <span>|</span>
+                <a href="#" class="hover:underline">CHAT WITH US</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation - Fenty Clean Style -->
+    <nav class="bg-white border-b border-gray-100 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex items-center justify-between px-6 py-5">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="index.html" class="flex items-center gap-x-3">
+                        <img src="assets/herban.jpg" alt="Herban Alchemy Logo" class="h-9 w-9 object-contain rounded-full border border-gray-200" onerror="this.style.display='none'">
+                        <div>
+                            <div class="herban-logo text-2xl tracking-tighter font-black">HERBAN</div>
+                            <div class="text-[9px] text-[#C5A26F] -mt-1.5 font-medium tracking-[2px]">ALCHEMY</div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Desktop Nav -->
+                <div class="hidden md:flex items-center gap-x-8 text-sm font-medium">
+                    <a href="index.html" class="nav-link">Home</a>
+                    <a href="shop.html" class="nav-link">Shop</a>
+                    <a href="ingredients.html" class="nav-link">Ingredients</a>
+                    <a href="about.html" class="nav-link">About</a>
+                    <a href="#quiz" class="nav-link">Find Your Scent</a>
+                </div>
+
+                <div class="flex items-center gap-x-3">
+                    <!-- Search -->
+                    <div class="hidden md:block relative w-64">
+                        <input type="text" 
+                               placeholder="Search scents or products..." 
+                               class="w-full bg-gray-50 border border-gray-200 rounded-full py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-[#C5A26F]">
+                        <i class="fa-solid fa-search absolute left-4 top-3 text-gray-400 text-sm"></i>
+                    </div>
+
+                    <!-- Account -->
+                    <button class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                        <i class="fa-regular fa-user text-xl"></i>
+                    </button>
+
+                    <!-- Cart -->
+                    <button onclick="showCart()" 
+                            class="flex items-center gap-x-1.5 px-4 py-2 hover:bg-gray-100 rounded-full transition-colors relative">
+                        <i class="fa-solid fa-shopping-bag text-xl"></i>
+                        <span id="cart-count" 
+                              class="absolute -top-1 -right-1 bg-[#FF2E63] text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">0</span>
+                        <span class="hidden md:inline text-sm font-medium">Cart</span>
+                    </button>
+
+                    <!-- Mobile Menu -->
+                    <button class="md:hidden p-2">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO - Fenty Style: Large, Vibrant, Bold -->
+    <header class="relative h-[92vh] min-h-[620px] flex items-center bg-[#111111] overflow-hidden">
+        <!-- Background vibrant image treatment (using provided asset style) -->
+        <div class="absolute inset-0 bg-cover bg-center" 
+             style="background-image: url('assets/herban3.jpg'); background-position: center 30%;">
+            <div class="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-black/30"></div>
+        </div>
+        
+        <div class="relative max-w-5xl mx-auto px-6 text-white">
+            <div class="max-w-xl">
+                <!-- Small badge -->
+                <div class="inline-flex items-center gap-x-2 bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-xs tracking-widest mb-6 border border-white/30">
+                    <span class="font-semibold">NEW SCENTS JUST DROPPED</span>
+                </div>
+
+                <h1 class="text-[72px] md:text-[86px] leading-[0.9] font-black tracking-[-4.5px] mb-4">
+                    THE<br>GLAZE.<br>THE GLOW.
+                </h1>
+                
+                <p class="text-2xl md:text-3xl font-light tracking-tight mb-8 max-w-md">
+                    Luxurious body care for melanated skin.<br>
+                    <span class="text-[#C5A26F]">Vibrant. Nourishing. Unforgettable.</span>
+                </p>
+
+                <div class="flex flex-wrap gap-4">
+                    <a href="shop.html" 
+                       class="vibrant-btn inline-flex items-center justify-center bg-white text-[#111111] hover:bg-[#C5A26F] hover:text-white font-semibold px-10 py-4 rounded-full text-base transition-all active:scale-[0.985]">
+                        SHOP THE COLLECTION
+                    </a>
+                    
+                    <a href="#quiz" 
+                       class="vibrant-btn inline-flex items-center justify-center border border-white/80 hover:bg-white hover:text-[#111111] font-medium px-8 py-4 rounded-full text-base transition-all">
+                        FIND YOUR SCENT <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+
+                <div class="mt-8 flex items-center gap-x-3 text-sm">
+                    <div class="flex -space-x-2">
+                        <div class="w-6 h-6 bg-white rounded-full border border-white overflow-hidden"><img src="assets/herban1.jpg" class="object-cover"></div>
+                        <div class="w-6 h-6 bg-white rounded-full border border-white overflow-hidden"><img src="assets/herban2.jpg" class="object-cover"></div>
+                    </div>
+                    <span class="text-white/80 text-xs tracking-wider">JOIN 12K+ GLOWING WOMEN</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scroll indicator -->
+        <div class="absolute bottom-8 left-1/2 hidden md:block">
+            <div class="flex flex-col items-center text-white/60 text-xs">
+                <span>SCROLL TO DISCOVER</span>
+                <i class="fa-solid fa-chevron-down mt-1"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- Trust Bar - Fenty Vibes -->
+    <div class="bg-white border-b py-3">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex flex-wrap items-center justify-center md:justify-between gap-x-8 gap-y-2 text-xs font-medium tracking-widest">
+                <div class="flex items-center gap-x-2">
+                    <i class="fa-solid fa-leaf text-[#C5A26F]"></i>
+                    <span>CLEAN • EFFECTIVE • FOR MELANATED SKIN</span>
+                </div>
+                <div>FAIR TRADE INGREDIENTS</div>
+                <div>PORTION OF EVERY SALE SUPPORTS URBAN YOUTH ENTREPRENEURSHIP</div>
+                <div class="hidden md:block">12 SCENTS • 2 HERO FORMULAS</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OUR HEROES - Fenty "SKINCARE STARS" Style -->
+    <section class="max-w-7xl mx-auto px-6 py-16">
+        <div class="flex items-end justify-between mb-8">
+            <div>
+                <div class="uppercase text-xs tracking-[3px] text-[#C5A26F] font-semibold mb-1">THE COLLECTION</div>
+                <h2 class="text-5xl font-black tracking-[-2.5px] section-header">Our Two Heroes.</h2>
+                <p class="text-xl text-gray-600 mt-1">Same luxury. Different expressions.</p>
+            </div>
+            <a href="shop.html" class="hidden md:inline-flex items-center text-sm font-semibold hover:text-[#C5A26F]">
+                SHOP ALL <i class="fa-solid fa-arrow-right-long ml-2"></i>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Body Butter Glaze Card -->
+            <div class="product-card group bg-white border border-gray-100 rounded-3xl overflow-hidden">
+                <div class="relative h-[420px] bg-[#F8F1E9]">
+                    <img src="assets/herban.jpg" alt="Herban Alchemy Luxury Body Butter Glaze" 
+                         class="product-img absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                    
+                    <div class="absolute top-5 right-5">
+                        <div class="bg-white px-4 py-1 rounded-full text-xs font-bold tracking-widest shadow">12 SCENTS</div>
+                    </div>
+                    
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6 text-white">
+                        <div class="flex items-center gap-x-2 mb-1">
+                            <span class="text-xs bg-white/90 text-black px-3 py-px rounded">BESTSELLER</span>
+                        </div>
+                        <h3 class="text-3xl font-black tracking-tight">LUXURY BODY BUTTER GLAZE</h3>
+                        <p class="text-sm opacity-90">Nourish • Hydrate • Glow</p>
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    <div class="flex justify-between items-baseline mb-4">
+                        <div>
+                            <span class="text-3xl font-semibold">$38</span>
+                            <span class="text-sm text-gray-500"> / 8 oz</span>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs text-[#C5A26F]">4.9 • 2.4k reviews</div>
+                        </div>
+                    </div>
+                    
+                    <a href="shop.html#butter" 
+                       class="block w-full text-center bg-[#111111] hover:bg-black text-white font-semibold py-3.5 rounded-2xl text-sm tracking-wider transition-all">
+                        SHOP ALL SCENTS
+                    </a>
+                    
+                    <p class="text-center text-[10px] text-gray-500 mt-3">Creamy • Non-greasy • Melts into skin</p>
+                </div>
+            </div>
+
+            <!-- Body Fragrance Oil Card -->
+            <div class="product-card group bg-white border border-gray-100 rounded-3xl overflow-hidden">
+                <div class="relative h-[420px] bg-gradient-to-br from-[#FFF5F0] to-white">
+                    <img src="assets/herban1.jpg" alt="Herban Alchemy Full Body Fragrance Oil" 
+                         class="product-img absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                    
+                    <div class="absolute top-5 right-5">
+                        <div class="bg-white px-4 py-1 rounded-full text-xs font-bold tracking-widest shadow">14 SCENTS</div>
+                    </div>
+                    
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6 text-white">
+                        <div class="flex items-center gap-x-2 mb-1">
+                            <span class="text-xs bg-white/90 text-black px-3 py-px rounded">NEW SHADES</span>
+                        </div>
+                        <h3 class="text-3xl font-black tracking-tight">FULL BODY FRAGRANCE OIL</h3>
+                        <p class="text-sm opacity-90">Lightweight. Long-lasting. Layerable.</p>
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    <div class="flex justify-between items-baseline mb-4">
+                        <div>
+                            <span class="text-3xl font-semibold">$32</span>
+                            <span class="text-sm text-gray-500"> / 2 oz</span>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs text-[#C5A26F]">4.8 • 1.1k reviews</div>
+                        </div>
+                    </div>
+                    
+                    <a href="shop.html#oil" 
+                       class="block w-full text-center border border-[#111111] hover:bg-[#111111] hover:text-white font-semibold py-3.5 rounded-2xl text-sm tracking-wider transition-all">
+                        SHOP ALL SCENTS
+                    </a>
+                    
+                    <p class="text-center text-[10px] text-gray-500 mt-3">Perfect for layering with the Glaze</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FENTY-STYLE "SKINCARE STARS" / SCENT HIGHLIGHTS -->
+    <section class="bg-[#F9F7F4] py-14">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex items-center justify-between mb-7">
+                <h2 class="text-4xl font-black tracking-[-1.5px]">Signature Scents.<br>Instant Obsession.</h2>
+                <a href="shop.html" class="text-sm font-semibold flex items-center gap-1 hover:text-[#C5A26F]">BROWSE ALL <i class="fa-solid fa-chevron-right text-xs"></i></a>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                <!-- Scent Cards - Colorful & Lively like Fenty -->
+                <div class="bg-white rounded-2xl p-4 shadow-sm product-card cursor-pointer" onclick="quickAddToCart('Mango Dream', 'butter')">
+                    <div class="h-40 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-xl mb-3 flex items-center justify-center overflow-hidden">
+                        <div class="text-center">
+                            <i class="fa-solid fa-sun text-white text-4xl mb-1"></i>
+                            <div class="text-white text-xs tracking-widest font-bold">MANGO DREAM</div>
+                        </div>
+                    </div>
+                    <div class="font-semibold">Mango Dream</div>
+                    <div class="text-xs text-gray-500">Body Butter Glaze • 8oz</div>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="font-semibold">$38</span>
+                        <span class="text-emerald-600 text-xs font-medium">BESTSELLER</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-4 shadow-sm product-card cursor-pointer" onclick="quickAddToCart('Vanilla Orchid', 'butter')">
+                    <div class="h-40 bg-gradient-to-br from-amber-200 to-orange-300 rounded-xl mb-3 flex items-center justify-center overflow-hidden relative">
+                        <div class="text-center text-[#3F2A1D]">
+                            <i class="fa-solid fa-cookie text-4xl mb-1 opacity-90"></i>
+                            <div class="text-xs tracking-widest font-bold">VANILLA ORCHID</div>
+                        </div>
+                    </div>
+                    <div class="font-semibold">Vanilla Orchid</div>
+                    <div class="text-xs text-gray-500">Body Butter Glaze • 8oz</div>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="font-semibold">$38</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-4 shadow-sm product-card cursor-pointer" onclick="quickAddToCart('Citrus Zest', 'oil')">
+                    <div class="h-40 bg-gradient-to-br from-lime-400 to-yellow-300 rounded-xl mb-3 flex items-center justify-center">
+                        <div class="text-center text-[#1F3A1F]">
+                            <i class="fa-solid fa-lemon text-4xl mb-1"></i>
+                            <div class="text-xs tracking-widest font-bold">CITRUS ZEST</div>
+                        </div>
+                    </div>
+                    <div class="font-semibold">Citrus Zest</div>
+                    <div class="text-xs text-gray-500">Full Body Oil • 2oz</div>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="font-semibold">$32</span>
+                        <span class="text-xs px-2 py-px bg-pink-100 text-pink-700 rounded">NEW</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-4 shadow-sm product-card cursor-pointer" onclick="quickAddToCart('Amber Spice', 'oil')">
+                    <div class="h-40 bg-gradient-to-br from-orange-700 to-amber-900 rounded-xl mb-3 flex items-center justify-center">
+                        <div class="text-white text-center">
+                            <i class="fa-solid fa-fire text-4xl mb-1"></i>
+                            <div class="text-xs tracking-widest font-bold">AMBER SPICE</div>
+                        </div>
+                    </div>
+                    <div class="font-semibold">Amber Spice</div>
+                    <div class="text-xs text-gray-500">Full Body Oil • 2oz</div>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="font-semibold">$32</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-4 shadow-sm product-card cursor-pointer" onclick="quickAddToCart('Rose Petal', 'butter')">
+                    <div class="h-40 bg-gradient-to-br from-pink-300 to-rose-400 rounded-xl mb-3 flex items-center justify-center">
+                        <div class="text-center text-pink-950">
+                            <i class="fa-solid fa-heart text-4xl mb-1"></i>
+                            <div class="text-xs tracking-widest font-bold">ROSE PETAL</div>
+                        </div>
+                    </div>
+                    <div class="font-semibold">Rose Petal</div>
+                    <div class="text-xs text-gray-500">Body Butter Glaze • 8oz</div>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="font-semibold">$38</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WHY HERBAN + FENTY ENERGY -->
+    <section class="max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-12 gap-x-8 items-center">
+        <div class="md:col-span-5">
+            <div class="uppercase text-xs font-semibold tracking-[2px] text-[#C5A26F]">FOR MELANATED SKIN</div>
+            <h2 class="text-6xl leading-none font-black tracking-[-3px] mt-2">Rich. Hydrated.<br>Glowing.</h2>
+            
+            <div class="mt-6 max-w-sm text-lg">
+                Clean, powerful botanicals chosen specifically because they deliver visible results on deeper skin tones.
+            </div>
+            
+            <div class="mt-8">
+                <a href="ingredients.html" class="inline-flex font-semibold items-center group">
+                    MEET THE INGREDIENTS 
+                    <span class="group-hover:translate-x-1 transition ml-1.5">→</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="md:col-span-7 mt-10 md:mt-0">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-white p-6 rounded-3xl border">
+                    <div class="text-[#C5A26F] text-xl mb-3"><i class="fa-solid fa-droplet"></i></div>
+                    <div class="font-semibold mb-1">Intense Hydration</div>
+                    <div class="text-sm text-gray-600">Cupuaçu butter holds 400% its weight in water. Your skin drinks it in.</div>
+                </div>
+                <div class="bg-white p-6 rounded-3xl border">
+                    <div class="text-[#C5A26F] text-xl mb-3"><i class="fa-solid fa-spa"></i></div>
+                    <div class="font-semibold mb-1">Nourish + Soften</div>
+                    <div class="text-sm text-gray-600">Mango butter + Vitamin E deliver antioxidants and repair for that lit-from-within glow.</div>
+                </div>
+                <div class="bg-white p-6 rounded-3xl border">
+                    <div class="text-[#C5A26F] text-xl mb-3"><i class="fa-solid fa-sun"></i></div>
+                    <div class="font-semibold mb-1">Healthy Radiant Glow</div>
+                    <div class="text-sm text-gray-600">Non-greasy. Fast absorbing. Leaves skin supple, never ashy.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FIND YOUR SCENT QUIZ TEASER (Fenty Routine Energy) -->
+    <section id="quiz" class="bg-[#111111] text-white py-14">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <div class="mx-auto w-fit px-5 py-1 bg-white/10 text-xs rounded-full tracking-widest mb-3">PERSONALIZED</div>
+            <h2 class="text-5xl font-black tracking-[-2px]">Find your perfect scent ritual.</h2>
+            <p class="mt-3 max-w-md mx-auto text-white/80">Answer a few questions. Get matched to the right Body Glaze + Oil combo for your skin + vibe.</p>
+            
+            <a href="#" onclick="startQuiz(); return false;" 
+               class="mt-8 inline-flex items-center bg-white text-black px-8 py-3.5 rounded-full font-semibold text-sm hover:bg-[#C5A26F] hover:text-white transition">
+                TAKE THE 60-SECOND QUIZ <i class="ml-2 fa-solid fa-magic"></i>
+            </a>
+            <div class="text-[10px] mt-2 text-white/50">Takes less than a minute • Instant results</div>
+        </div>
+    </section>
+
+    <!-- Impact / Values - Fenty Inclusive Tone -->
+    <section class="max-w-7xl mx-auto px-6 py-16">
+        <div class="max-w-3xl">
+            <h3 class="font-semibold text-sm tracking-[1.5px] text-[#C5A26F]">OUR PROMISE</h3>
+            <div class="text-4xl leading-tight font-semibold tracking-tight mt-3">
+                Potent botanicals. Fair trade. Real impact.
+            </div>
+        </div>
+        
+        <div class="grid md:grid-cols-2 gap-6 mt-9">
+            <div class="border-l-2 border-[#C5A26F] pl-5">
+                <div class="text-lg">We source directly from women farmers and producers across the globe at fair trade prices.</div>
+            </div>
+            <div>
+                A portion of every single sale goes to programs that teach urban youth entrepreneurial skills.
+                <div class="text-xs text-[#C5A26F] mt-4 font-semibold">BEAUTY THAT GIVES BACK • BUILT FOR US, BY US</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t bg-white py-12">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-y-10 text-sm">
+            <div>
+                <div class="font-black tracking-tighter text-xl mb-4">HERBAN ALCHEMY</div>
+                <div class="text-xs text-gray-500">Luxury body care for melanated skin.</div>
+            </div>
+            <div class="space-y-1.5 text-sm">
+                <div><a href="shop.html" class="hover:text-[#C5A26F]">Shop</a></div>
+                <div><a href="#ingredients" class="hover:text-[#C5A26F]">Ingredients</a></div>
+                <div><a href="about.html" class="hover:text-[#C5A26F]">Our Story</a></div>
+                <div><a href="#" class="hover:text-[#C5A26F]">Journal</a></div>
+            </div>
+            <div class="space-y-1.5 text-sm">
+                <div><a href="#" class="hover:text-[#C5A26F]">Find Your Scent</a></div>
+                <div><a href="#" class="hover:text-[#C5A26F]">Shipping &amp; Returns</a></div>
+                <div><a href="contact.html" class="hover:text-[#C5A26F]">Contact</a></div>
+                <div><a href="#" class="hover:text-[#C5A26F]">Chat with us</a></div>
+            </div>
+            <div>
+                <div class="font-medium mb-2">Stay in the glow.</div>
+                <div class="flex">
+                    <input type="email" placeholder="Your email" class="flex-1 border border-gray-300 px-3 py-2 text-sm rounded-l-lg focus:outline-none">
+                    <button class="bg-[#111111] text-white px-5 rounded-r-lg text-sm font-semibold">JOIN</button>
+                </div>
+                <div class="text-[10px] text-gray-400 mt-4">© Herban Alchemy 2026. All rights reserved.</div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Simple Cart Drawer -->
+    <div id="cart-drawer" onclick="if (event.target.id === 'cart-drawer') hideCart()" class="hidden fixed inset-0 bg-black/50 z-[100]">
+        <div onclick="event.stopImmediatePropagation()" class="absolute right-0 top-0 h-full w-full max-w-md bg-white p-6 shadow-2xl flex flex-col">
+            <div class="flex justify-between items-center mb-6">
+                <div class="font-semibold text-xl">Your Cart</div>
+                <button onclick="hideCart()" class="text-2xl leading-none">&times;</button>
+            </div>
+            
+            <div id="cart-items" class="flex-1 overflow-auto space-y-5 text-sm">
+                <!-- Populated by JS -->
+            </div>
+            
+            <div class="border-t pt-5 mt-auto">
+                <div class="flex justify-between font-semibold text-lg mb-4">
+                    <span>Total</span>
+                    <span id="cart-total">$0</span>
+                </div>
+                
+                <button onclick="checkout()" 
+                        class="w-full bg-[#111111] hover:bg-black text-white py-4 rounded-2xl font-semibold tracking-wider">
+                    CHECKOUT
+                </button>
+                <div class="text-center text-xs text-gray-400 mt-3">or 4 interest-free payments of $XX with Shop Pay</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tailwind script
+        function initializeTailwind() {
+            document.documentElement.style.setProperty('--accent-gold', '#C5A26F');
+        }
+
+        // Simple Cart System (localStorage)
+        let cart = JSON.parse(localStorage.getItem('herbanCart') || '[]');
+
+        function updateCartCount() {
+            const countEl = document.getElementById('cart-count');
+            const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+            countEl.textContent = totalItems;
+            countEl.style.display = totalItems > 0 ? 'flex' : 'none';
+        }
+
+        function addToCart(name, type, price, scent = '') {
+            const existing = cart.findIndex(item => item.name === name && item.scent === scent);
+            
+            if (existing > -1) {
+                cart[existing].qty += 1;
+            } else {
+                cart.push({ 
+                    id: Date.now(), 
+                    name, 
+                    type, 
+                    price, 
+                    scent: scent || '', 
+                    qty: 1 
+                });
+            }
+            
+            localStorage.setItem('herbanCart', JSON.stringify(cart));
+            updateCartCount();
+            
+            // Toast
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-5 right-5 bg-[#111111] text-white px-5 py-3 rounded-2xl flex items-center gap-x-3 text-sm shadow-xl z-[200]`;
+            toast.innerHTML = `
+                <span>Added <strong>${name}</strong> to cart</span>
+                <button onclick="this.parentElement.remove(); showCart()" class="underline text-[#C5A26F]">View cart</button>
+            `;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentElement) toast.parentElement.removeChild(toast);
+            }, 2800);
+        }
+
+        function quickAddToCart(scent, productType) {
+            const name = productType === 'butter' ? 'Luxury Body Butter Glaze' : 'Full Body Fragrance Oil';
+            const price = productType === 'butter' ? 38 : 32;
+            
+            addToCart(name, productType, price, scent);
+        }
+
+        function showCart() {
+            const drawer = document.getElementById('cart-drawer');
+            const itemsContainer = document.getElementById('cart-items');
+            const totalEl = document.getElementById('cart-total');
+            
+            itemsContainer.innerHTML = '';
+            
+            if (cart.length === 0) {
+                itemsContainer.innerHTML = `<div class="text-center py-10 text-gray-400">Your cart is empty.<br><a href="shop.html" class="text-[#111] underline">Start shopping</a></div>`;
+                totalEl.textContent = '$0';
+            } else {
+                let total = 0;
+                
+                cart.forEach((item, index) => {
+                    total += item.price * item.qty;
+                    
+                    const el = document.createElement('div');
+                    el.className = 'flex gap-3 border-b pb-4';
+                    el.innerHTML = `
+                        <div class="w-14 h-14 bg-gray-100 rounded-xl flex-shrink-0 overflow-hidden">
+                            <img src="assets/herban.jpg" class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="font-medium">${item.name}</div>
+                            <div class="text-xs text-gray-500">${item.scent ? item.scent + ' • ' : ''}${item.type}</div>
+                            
+                            <div class="flex items-center justify-between mt-2">
+                                <div class="flex items-center border rounded">
+                                    <button onclick="changeQty(${index}, -1)" class="px-2 py-px text-lg leading-none">-</button>
+                                    <span class="px-2.5 text-sm font-medium">${item.qty}</span>
+                                    <button onclick="changeQty(${index}, 1)" class="px-2 py-px text-lg leading-none">+</button>
+                                </div>
+                                
+                                <div class="font-semibold">$${(item.price * item.qty).toFixed(0)}</div>
+                            </div>
+                        </div>
+                        <button onclick="removeFromCart(${index})" class="text-gray-300 hover:text-red-500 text-xl leading-none self-start">×</button>
+                    `;
+                    itemsContainer.appendChild(el);
+                });
+                
+                totalEl.textContent = '$' + total;
+            }
+            
+            drawer.classList.remove('hidden');
+            drawer.classList.add('flex');
+        }
+
+        function changeQty(index, delta) {
+            cart[index].qty += delta;
+            if (cart[index].qty < 1) cart[index].qty = 1;
+            localStorage.setItem('herbanCart', JSON.stringify(cart));
+            showCart();
+            updateCartCount();
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            localStorage.setItem('herbanCart', JSON.stringify(cart));
+            showCart();
+            updateCartCount();
+        }
+
+        function hideCart() {
+            const drawer = document.getElementById('cart-drawer');
+            drawer.classList.add('hidden');
+            drawer.classList.remove('flex');
+        }
+
+        function checkout() {
+            const total = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+            alert(`Thank you! This is a demo checkout.\n\nYour order total would be $${total}.\n\nIn a real build we would integrate Stripe / Shopify checkout here.`);
+            // In real version: redirect to checkout page or open modal
+            cart = [];
+            localStorage.setItem('herbanCart', '[]');
+            updateCartCount();
+            hideCart();
+        }
+
+        // Simple Quiz (Fenty Routine energy)
+        function startQuiz() {
+            const questions = [
+                {
+                    q: "What is your main skin goal right now?",
+                    options: ["Intense hydration & moisture", "Correct dark spots & even tone", "All-day glow & softness", "Soothing + repair"]
+                },
+                {
+                    q: "Which texture do you prefer?",
+                    options: ["Rich & creamy butter", "Lightweight oil that sinks in fast", "I love both!"]
+                },
+                {
+                    q: "Pick a vibe for your scent:",
+                    options: ["Tropical & juicy (mango, citrus)", "Warm & cozy (vanilla, amber)", "Floral & fresh (rose, lavender)", "Spicy & sensual"]
+                }
+            ];
+            
+            let current = 0;
+            let answers = [];
+            
+            function showQ() {
+                const q = questions[current];
+                const modal = document.createElement('div');
+                modal.className = `fixed inset-0 bg-black/70 flex items-center justify-center z-[200] p-4`;
+                modal.innerHTML = `
+                    <div class="bg-white rounded-3xl max-w-md w-full p-7">
+                        <div class="text-xs text-gray-400 mb-1">QUESTION ${current + 1} OF ${questions.length}</div>
+                        <div class="font-semibold text-2xl mb-6">${q.q}</div>
+                        
+                        <div class="space-y-2.5">
+                            ${q.options.map((opt, i) => `
+                                <button class="w-full text-left border border-gray-200 hover:border-[#C5A26F] hover:bg-[#F9F7F4] px-5 py-3 rounded-2xl transition" data-opt="${i}">
+                                    ${opt}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+                
+                modal.querySelectorAll('button').forEach(btn => {
+                    btn.onclick = () => {
+                        answers.push(btn.dataset.opt);
+                        modal.remove();
+                        
+                        current++;
+                        if (current < questions.length) {
+                            showQ();
+                        } else {
+                            showResults(answers);
+                        }
+                    };
+                });
+            }
+            
+            showQ();
+        }
+        
+        function showResults(answers) {
+            const modal = document.createElement('div');
+            modal.className = `fixed inset-0 bg-black/70 flex items-center justify-center z-[200] p-4`;
+            
+            let rec = "Luxury Body Butter Glaze in Mango Dream";
+            let rec2 = "Full Body Fragrance Oil in Citrus Zest";
+            
+            if (answers[0] === "1") rec = "Luxury Body Butter Glaze in Rose Petal";
+            if (answers[1] === "1") rec2 = "Full Body Fragrance Oil in Amber Spice";
+            
+            modal.innerHTML = `
+                <div class="bg-white rounded-3xl max-w-lg w-full p-8 text-center">
+                    <div class="mx-auto w-16 h-16 bg-[#C5A26F] text-white flex items-center justify-center rounded-full mb-5">
+                        <i class="fa-solid fa-magic text-3xl"></i>
+                    </div>
+                    
+                    <h3 class="font-black text-3xl">Your perfect ritual:</h3>
+                    
+                    <div class="my-6 space-y-3 text-left max-w-xs mx-auto">
+                        <div class="bg-[#F9F7F4] rounded-2xl p-4">
+                            <div class="font-semibold">1. ${rec}</div>
+                            <div class="text-xs mt-1 text-gray-500">The rich, creamy hero for deep nourishment</div>
+                        </div>
+                        <div class="bg-[#F9F7F4] rounded-2xl p-4">
+                            <div class="font-semibold">2. ${rec2}</div>
+                            <div class="text-xs mt-1 text-gray-500">Lightweight layer for all-day scent + glow</div>
+                        </div>
+                    </div>
+                    
+                    <button onclick="addRecommendedToCart('${rec}', '${rec2}', this)" 
+                            class="w-full bg-[#111111] hover:bg-black transition text-white font-semibold py-3.5 rounded-2xl">
+                        ADD BOTH TO CART — $70
+                    </button>
+                    
+                    <div onclick="this.closest('.fixed').remove()" class="text-xs text-gray-400 mt-5 cursor-pointer">Maybe later</div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        function addRecommendedToCart(rec1, rec2, btn) {
+            addToCart(rec1, 'butter', 38, rec1.includes('Butter') ? 'Mango Dream' : 'Rose Petal');
+            setTimeout(() => {
+                addToCart(rec2, 'oil', 32, rec2.includes('Oil') ? 'Citrus Zest' : 'Amber Spice');
+            }, 250);
+            
+            btn.textContent = "ADDED! ✓";
+            setTimeout(() => {
+                btn.closest('.fixed').remove();
+                showCart();
+            }, 1100);
+        }
+
+        // Keyboard support + init
+        function initializeEverything() {
+            initializeTailwind();
+            updateCartCount();
+            
+            // Demo: prefill one item sometimes (remove in real)
+            // console.log('%c[Herban Alchemy] Fenty-inspired site ready. Assets loaded from herban2.0 folder.', 'color:#C5A26F');
+            
+            // Make sure cart count is visible if items
+            const count = document.getElementById('cart-count');
+            if (count) count.style.display = 'flex';
+            
+            // Bonus: clicking logo goes home
+            console.log('%c[Herban Alchemy] Site initialized. Fenty layout + vibrant colorful energy applied.', 'color:#666');
+        }
+
+        // Boot
+        window.onload = initializeEverything;
+        
+        // Expose a couple helpers for dev
+        window.herbanAddDemo = () => addToCart('Luxury Body Butter Glaze', 'butter', 38, 'Mango Dream');
+    </script>
+</body>
+</html>

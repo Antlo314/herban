@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop • Herban Alchemy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', system_ui, sans-serif; }
+        .heading-serif { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; letter-spacing: -0.03em; }
+        
+        .product-card { transition: transform .3s ease, box-shadow .3s ease; }
+        .product-card:hover { transform: translateY(-6px); box-shadow: 0 15px 20px -5px rgb(0 0 0 / 0.08); }
+        
+        .scent-option { transition: all 0.2s; }
+        .scent-option.active { border-color: #111; background: #111; color: white; }
+        
+        .fenty-card { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+    </style>
+</head>
+<body class="bg-white">
+    <!-- Nav (same as index) -->
+    <nav class="bg-white border-b sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-x-3">
+                <img src="assets/herban.jpg" class="h-8 w-8 rounded-full border" alt="Logo">
+                <div>
+                    <div class="text-xl font-black tracking-tighter">HERBAN</div>
+                    <div class="text-[8px] text-[#C5A26F] -mt-1 tracking-[1.5px]">ALCHEMY</div>
+                </div>
+            </a>
+
+            <div class="flex items-center gap-x-6 text-sm">
+                <a href="index.html" class="hover:text-[#C5A26F]">Home</a>
+                <a href="shop.html" class="font-semibold">Shop</a>
+                <a href="about.html">About</a>
+                <a href="index.html#quiz">Find Your Scent</a>
+                
+                <button onclick="showCart()" class="flex items-center gap-2 px-5 py-2 rounded-full border text-sm">
+                    <i class="fa-solid fa-shopping-bag"></i> 
+                    <span id="cart-count-header">0</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Shop Header - Fenty Bold -->
+    <div class="max-w-7xl mx-auto px-6 pt-10 pb-6">
+        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-y-4">
+            <div>
+                <div class="text-xs uppercase tracking-[3px] text-[#C5A26F]">THE COLLECTION</div>
+                <h1 class="text-6xl font-black tracking-[-3px]">Shop the Heroes</h1>
+            </div>
+            <div class="text-gray-500 max-w-xs text-sm">Two iconic formulas. Endless scent stories. Made for melanated skin.</div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="max-w-7xl mx-auto px-6 pb-5 flex items-center gap-x-3 text-sm border-b pb-6">
+        <div class="font-medium mr-3">Filter:</div>
+        
+        <button onclick="filterProducts('all')" class="active-filter px-4 py-1.5 rounded-full bg-[#111] text-white text-xs font-medium">ALL</button>
+        <button onclick="filterProducts('butter')" class="px-4 py-1.5 rounded-full border text-xs font-medium hover:bg-gray-50">BODY BUTTER GLAZE</button>
+        <button onclick="filterProducts('oil')" class="px-4 py-1.5 rounded-full border text-xs font-medium hover:bg-gray-50">FULL BODY OIL</button>
+        
+        <div class="flex-1"></div>
+        
+        <div class="text-xs text-gray-400">12+ scents available across both formulas</div>
+    </div>
+
+    <!-- Products Grid - Fenty Juicy Cards -->
+    <div class="max-w-7xl mx-auto px-6 py-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="products-grid">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+    <!-- Simple Product Modal -->
+    <div id="product-modal" onclick="if (event.target.id === 'product-modal') closeModal()" class="hidden fixed inset-0 bg-black/60 z-[90] flex items-center justify-center p-4">
+        <div onclick="event.stopImmediatePropagation()" class="bg-white w-full max-w-2xl rounded-3xl overflow-hidden">
+            <div class="flex flex-col md:flex-row">
+                <!-- Image side -->
+                <div class="md:w-5/12 bg-[#F8F5F0] p-8 flex items-center justify-center">
+                    <img id="modal-img" class="max-h-[320px] rounded-2xl shadow-xl" alt="">
+                </div>
+                
+                <!-- Info -->
+                <div class="p-7 md:p-8 flex-1">
+                    <div id="modal-badges" class="flex gap-2 mb-3"></div>
+                    
+                    <h3 id="modal-name" class="text-3xl font-black tracking-tight"></h3>
+                    <div id="modal-scent" class="text-[#C5A26F] font-semibold"></div>
+                    
+                    <div class="mt-4 flex items-baseline gap-x-2">
+                        <span id="modal-price" class="text-4xl font-semibold"></span>
+                        <span class="text-gray-400 text-sm">/ 8oz or 2oz</span>
+                    </div>
+                    
+                    <div class="my-5">
+                        <div class="text-xs font-medium mb-2 text-gray-500">CHOOSE YOUR SCENT</div>
+                        <div id="modal-scents" class="flex flex-wrap gap-2"></div>
+                    </div>
+                    
+                    <div class="flex gap-3">
+                        <button onclick="addCurrentToCart()" 
+                                class="flex-1 bg-[#111111] hover:bg-black text-white py-3 rounded-2xl font-semibold">ADD TO BAG</button>
+                        
+                        <button onclick="closeModal()" class="px-6 border border-gray-200 rounded-2xl text-sm font-medium">Close</button>
+                    </div>
+                    
+                    <div class="mt-5 text-[10px] text-gray-400">
+                        Ships in 1-2 business days • 30-day returns
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Product data - 2 main products, many scents
+        const products = [
+            {
+                id: 1,
+                type: 'butter',
+                name: "Luxury Body Butter Glaze",
+                price: 38,
+                size: "8 oz",
+                description: "Our signature whipped body butter. Deeply hydrates while leaving skin silky, never greasy.",
+                image: "assets/herban.jpg",
+                scents: ["Mango Dream", "Vanilla Orchid", "Citrus Zest", "Lavender Haze", "Amber Spice", "Rose Petal", "Coconut Kiss", "Eucalyptus Fresh", "Jasmine Nights", "Sandalwood Warm", "Grapefruit Glow", "Patchouli Earth"]
+            },
+            {
+                id: 2,
+                type: 'oil',
+                name: "Full Body Fragrance Oil",
+                price: 32,
+                size: "2 oz",
+                description: "Lightweight, fast-absorbing body oil. Perfect for layering or wearing alone for a soft, long-lasting scent.",
+                image: "assets/herban1.jpg",
+                scents: ["Mango Dream", "Vanilla Orchid", "Citrus Zest", "Amber Spice", "Rose Petal", "Coconut Kiss", "Sandalwood Warm", "Grapefruit Glow", "Ylang Ylang", "Tonka Bean", "Fig Leaf", "Oud & Saffron", "Blue Lotus", "White Tea"]
+            }
+        ];
+
+        let currentProduct = null;
+        let currentScent = '';
+        let cart = JSON.parse(localStorage.getItem('herbanCart') || '[]');
+
+        function renderProducts(filter = 'all') {
+            const grid = document.getElementById('products-grid');
+            grid.innerHTML = '';
+
+            let filtered = products;
+            if (filter === 'butter') filtered = products.filter(p => p.type === 'butter');
+            if (filter === 'oil') filtered = products.filter(p => p.type === 'oil');
+
+            filtered.forEach(product => {
+                const card = document.createElement('div');
+                card.className = `product-card bg-white border border-gray-100 rounded-3xl overflow-hidden fenty-card`;
+                
+                card.innerHTML = `
+                    <div class="relative">
+                        <img src="${product.image}" class="w-full h-80 object-cover" alt="${product.name}">
+                        
+                        <div class="absolute top-4 left-4">
+                            <span class="px-3 py-1 text-xs font-bold tracking-widest bg-white rounded-full shadow">${product.type.toUpperCase()}</span>
+                        </div>
+                        
+                        <div class="absolute top-4 right-4 px-3 py-px bg-white/95 text-xs font-bold rounded-full shadow">
+                            ${product.scents.length} SCENTS
+                        </div>
+                    </div>
+                    
+                    <div class="p-5">
+                        <div class="font-semibold text-xl">${product.name}</div>
+                        <div class="text-sm text-gray-500">${product.size} • $${product.price}</div>
+                        
+                        <div class="text-xs mt-3 text-gray-600 line-clamp-2">${product.description}</div>
+                        
+                        <div class="flex gap-2 mt-5">
+                            <button onclick="openProductModal(${product.id})" 
+                                    class="flex-1 bg-white border border-[#111] hover:bg-[#111] hover:text-white transition py-2.5 rounded-2xl text-sm font-semibold">
+                                SHOP SCENTS
+                            </button>
+                            
+                            <button onclick="quickAddFirstScent(${product.id}, event)" 
+                                    class="px-5 bg-[#111111] text-white rounded-2xl text-sm font-semibold">
+                                QUICK ADD
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterProducts(type) {
+            // Update active button styles
+            document.querySelectorAll('.active-filter, button[onclick*="filterProducts"]').forEach(b => b.classList.remove('bg-[#111]', 'text-white'));
+            
+            const btns = document.querySelectorAll('button[onclick*="filterProducts"]');
+            btns.forEach(b => {
+                if (b.textContent.toLowerCase().includes(type) || (type === 'all' && b.textContent.includes('ALL'))) {
+                    b.classList.add('bg-[#111]', 'text-white');
+                }
+            });
+            
+            renderProducts(type);
+        }
+
+        function openProductModal(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            currentProduct = product;
+            currentScent = product.scents[0];
+            
+            document.getElementById('modal-img').src = product.image;
+            document.getElementById('modal-name').innerHTML = product.name;
+            document.getElementById('modal-price').innerHTML = `$${product.price}`;
+            
+            // Badges
+            const badges = document.getElementById('modal-badges');
+            badges.innerHTML = `<span class="px-3 py-0.5 text-xs font-bold bg-emerald-100 text-emerald-700 rounded">FOR MELANATED SKIN</span>`;
+            
+            // Scent selector
+            const scentsContainer = document.getElementById('modal-scents');
+            scentsContainer.innerHTML = '';
+            
+            product.scents.forEach((scent, i) => {
+                const chip = document.createElement('div');
+                chip.className = `scent-option cursor-pointer text-xs border px-3 py-1.5 rounded-full ${i === 0 ? 'active border-[#111] bg-[#111] text-white' : 'border-gray-200 hover:border-gray-400'}`;
+                chip.textContent = scent;
+                
+                chip.onclick = () => {
+                    // deselect all
+                    scentsContainer.querySelectorAll('.scent-option').forEach(c => c.classList.remove('active', 'border-[#111]', 'bg-[#111]', 'text-white'));
+                    chip.classList.add('active', 'border-[#111]', 'bg-[#111]', 'text-white');
+                    currentScent = scent;
+                };
+                
+                scentsContainer.appendChild(chip);
+            });
+            
+            document.getElementById('product-modal').classList.remove('hidden');
+            document.getElementById('product-modal').classList.add('flex');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('product-modal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+
+        function addCurrentToCart() {
+            if (!currentProduct || !currentScent) return;
+            
+            const name = currentProduct.name;
+            addToCart(name, currentProduct.type, currentProduct.price, currentScent);
+            closeModal();
+        }
+
+        function quickAddFirstScent(productId, e) {
+            e.stopImmediatePropagation();
+            const product = products.find(p => p.id === productId);
+            addToCart(product.name, product.type, product.price, product.scents[0]);
+        }
+
+        // Cart functions (shared)
+        function addToCart(name, type, price, scent = '') {
+            let cart = JSON.parse(localStorage.getItem('herbanCart') || '[]');
+            
+            const existing = cart.findIndex(item => item.name === name && item.scent === scent);
+            
+            if (existing > -1) {
+                cart[existing].qty += 1;
+            } else {
+                cart.push({ id: Date.now(), name, type, price, scent, qty: 1 });
+            }
+            
+            localStorage.setItem('herbanCart', JSON.stringify(cart));
+            updateCartCount();
+            
+            // mini toast
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-6 right-6 bg-[#111] text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-2 text-sm z-[200]';
+            toast.innerHTML = `Added <strong>${scent ? scent + ' ' : ''}${name}</strong>`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 1800);
+        }
+
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('herbanCart') || '[]');
+            const total = cart.reduce((s, i) => s + i.qty, 0);
+            
+            const headerCount = document.getElementById('cart-count-header');
+            if (headerCount) headerCount.textContent = total;
+            
+            // also update index if exists
+            const mainCount = document.getElementById('cart-count');
+            if (mainCount) mainCount.textContent = total;
+        }
+
+        function showCart() {
+            window.location.href = 'index.html#cart'; // fallback, or implement drawer copy if wanted
+            // For full experience, user can go to index which has full cart drawer
+            alert('Cart drawer is on the homepage. Redirecting you there...');
+            window.location = 'index.html';
+        }
+
+        function initializeShop() {
+            renderProducts('all');
+            updateCartCount();
+            
+            // Activate first filter button
+            const allBtn = document.querySelector('button[onclick*="filterProducts(\'all\'"]');
+            if (allBtn) allBtn.classList.add('bg-[#111]', 'text-white');
+            
+            // Tailwind ready
+            console.log('%c[Herban Alchemy Shop] Fenty-inspired shop page loaded with 2 hero products + many scents.', 'color:#C5A26F');
+        }
+
+        window.onload = initializeShop;
+    </script>
+</body>
+</html>
