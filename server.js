@@ -180,7 +180,7 @@ app.post('/api/chat', async (req, res) => {
                     },
                     generationConfig: {
                         temperature: 0.7,
-                        maxOutputTokens: 500
+                        maxOutputTokens: 2048
                     }
                 })
             });
@@ -223,7 +223,7 @@ app.post('/api/chat', async (req, res) => {
                     model: 'gpt-4o-mini',
                     messages: messages,
                     temperature: 0.7,
-                    max_tokens: 500
+                    max_tokens: 2048
                 })
             });
 
