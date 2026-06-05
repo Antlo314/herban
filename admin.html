@@ -1618,13 +1618,20 @@
                 
                 if (res.ok) {
                     const data = await res.json();
-                    let replyText = data.reply.trim();
-                    
-                    if (replyText.startsWith('```')) {
-                        replyText = replyText.replace(/^```json\s*/i, '').replace(/```$/, '').trim();
+                    let replyText = (data.reply || '').trim();
+                    let parsedTheme;
+                    try {
+                        const firstBrace = replyText.indexOf('{');
+                        const lastBrace = replyText.lastIndexOf('}');
+                        if (firstBrace !== -1 && lastBrace !== -1) {
+                            replyText = replyText.substring(firstBrace, lastBrace + 1);
+                        }
+                        parsedTheme = JSON.parse(replyText);
+                    } catch (parseErr) {
+                        console.error('JSON Parse Error:', parseErr, 'Raw Response:', data.reply);
+                        alert('AI designed the theme but the output structure was invalid. Please try clicking "Generate Vibe" again.');
+                        return;
                     }
-                    
-                    const parsedTheme = JSON.parse(replyText);
                     
                     // Populate colors
                     document.getElementById('theme-primary').value = parsedTheme.primaryColor || '#111111';
