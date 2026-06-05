@@ -252,7 +252,7 @@ app.post('/api/generate-image', checkAuth, async (req, res) => {
         return res.status(400).json({ error: 'Prompt, target, and engine are required' });
     }
 
-    const validTargets = ['hero_male', 'hero_female', 'quiz_bg', 'journal_feat'];
+    const validTargets = ['hero', 'quiz_bg', 'journal_feat'];
     if (!validTargets.includes(target)) {
         return res.status(400).json({ error: 'Invalid image target specified' });
     }

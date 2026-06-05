@@ -7,14 +7,12 @@
     "textColor": "#111111",
     "fontPairing": "playfair-inter",
     "images": {
-      "hero_male": "",
-      "hero_female": "",
+      "hero": "assets/generated_hero.jpg",
       "quiz_bg": "",
       "journal_feat": ""
     },
     "imagePrompts": {
-      "hero_male": "A cinematic, close-up portrait of a handsome melanated man with glowing, hydrated skin, gently applying a rich facial oil. Bathed in moody, sensual twilight lighting with deep indigo and violet undertones. Soft shadows, high-end luxury skincare aesthetic, ethereal mist, photorealistic, 8k resolution.",
-      "hero_female": "An elegant, high-fashion portrait of a beautiful melanated woman with luminous, dewy skin, holding an exquisite dark glass dropper bottle. Soft, sensual lighting with a mystical purple and deep blue color grading. Shimmering water reflections on her skin, luxury spa atmosphere, hyper-detailed, 8k.",
+      "hero": "A cinematic, luxury lifestyle shot of high-end organic skincare bottles on an elegant travertine marble surface, bathed in warm sunset light, soft shadows, premium editorial aesthetics.",
       "quiz_bg": "A minimalist, abstract background texture of swirling dark orchid oil droplets and crushed lavender seeds in water, shot from above. Mystical deep blue and violet backlighting, soft focus, luxury beauty editorial style, clean and serene.",
       "journal_feat": "A luxury lifestyle flat-lay of dark violet glass skincare jars and bottles arranged on a polished black obsidian tray. Surrounded by delicate amethyst crystals and dried night-blooming jasmine flowers under soft, moody purple-tinted moonlight. High-end editorial photography."
     }

@@ -516,14 +516,9 @@
         const theme = currentConfig.theme;
         if (!theme || !theme.images) return;
 
-        const imgMale = document.getElementById('hero-img-male');
-        if (imgMale && theme.images.hero_male) {
-            imgMale.src = theme.images.hero_male;
-        }
-
-        const imgFemale = document.getElementById('hero-img-female');
-        if (imgFemale && theme.images.hero_female) {
-            imgFemale.src = theme.images.hero_female;
+        const imgHero = document.getElementById('hero-img');
+        if (imgHero && theme.images.hero) {
+            imgHero.src = theme.images.hero;
         }
 
         const quizSec = document.getElementById('quiz');
