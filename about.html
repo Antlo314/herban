@@ -2,7 +2,7 @@
 <html lang="en" class="w-full max-w-[100vw] overflow-x-hidden">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>About • Herban Alchemy</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -10,8 +10,10 @@
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600&display=swap');
         html, body { max-width: 100vw; overflow-x: hidden; width: 100%; }
         img, video { max-width: 100%; height: auto; }
-        body { font-family: 'Inter', system_ui, sans-serif; }
+        body { font-family: 'Inter', system_ui, sans-serif; -webkit-tap-highlight-color: transparent; padding-bottom: env(safe-area-inset-bottom, 0px); }
         .heading-serif { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; }
+        nav button, nav a { min-height: 44px; display: inline-flex; align-items: center; }
+        #mobile-menu a { min-height: 44px; display: flex; align-items: center; }
     </style>
 </head>
 <body class="bg-white text-[#111111] w-full max-w-[100vw] overflow-x-hidden">
@@ -122,8 +124,8 @@
         </div>
     </div>
 
-    <footer class="border-t bg-white py-12 md:py-20">
-        <div class="max-w-7xl mx-auto px-4 md:px-6 grid grid-cols-2 md:grid-cols-4 gap-x-8 md:gap-x-10 gap-y-12 md:gap-y-16 text-sm">
+    <footer class="border-t bg-white py-10 md:py-20" style="padding-bottom: max(2.5rem, env(safe-area-inset-bottom, 2.5rem))">
+        <div class="max-w-7xl mx-auto px-4 md:px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-8 md:gap-x-10 gap-y-10 md:gap-y-16 text-sm">
             <div>
                 <div class="font-black tracking-tighter text-xl mb-5">HERBAN ALCHEMY</div>
                 <div class="text-xs text-gray-500">Luxury body care for melanated skin.<br><span class="text-[#C5A26F]">HER-bən</span> · Urban Alchemy</div>
@@ -161,11 +163,23 @@
             if (menu.classList.contains('hidden')) {
                 menu.classList.remove('hidden');
                 menu.classList.add('block');
+                document.body.style.overflow = 'hidden';
             } else {
                 menu.classList.add('hidden');
                 menu.classList.remove('block');
+                document.body.style.overflow = '';
             }
         }
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('#mobile-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    const menu = document.getElementById('mobile-menu');
+                    menu.classList.add('hidden');
+                    menu.classList.remove('block');
+                    document.body.style.overflow = '';
+                });
+            });
+        });
     </script>
     <script src="assets/storefront-integration.js"></script>
 </body>

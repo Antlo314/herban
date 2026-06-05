@@ -2,7 +2,7 @@
 <html lang="en" class="w-full max-w-[100vw] overflow-x-hidden">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Herban Alchemy • Luxury Body Care for Melanated Skin</title>
     <link rel="preload" as="image" href="assets/models/model-mobile-hero.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -251,6 +251,72 @@
         .glow-layer-mid { z-index: 5; }
         .glow-layer-fg { z-index: 15; }
         .glow-layer-content { z-index: 25; }
+
+        /* ─── MOBILE OPTIMIZATIONS ─── */
+
+        /* Safe area support for notched / home-indicator phones */
+        body {
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Prevent hero title overflow on very narrow phones (320px) */
+        #hero-title {
+            font-size: clamp(2rem, 10vw, 4.375rem);
+            letter-spacing: clamp(-2px, -0.04em, -4px);
+            line-height: 0.9;
+        }
+
+        /* Quiz section heading clamp */
+        #quiz h2 {
+            font-size: clamp(1.75rem, 8vw, 3rem);
+            line-height: 1.1;
+        }
+
+        /* Trust bar: prevent long text from causing h-scroll */
+        .trust-bar-text {
+            word-break: break-word;
+            max-width: 100%;
+        }
+
+        /* Cart drawer: full width on tiny screens */
+        @media (max-width: 480px) {
+            #cart-drawer > div {
+                max-width: 100% !important;
+                border-radius: 1.25rem 0 0 0;
+            }
+        }
+
+        /* Toast: keep inside viewport on mobile */
+        @media (max-width: 640px) {
+            .herban-toast {
+                bottom: env(safe-area-inset-bottom, 16px) !important;
+                right: 12px !important;
+                left: 12px !important;
+                max-width: calc(100vw - 24px);
+            }
+        }
+
+        /* Mobile nav: ensure 44px touch targets */
+        nav button, nav a {
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        /* Mobile menu links: comfortable tap size */
+        #mobile-menu a {
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Product scent card: prevent two-col overflow on 320px */
+        @media (max-width: 360px) {
+            .ha-scent-card {
+                min-width: 0;
+            }
+        }
     </style>
 </head>
 <body class="bg-white text-[#111111] w-full max-w-[100vw] overflow-x-hidden">
@@ -647,12 +713,12 @@
     <div class="bg-white border-b py-2.5 md:py-3 overflow-x-hidden">
         <div class="max-w-7xl mx-auto px-4 md:px-6 w-full">
             <div class="flex flex-wrap items-center justify-center md:justify-between gap-x-3 md:gap-x-6 gap-y-1 text-[9px] md:text-xs font-medium tracking-widest text-center md:text-left break-words">
-                <div class="flex items-center gap-x-1">
+                <div class="flex items-center gap-x-1 trust-bar-text">
                     <i class="fa-solid fa-leaf text-[#C5A26F]"></i>
                     <span>CLEAN • EFFECTIVE • FOR MELANATED SKIN</span>
                 </div>
-                <div>FAIR TRADE INGREDIENTS</div>
-                <div>PORTION OF EVERY SALE SUPPORTS URBAN YOUTH ENTREPRENEURSHIP</div>
+                <div class="trust-bar-text">FAIR TRADE INGREDIENTS</div>
+                <div class="trust-bar-text hidden sm:block">PORTION OF EVERY SALE SUPPORTS URBAN YOUTH ENTREPRENEURSHIP</div>
                 <div class="hidden md:block">12 SCENTS • 2 HERO FORMULAS</div>
             </div>
         </div>
@@ -808,11 +874,11 @@
     <section id="quiz" class="bg-[#111111] text-white py-10 md:py-14">
         <div class="max-w-4xl mx-auto px-6 text-center">
             <div class="mx-auto w-fit px-5 py-1 bg-white/10 text-xs rounded-full tracking-widest mb-3">PERSONALIZED</div>
-            <h2 class="text-5xl font-black tracking-[-2px]">Find your perfect scent ritual.</h2>
+            <h2 class="font-black tracking-[-2px]">Find your perfect scent ritual.</h2>
             <p class="mt-3 max-w-md mx-auto text-white/80">Answer a few questions. Get matched to the right Body Glaze + Oil combo for your skin + vibe.</p>
             
             <a href="#" onclick="startQuiz(); return false;" 
-               class="mt-8 inline-flex items-center bg-white text-black px-8 py-3.5 rounded-full font-semibold text-sm hover:bg-[#C5A26F] hover:text-white transition">
+               class="mt-8 inline-flex items-center bg-white text-black px-8 py-3.5 rounded-full font-semibold text-sm hover:bg-[#C5A26F] hover:text-white transition min-h-[48px]">
                 TAKE THE 60-SECOND QUIZ <i class="ml-2 fa-solid fa-magic"></i>
             </a>
             <div class="text-[10px] mt-2 text-white/50">Takes less than a minute • Instant results</div>
@@ -840,8 +906,8 @@
     </section>
 
     <!-- Footer -->
-    <footer class="border-t bg-white py-12 md:py-20">
-        <div class="max-w-7xl mx-auto px-4 md:px-6 grid grid-cols-2 md:grid-cols-4 gap-x-8 md:gap-x-10 gap-y-12 md:gap-y-16 text-sm">
+    <footer class="border-t bg-white py-10 md:py-20" style="padding-bottom: max(2.5rem, env(safe-area-inset-bottom, 2.5rem))">
+        <div class="max-w-7xl mx-auto px-4 md:px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-8 md:gap-x-10 gap-y-10 md:gap-y-16 text-sm">
             <div>
                 <div class="font-black tracking-tighter text-xl mb-5">HERBAN ALCHEMY</div>
                 <div class="text-xs text-gray-500">Luxury body care for melanated skin.</div>
@@ -926,10 +992,10 @@
     </div>
 
     <div id="cart-drawer" onclick="if (event.target.id === 'cart-drawer') hideCart()" class="hidden fixed inset-0 bg-black/50 z-[100]">
-        <div onclick="event.stopImmediatePropagation()" class="absolute right-0 top-0 h-full w-full max-w-md bg-white p-6 shadow-2xl flex flex-col">
+        <div onclick="event.stopImmediatePropagation()" class="absolute right-0 top-0 h-full w-full max-w-sm sm:max-w-md bg-white p-5 md:p-6 shadow-2xl flex flex-col overflow-y-auto">
             <div class="flex justify-between items-center mb-6">
                 <div class="font-semibold text-xl">Your Cart</div>
-                <button onclick="hideCart()" class="text-2xl leading-none">&times;</button>
+                <button onclick="hideCart()" class="text-2xl leading-none w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100">&times;</button>
             </div>
             
             <div id="cart-items" class="flex-1 overflow-auto space-y-5 text-sm">
@@ -1057,9 +1123,10 @@
             localStorage.setItem('herbanCart', JSON.stringify(cart));
             updateCartCount();
             
-            // Toast
+            // Toast — mobile-friendly class
             const toast = document.createElement('div');
-            toast.className = `fixed bottom-5 right-5 bg-[#111111] text-white px-5 py-3 rounded-2xl flex items-center gap-x-3 text-sm shadow-xl z-[200]`;
+            toast.className = `herban-toast fixed bg-[#111111] text-white px-5 py-3 rounded-2xl flex items-center gap-x-3 text-sm shadow-xl z-[200]`;
+            toast.style.cssText = 'bottom: 20px; right: 20px;';
             toast.innerHTML = `
                 <span>Added <strong>${name}</strong> to cart</span>
                 <button onclick="this.parentElement.remove(); showCart()" class="underline text-[#C5A26F]">View cart</button>
@@ -1395,11 +1462,25 @@
             if (menu.classList.contains('hidden')) {
                 menu.classList.remove('hidden');
                 menu.classList.add('block');
+                document.body.style.overflow = 'hidden';
             } else {
                 menu.classList.add('hidden');
                 menu.classList.remove('block');
+                document.body.style.overflow = '';
             }
         }
+
+        // Close mobile menu when a link inside is tapped
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('#mobile-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    const menu = document.getElementById('mobile-menu');
+                    menu.classList.add('hidden');
+                    menu.classList.remove('block');
+                    document.body.style.overflow = '';
+                });
+            });
+        });
     </script>
     <script src="assets/skin-tone-experience.js"></script>
     <script src="assets/glow-experience.js"></script>

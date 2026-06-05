@@ -2,7 +2,7 @@
 <html lang="en" class="w-full max-w-[100vw] overflow-x-hidden">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Shop • Herban Alchemy</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -10,7 +10,7 @@
     <style>
         html, body { max-width: 100vw; overflow-x: hidden; width: 100%; }
         img, video { max-width: 100%; height: auto; }
-        body { font-family: 'Inter', system_ui, sans-serif; }
+        body { font-family: 'Inter', system_ui, sans-serif; -webkit-tap-highlight-color: transparent; padding-bottom: env(safe-area-inset-bottom, 0px); }
         .heading-serif { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; letter-spacing: -0.03em; }
         
         .product-card { transition: transform .3s ease, box-shadow .3s ease; }
@@ -20,6 +20,52 @@
         .scent-option.active { border-color: #111; background: #111; color: white; }
         
         .fenty-card { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+
+        /* Filter bar: horizontal scroll on mobile, no wrap */
+        .filter-scroll {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            gap: 0.5rem;
+            padding-bottom: 2px;
+        }
+        .filter-scroll::-webkit-scrollbar { display: none; }
+        .filter-scroll .filter-btn { scroll-snap-align: start; flex-shrink: 0; }
+
+        /* Product modal: bottom sheet on mobile */
+        @media (max-width: 640px) {
+            #product-modal {
+                align-items: flex-end !important;
+                padding: 0 !important;
+            }
+            #product-modal > div {
+                max-width: 100% !important;
+                border-radius: 1.5rem 1.5rem 0 0;
+                max-height: 92svh;
+                overflow-y: auto;
+            }
+            #product-modal .flex-col.md\:flex-row {
+                flex-direction: column !important;
+            }
+        }
+
+        /* Touch targets */
+        nav button, nav a { min-height: 44px; display: inline-flex; align-items: center; }
+        #mobile-menu a { min-height: 44px; display: flex; align-items: center; }
+
+        /* Cart toast */
+        @media (max-width: 640px) {
+            .herban-toast {
+                bottom: env(safe-area-inset-bottom, 16px) !important;
+                right: 12px !important;
+                left: 12px !important;
+                max-width: calc(100vw - 24px);
+            }
+        }
     </style>
 </head>
 <body class="bg-white text-[#111111] w-full max-w-[100vw] overflow-x-hidden">
@@ -90,15 +136,17 @@
     </div>
 
     <!-- Filters -->
-    <div class="max-w-7xl mx-auto px-4 md:px-6 pb-5 flex flex-wrap items-center gap-x-2 md:gap-x-3 gap-y-2 text-sm border-b pb-6 sticky top-[72px] z-40 bg-white/95 backdrop-blur-sm">
-        <div class="font-medium mr-1 md:mr-2 text-xs md:text-sm">Browse:</div>
-        <button data-filter="all" onclick="filterProducts('all')" class="filter-btn px-3 md:px-4 py-1.5 rounded-full bg-[#111] text-white text-[10px] md:text-xs font-medium">ALL</button>
-        <button data-filter="limited" onclick="filterProducts('limited')" class="filter-btn px-3 md:px-4 py-1.5 rounded-full border text-[10px] md:text-xs font-medium hover:bg-gray-50">LIMITED EDITION</button>
-        <button data-filter="glaze" onclick="filterProducts('glaze')" class="filter-btn px-3 md:px-4 py-1.5 rounded-full border text-[10px] md:text-xs font-medium hover:bg-gray-50">BODY GLAZE</button>
-        <button data-filter="oil" onclick="filterProducts('oil')" class="filter-btn px-3 md:px-4 py-1.5 rounded-full border text-[10px] md:text-xs font-medium hover:bg-gray-50">BODY OIL</button>
-        <button data-filter="raw" onclick="filterProducts('raw')" class="filter-btn px-3 md:px-4 py-1.5 rounded-full border text-[10px] md:text-xs font-medium hover:bg-gray-50">RAW INGREDIENTS</button>
-        <button data-filter="carrier" onclick="filterProducts('carrier')" class="filter-btn px-3 md:px-4 py-1.5 rounded-full border text-[10px] md:text-xs font-medium hover:bg-gray-50">CARRIER OILS</button>
-        <button data-filter="men" onclick="filterProducts('men')" class="filter-btn px-3 md:px-4 py-1.5 rounded-full border text-[10px] md:text-xs font-medium hover:bg-gray-50">FOR HIM</button>
+    <div class="max-w-7xl mx-auto px-4 md:px-6 pb-5 border-b pb-6 sticky top-[72px] z-40 bg-white/95 backdrop-blur-sm">
+        <div class="filter-scroll items-center gap-y-2 text-sm py-3">
+            <div class="font-medium mr-1 md:mr-2 text-xs md:text-sm flex-shrink-0">Browse:</div>
+            <button data-filter="all" onclick="filterProducts('all')" class="filter-btn px-3 md:px-4 py-1.5 rounded-full bg-[#111] text-white text-[10px] md:text-xs font-medium">ALL</button>
+            <button data-filter="limited" onclick="filterProducts('limited')" class="filter-btn px-3 md:px-4 py-1.5 rounded-full border text-[10px] md:text-xs font-medium hover:bg-gray-50">LIMITED EDITION</button>
+            <button data-filter="glaze" onclick="filterProducts('glaze')" class="filter-btn px-3 md:px-4 py-1.5 rounded-full border text-[10px] md:text-xs font-medium hover:bg-gray-50">BODY GLAZE</button>
+            <button data-filter="oil" onclick="filterProducts('oil')" class="filter-btn px-3 md:px-4 py-1.5 rounded-full border text-[10px] md:text-xs font-medium hover:bg-gray-50">BODY OIL</button>
+            <button data-filter="raw" onclick="filterProducts('raw')" class="filter-btn px-3 md:px-4 py-1.5 rounded-full border text-[10px] md:text-xs font-medium hover:bg-gray-50">RAW INGREDIENTS</button>
+            <button data-filter="carrier" onclick="filterProducts('carrier')" class="filter-btn px-3 md:px-4 py-1.5 rounded-full border text-[10px] md:text-xs font-medium hover:bg-gray-50">CARRIER OILS</button>
+            <button data-filter="men" onclick="filterProducts('men')" class="filter-btn px-3 md:px-4 py-1.5 rounded-full border text-[10px] md:text-xs font-medium hover:bg-gray-50">FOR HIM</button>
+        </div>
     </div>
 
     <!-- Products by section -->
@@ -121,14 +169,14 @@
                 </div>
                 
                 <!-- Info -->
-                <div class="p-7 md:p-8 flex-1">
+                <div class="p-5 md:p-8 flex-1">
                     <div id="modal-badges" class="flex gap-2 mb-3"></div>
                     
-                    <h3 id="modal-name" class="text-3xl font-black tracking-tight"></h3>
+                    <h3 id="modal-name" class="text-2xl md:text-3xl font-black tracking-tight"></h3>
                     <div id="modal-scent" class="text-[#C5A26F] font-semibold"></div>
                     
                     <div class="mt-4 flex items-baseline gap-x-2">
-                        <span id="modal-price" class="text-4xl font-semibold"></span>
+                        <span id="modal-price" class="text-3xl md:text-4xl font-semibold"></span>
                         <span id="modal-size" class="text-gray-400 text-sm"></span>
                     </div>
                     
@@ -137,16 +185,16 @@
                         <p id="modal-packaging"></p>
                     </div>
 
-                    <div id="modal-scents-wrap" class="my-5">
+                    <div id="modal-scents-wrap" class="my-4">
                         <div class="text-xs font-medium mb-2 text-gray-500">CHOOSE YOUR SCENT</div>
                         <div id="modal-scents" class="flex flex-wrap gap-2"></div>
                     </div>
                     
                     <div class="flex gap-3">
                         <button onclick="addCurrentToCart()" 
-                                class="flex-1 bg-[#111111] hover:bg-black text-white py-3 rounded-2xl font-semibold">ADD TO BAG</button>
+                                class="flex-1 bg-[#111111] hover:bg-black text-white py-3 md:py-3 rounded-2xl font-semibold min-h-[48px]">ADD TO BAG</button>
                         
-                        <button onclick="closeModal()" class="px-6 border border-gray-200 rounded-2xl text-sm font-medium">Close</button>
+                        <button onclick="closeModal()" class="px-6 border border-gray-200 rounded-2xl text-sm font-medium min-h-[48px]">Close</button>
                     </div>
                     
                     <div class="mt-5 text-[10px] text-gray-400">
@@ -673,7 +721,8 @@
             updateCartCount();
 
             const toast = document.createElement('div');
-            toast.className = 'fixed bottom-6 right-6 bg-[#111] text-white px-5 py-3 rounded-2xl shadow-xl text-sm z-[200]';
+            toast.className = 'herban-toast fixed bg-[#111] text-white px-5 py-3 rounded-2xl shadow-xl text-sm z-[200]';
+            toast.style.cssText = 'bottom: 20px; right: 20px;';
             toast.innerHTML = `Added <strong>${scent ? scent + ' — ' : ''}${name}</strong>`;
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 1800);
@@ -725,16 +774,30 @@
             if (menu.classList.contains('hidden')) {
                 menu.classList.remove('hidden');
                 menu.classList.add('block');
+                document.body.style.overflow = 'hidden';
             } else {
                 menu.classList.add('hidden');
                 menu.classList.remove('block');
+                document.body.style.overflow = '';
             }
         }
+
+        // Close mobile menu when a link inside is tapped
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('#mobile-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    const menu = document.getElementById('mobile-menu');
+                    menu.classList.add('hidden');
+                    menu.classList.remove('block');
+                    document.body.style.overflow = '';
+                });
+            });
+        });
     </script>
 
     <!-- Footer -->
-    <footer class="border-t bg-white py-12 md:py-20">
-        <div class="max-w-7xl mx-auto px-4 md:px-6 grid grid-cols-2 md:grid-cols-4 gap-x-8 md:gap-x-10 gap-y-12 md:gap-y-16 text-sm">
+    <footer class="border-t bg-white py-10 md:py-20" style="padding-bottom: max(2.5rem, env(safe-area-inset-bottom, 2.5rem))">
+        <div class="max-w-7xl mx-auto px-4 md:px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-8 md:gap-x-10 gap-y-10 md:gap-y-16 text-sm">
             <div>
                 <div class="font-black tracking-tighter text-xl mb-5">HERBAN ALCHEMY</div>
                 <div class="text-xs text-gray-500">Luxury body care for melanated skin.</div>

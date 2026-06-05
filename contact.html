@@ -2,7 +2,7 @@
 <html lang="en" class="w-full max-w-[100vw] overflow-x-hidden">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Contact • Herban Alchemy</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -60,6 +60,15 @@
             letter-spacing: 0.05em;
             text-transform: uppercase;
             color: #666;
+        }
+
+        /* Mobile fixes */
+        body { -webkit-tap-highlight-color: transparent; padding-bottom: env(safe-area-inset-bottom, 0px); }
+        nav button, nav a { min-height: 44px; display: inline-flex; align-items: center; }
+        #mobile-menu a { min-height: 44px; display: flex; align-items: center; }
+        h1 { font-size: clamp(2.25rem, 10vw, 3.75rem); }
+        @media (max-width: 480px) {
+            #cart-drawer > div { max-width: 100% !important; }
         }
     </style>
 </head>
@@ -270,8 +279,8 @@
     </div>
 
     <!-- Footer -->
-    <footer class="border-t bg-white py-12 md:py-20">
-        <div class="max-w-7xl mx-auto px-4 md:px-6 grid grid-cols-2 md:grid-cols-4 gap-x-8 md:gap-x-10 gap-y-12 md:gap-y-16 text-sm">
+    <footer class="border-t bg-white py-10 md:py-20" style="padding-bottom: max(2.5rem, env(safe-area-inset-bottom, 2.5rem))">
+        <div class="max-w-7xl mx-auto px-4 md:px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-8 md:gap-x-10 gap-y-10 md:gap-y-16 text-sm">
             <div>
                 <div class="font-black tracking-tighter text-xl mb-5">HERBAN ALCHEMY</div>
                 <div class="text-xs text-gray-500">Luxury body care for melanated skin.</div>
@@ -338,12 +347,11 @@
         </div>
     </div>
 
-    <!-- Simple Cart Drawer (reuse pattern) -->
     <div id="cart-drawer" onclick="if (event.target.id === 'cart-drawer') hideCart()" class="hidden fixed inset-0 bg-black/50 z-[100]">
-        <div onclick="event.stopImmediatePropagation()" class="absolute right-0 top-0 h-full w-full max-w-md bg-white p-6 shadow-2xl flex flex-col">
+        <div onclick="event.stopImmediatePropagation()" class="absolute right-0 top-0 h-full w-full max-w-sm sm:max-w-md bg-white p-5 md:p-6 shadow-2xl flex flex-col overflow-y-auto">
             <div class="flex justify-between items-center mb-6">
                 <div class="font-semibold text-xl">Your Cart</div>
-                <button onclick="hideCart()" class="text-2xl leading-none">&times;</button>
+                <button onclick="hideCart()" class="text-2xl leading-none w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100">&times;</button>
             </div>
             
             <div id="cart-items" class="flex-1 overflow-auto space-y-5 text-sm">
@@ -374,9 +382,21 @@
         // Mobile Menu
         function toggleMobileMenu() {
             const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
-            menu.classList.toggle('block');
+            const isHidden = menu.classList.contains('hidden');
+            menu.classList.toggle('hidden', !isHidden);
+            menu.classList.toggle('block', isHidden);
+            document.body.style.overflow = isHidden ? 'hidden' : '';
         }
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('#mobile-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    const menu = document.getElementById('mobile-menu');
+                    menu.classList.add('hidden');
+                    menu.classList.remove('block');
+                    document.body.style.overflow = '';
+                });
+            });
+        });
 
         // Simple Cart (shared)
         let cart = JSON.parse(localStorage.getItem('herbanCart') || '[]');

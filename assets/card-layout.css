@@ -1,6 +1,13 @@
 /**
  * Herban card system — image fills media box; text never stacks on imagery.
+ * Mobile-first: 44px+ touch targets, no horizontal overflow, safe text sizing.
  */
+
+/* Safe-area padding for notched phones */
+.ha-mobile-safe {
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+}
 
 .ha-card {
     display: flex;
@@ -148,4 +155,40 @@
 
 .ha-scent-card .ha-card-img {
     object-position: center center;
+}
+
+/* ── Mobile touch targets ── */
+.ha-card button,
+.ha-card a {
+    min-height: 44px;
+    min-width: 44px;
+}
+
+/* Tighter aspect ratio on very small screens so cards don't get too tall */
+@media (max-width: 360px) {
+    .ha-card-frame {
+        aspect-ratio: 4 / 5;
+    }
+    .ha-scent-card .ha-card-frame {
+        aspect-ratio: 1 / 1;
+    }
+}
+
+/* Prevent card body text from overflowing on narrow screens */
+.ha-card-body h3,
+.ha-card-body .font-semibold {
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+/* Gallery thumbs wrap cleanly on mobile */
+@media (max-width: 640px) {
+    .product-gallery .gallery-thumbs-row {
+        gap: 0.375rem;
+        padding: 0.5rem;
+    }
+    .product-gallery .gallery-thumb {
+        width: 40px;
+        height: 40px;
+    }
 }
