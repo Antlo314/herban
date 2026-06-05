@@ -14,10 +14,10 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // Serve static frontend files
-app.use(express.static(path.join(__dirname, './')));
+app.use(express.static(path.join(process.cwd(), './')));
 
-const CONFIG_PATH = path.join(__dirname, 'data', 'config.json');
-const SECRETS_PATH = path.join(__dirname, 'data', 'secrets.json');
+const CONFIG_PATH = path.join(process.cwd(), 'data', 'config.json');
+const SECRETS_PATH = path.join(process.cwd(), 'data', 'secrets.json');
 
 // Helper to read JSON
 function readJSON(filePath, defaultData = {}) {
@@ -267,7 +267,7 @@ app.post('/api/generate-image', checkAuth, async (req, res) => {
     const geminiApiKey = process.env.GEMINI_API_KEY || secrets.geminiApiKey;
     const openaiApiKey = process.env.OPENAI_API_KEY || secrets.openaiApiKey;
     const targetFilename = `generated_${target}.jpg`;
-    const targetPath = path.join(__dirname, 'assets', targetFilename);
+    const targetPath = path.join(process.cwd(), 'assets', targetFilename);
 
     try {
         let base64Data = '';
@@ -368,7 +368,7 @@ app.post('/api/upload', checkAuth, (req, res) => {
         const nameWithoutExt = path.basename(cleanName, ext);
         const finalFilename = `upload_${nameWithoutExt}_${Date.now()}${ext}`;
         
-        const targetPath = path.join(__dirname, 'assets', finalFilename);
+        const targetPath = path.join(process.cwd(), 'assets', finalFilename);
         
         // Extract base64 image data
         const matches = base64Data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
@@ -393,7 +393,7 @@ app.post('/api/upload', checkAuth, (req, res) => {
 
 // Fallback for everything else (SPA redirect to index.html)
 app.use((req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(process.cwd(), 'index.html'));
 });
 
 app.listen(PORT, () => {
