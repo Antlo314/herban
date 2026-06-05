@@ -56,7 +56,8 @@ function checkAuth(req, res, next) {
     }
     const token = authHeader.split(' ')[1];
     const secrets = readJSON(SECRETS_PATH, { adminPassword: 'admin' });
-    if (token !== secrets.adminPassword) {
+    const adminPassword = process.env.ADMIN_PASSWORD || secrets.adminPassword || 'admin';
+    if (token !== adminPassword) {
         return res.status(403).json({ error: 'Forbidden: Invalid password' });
     }
     next();
@@ -84,12 +85,14 @@ app.post('/api/config', checkAuth, (req, res) => {
 // SECRETS
 app.get('/api/secrets', checkAuth, (req, res) => {
     const secrets = readJSON(SECRETS_PATH);
+    const geminiApiKey = process.env.GEMINI_API_KEY || secrets.geminiApiKey;
+    const openaiApiKey = process.env.OPENAI_API_KEY || secrets.openaiApiKey;
     // Exclude actual password for safety, return mask details
     res.json({
-        geminiApiKey: secrets.geminiApiKey ? '••••••••••••••••' : '',
-        openaiApiKey: secrets.openaiApiKey ? '••••••••••••••••' : '',
-        hasGemini: !!secrets.geminiApiKey,
-        hasOpenai: !!secrets.openaiApiKey
+        geminiApiKey: geminiApiKey ? '••••••••••••••••' : '',
+        openaiApiKey: openaiApiKey ? '••••••••••••••••' : '',
+        hasGemini: !!geminiApiKey,
+        hasOpenai: !!openaiApiKey
     });
 });
 
@@ -119,8 +122,9 @@ app.post('/api/secrets', checkAuth, (req, res) => {
 app.post('/api/login', (req, res) => {
     const { password } = req.body;
     const secrets = readJSON(SECRETS_PATH, { adminPassword: 'admin' });
-    if (password === secrets.adminPassword) {
-        res.json({ success: true, token: secrets.adminPassword });
+    const adminPassword = process.env.ADMIN_PASSWORD || secrets.adminPassword || 'admin';
+    if (password === adminPassword) {
+        res.json({ success: true, token: adminPassword });
     } else {
         res.status(401).json({ error: 'Invalid password' });
     }
@@ -144,10 +148,12 @@ app.post('/api/chat', async (req, res) => {
 
     const systemPrompt = req.body.systemPrompt || chatbot.systemPrompt || 'You are Aura, an AI assistant for Herban Alchemy.';
     const activeModel = chatbot.model || 'gemini';
+    const geminiApiKey = process.env.GEMINI_API_KEY || secrets.geminiApiKey;
+    const openaiApiKey = process.env.OPENAI_API_KEY || secrets.openaiApiKey;
 
     try {
         if (activeModel === 'gemini') {
-            if (!secrets.geminiApiKey) {
+            if (!geminiApiKey) {
                 return res.status(400).json({ error: 'Gemini API key is not configured' });
             }
 
@@ -170,7 +176,7 @@ app.post('/api/chat', async (req, res) => {
                 parts: [{ text: message }]
             });
 
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${secrets.geminiApiKey}`;
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${geminiApiKey}`;
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -196,7 +202,7 @@ app.post('/api/chat', async (req, res) => {
             res.json({ reply });
 
         } else if (activeModel === 'openai') {
-            if (!secrets.openaiApiKey) {
+            if (!openaiApiKey) {
                 return res.status(400).json({ error: 'OpenAI API key is not configured' });
             }
 
@@ -218,7 +224,7 @@ app.post('/api/chat', async (req, res) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${secrets.openaiApiKey}`
+                    'Authorization': `Bearer ${openaiApiKey}`
                 },
                 body: JSON.stringify({
                     model: 'gpt-4o-mini',
@@ -258,6 +264,8 @@ app.post('/api/generate-image', checkAuth, async (req, res) => {
     }
 
     const secrets = readJSON(SECRETS_PATH);
+    const geminiApiKey = process.env.GEMINI_API_KEY || secrets.geminiApiKey;
+    const openaiApiKey = process.env.OPENAI_API_KEY || secrets.openaiApiKey;
     const targetFilename = `generated_${target}.jpg`;
     const targetPath = path.join(__dirname, 'assets', targetFilename);
 
@@ -265,11 +273,11 @@ app.post('/api/generate-image', checkAuth, async (req, res) => {
         let base64Data = '';
 
         if (engine === 'gemini') {
-            if (!secrets.geminiApiKey) {
+            if (!geminiApiKey) {
                 return res.status(400).json({ error: 'Gemini API key is not configured' });
             }
 
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-fast-generate-001:predict?key=${secrets.geminiApiKey}`;
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-fast-generate-001:predict?key=${geminiApiKey}`;
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -297,7 +305,7 @@ app.post('/api/generate-image', checkAuth, async (req, res) => {
             }
 
         } else if (engine === 'openai') {
-            if (!secrets.openaiApiKey) {
+            if (!openaiApiKey) {
                 return res.status(400).json({ error: 'OpenAI API key is not configured' });
             }
 
@@ -305,7 +313,7 @@ app.post('/api/generate-image', checkAuth, async (req, res) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${secrets.openaiApiKey}`
+                    'Authorization': `Bearer ${openaiApiKey}`
                 },
                 body: JSON.stringify({
                     model: 'dall-e-3',
