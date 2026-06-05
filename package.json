@@ -1,0 +1,26 @@
+{
+  "name": "herbanalchemy",
+  "version": "1.0.0",
+  "description": "Organic skincare e-commerce website for Herban Alchemy — a bougetto beauty brand focused on clean, luxurious body care for melanated skin.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Antlo314/herban.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Antlo314/herban/issues"
+  },
+  "homepage": "https://github.com/Antlo314/herban#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1"
+  }
+}

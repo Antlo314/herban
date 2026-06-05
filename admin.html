@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Herban Alchemy — Admin Control Center</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #FAF7F2;
+            color: #111111;
+        }
+        .serif-title {
+            font-family: 'Playfair Display', serif;
+        }
+        /* Glassmorphism scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.02);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(197, 162, 111, 0.3);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(197, 162, 111, 0.6);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- LOGIN GATE (renders if not authorized) -->
+    <div id="login-gate" class="fixed inset-0 z-50 bg-[#FAF7F2]/80 backdrop-blur-xl flex items-center justify-center p-6 transition-all duration-300">
+        <div class="bg-white max-w-md w-full rounded-3xl shadow-2xl border border-gray-100 p-8 text-center">
+            <div class="herban-logo text-3xl font-black tracking-tighter mb-2">HERBAN ALCHEMY</div>
+            <div class="text-xs text-gray-500 uppercase tracking-widest mb-6">Storefront Admin Portal</div>
+            
+            <form onsubmit="handleLogin(event)">
+                <div class="mb-4">
+                    <label class="block text-left text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Password</label>
+                    <input type="password" id="login-password" placeholder="••••••••" class="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-[#C5A26F] text-center text-lg tracking-widest" required>
+                </div>
+                <div id="login-error" class="text-xs text-red-500 font-semibold mb-4 hidden"></div>
+                <button type="submit" class="w-full bg-[#111111] text-white hover:bg-[#C5A26F] transition-all font-semibold py-4 rounded-2xl text-xs uppercase tracking-widest">
+                    Unlock System
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN ADMIN INTERFACE -->
+    <div id="admin-dashboard" class="flex-1 flex flex-col md:flex-row hidden">
+        <!-- Sidebar Navigation -->
+        <aside class="w-full md:w-64 bg-white border-r border-gray-100 flex flex-col">
+            <div class="p-6 border-b border-gray-100 flex items-center gap-x-3">
+                <div class="font-black tracking-tighter text-xl text-[#111]">HERBAN ADMIN</div>
+                <span class="bg-[#C5A26F]/10 text-[#C5A26F] text-[9px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded-full">Console</span>
+            </div>
+            
+            <!-- Navigation Links -->
+            <nav class="p-4 space-y-1 flex-1">
+                <button onclick="switchTab('dashboard')" class="tab-btn w-full flex items-center gap-x-3 px-4 py-3 rounded-xl text-left text-xs uppercase tracking-wider font-semibold text-gray-600 hover:bg-[#FAF7F2] transition-all" data-tab="dashboard">
+                    <i class="fa-solid fa-chart-pie text-sm"></i> Dashboard
+                </button>
+                <button onclick="switchTab('banner')" class="tab-btn w-full flex items-center gap-x-3 px-4 py-3 rounded-xl text-left text-xs uppercase tracking-wider font-semibold text-gray-600 hover:bg-[#FAF7F2] transition-all" data-tab="banner">
+                    <i class="fa-solid fa-bullhorn text-sm"></i> Announcement Banner
+                </button>
+                <button onclick="switchTab('placements')" class="tab-btn w-full flex items-center gap-x-3 px-4 py-3 rounded-xl text-left text-xs uppercase tracking-wider font-semibold text-gray-600 hover:bg-[#FAF7F2] transition-all" data-tab="placements">
+                    <i class="fa-solid fa-layer-group text-sm"></i> Layout Sections
+                </button>
+                <button onclick="switchTab('products')" class="tab-btn w-full flex items-center gap-x-3 px-4 py-3 rounded-xl text-left text-xs uppercase tracking-wider font-semibold text-gray-600 hover:bg-[#FAF7F2] transition-all" data-tab="products">
+                    <i class="fa-solid fa-box text-sm"></i> Product Database
+                </button>
+                <button onclick="switchTab('chatbot')" class="tab-btn w-full flex items-center gap-x-3 px-4 py-3 rounded-xl text-left text-xs uppercase tracking-wider font-semibold text-gray-600 hover:bg-[#FAF7F2] transition-all" data-tab="chatbot">
+                    <i class="fa-solid fa-robot text-sm"></i> AI Chatbot Setup
+                </button>
+            </nav>
+
+            <!-- Bottom Actions -->
+            <div class="p-4 border-t border-gray-100 space-y-2">
+                <a href="index.html" target="_blank" class="w-full flex items-center justify-center gap-x-2 text-center text-xs font-semibold py-2.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition-all">
+                    <i class="fa-solid fa-eye"></i> View Live Site
+                </a>
+                <button onclick="handleLogout()" class="w-full flex items-center justify-center gap-x-2 text-center text-xs font-semibold py-2.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-all">
+                    <i class="fa-solid fa-right-from-bracket"></i> Lock Console
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="flex-1 p-6 md:p-10 max-w-7xl mx-auto w-full overflow-y-auto">
+            <!-- TAB: Dashboard -->
+            <section id="tab-dashboard" class="tab-content hidden space-y-6">
+                <div>
+                    <h1 class="text-3xl font-black tracking-tight mb-1">Welcome back, Editor</h1>
+                    <p class="text-xs text-gray-500 uppercase tracking-widest">Here is your storefront summary metrics.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Stat Card 1 -->
+                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
+                        <div>
+                            <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Catalog Size</div>
+                            <div id="stat-products-count" class="text-3xl font-black text-gray-800">0</div>
+                        </div>
+                        <div class="bg-[#C5A26F]/10 text-[#C5A26F] p-4 rounded-xl">
+                            <i class="fa-solid fa-box text-xl"></i>
+                        </div>
+                    </div>
+                    <!-- Stat Card 2 -->
+                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
+                        <div>
+                            <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Active Banner</div>
+                            <div id="stat-banner-status" class="text-sm font-bold text-green-600">Enabled</div>
+                        </div>
+                        <div class="bg-green-50 text-green-600 p-4 rounded-xl">
+                            <i class="fa-solid fa-bullhorn text-xl"></i>
+                        </div>
+                    </div>
+                    <!-- Stat Card 3 -->
+                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
+                        <div>
+                            <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">AI Chatbot</div>
+                            <div id="stat-chatbot-status" class="text-sm font-bold text-green-600">Active</div>
+                        </div>
+                        <div class="bg-blue-50 text-blue-600 p-4 rounded-xl">
+                            <i class="fa-solid fa-robot text-xl"></i>
+                        </div>
+                    </div>
+                    <!-- Stat Card 4 -->
+                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
+                        <div>
+                            <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">AI Keys Status</div>
+                            <div id="stat-keys-status" class="text-xs font-bold text-yellow-600">Pending Setup</div>
+                        </div>
+                        <div class="bg-yellow-50 text-yellow-600 p-4 rounded-xl">
+                            <i class="fa-solid fa-key text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fast Actions -->
+                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                    <h2 class="text-lg font-bold mb-4">Quick Management Shortcuts</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                        <button onclick="switchTab('banner')" class="flex items-center gap-x-4 p-4 rounded-xl border border-gray-100 hover:border-[#C5A26F] transition-all text-left">
+                            <span class="bg-[#C5A26F]/10 text-[#C5A26F] p-3 rounded-lg"><i class="fa-solid fa-edit"></i></span>
+                            <div>
+                                <div class="text-xs font-bold">Edit Announcement Alert</div>
+                                <div class="text-[10px] text-gray-400">Change sitewide header sale alerts.</div>
+                            </div>
+                        </button>
+                        <button onclick="switchTab('products'); openProductModal();" class="flex items-center gap-x-4 p-4 rounded-xl border border-gray-100 hover:border-[#C5A26F] transition-all text-left">
+                            <span class="bg-green-50 text-green-600 p-3 rounded-lg"><i class="fa-solid fa-plus-circle"></i></span>
+                            <div>
+                                <div class="text-xs font-bold">Add New Product</div>
+                                <div class="text-[10px] text-gray-400">Add oils, butters, or glazes easily.</div>
+                            </div>
+                        </button>
+                        <button onclick="switchTab('chatbot')" class="flex items-center gap-x-4 p-4 rounded-xl border border-gray-100 hover:border-[#C5A26F] transition-all text-left">
+                            <span class="bg-blue-50 text-blue-600 p-3 rounded-lg"><i class="fa-solid fa-shield-halved"></i></span>
+                            <div>
+                                <div class="text-xs font-bold">Configure AI Chatbot API</div>
+                                <div class="text-[10px] text-gray-400">Input Gemini / OpenAI keys.</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: Announcement Banner -->
+            <section id="tab-banner" class="tab-content hidden space-y-6">
+                <div>
+                    <h1 class="text-3xl font-black tracking-tight mb-1">Sitewide Announcement Banner</h1>
+                    <p class="text-xs text-gray-500 uppercase tracking-widest">Customize the text, color, and link of the bar at the very top of the storefront.</p>
+                </div>
+
+                <form onsubmit="saveBanner(event)" class="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+                    <div class="flex items-center justify-between pb-4 border-b">
+                        <span class="text-xs uppercase tracking-widest font-bold text-gray-500">Banner Visibility State</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="banner-enabled" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#C5A26F]"></div>
+                        </label>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="col-span-2">
+                            <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-2">Banner Text Message</label>
+                            <input type="text" id="banner-text" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#C5A26F]" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-2">Banner Destination Link (URL or Page)</label>
+                            <input type="text" id="banner-link" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#C5A26F]">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-2">Background Color</label>
+                                <div class="flex gap-x-2">
+                                    <input type="color" id="banner-bg" class="h-12 w-12 rounded-lg border border-gray-200 cursor-pointer">
+                                    <input type="text" id="banner-bg-hex" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3 text-xs focus:outline-none uppercase">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-2">Text Color</label>
+                                <div class="flex gap-x-2">
+                                    <input type="color" id="banner-text-color" class="h-12 w-12 rounded-lg border border-gray-200 cursor-pointer">
+                                    <input type="text" id="banner-text-color-hex" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3 text-xs focus:outline-none uppercase">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 flex justify-end">
+                        <button type="submit" class="bg-[#111111] hover:bg-[#C5A26F] text-white px-8 py-3.5 rounded-xl text-xs uppercase tracking-widest font-semibold transition-all">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- TAB: Placements (Toggles) -->
+            <section id="tab-placements" class="tab-content hidden space-y-6">
+                <div>
+                    <h1 class="text-3xl font-black tracking-tight mb-1">Storefront Layout Placements</h1>
+                    <p class="text-xs text-gray-500 uppercase tracking-widest">Toggle visibility of home landing page components to keep layout balanced.</p>
+                </div>
+
+                <form onsubmit="savePlacements(event)" class="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+                    <div class="divide-y divide-gray-100">
+                        <div class="flex items-center justify-between py-4">
+                            <div>
+                                <div class="text-sm font-bold text-gray-800">Men's Collection Section</div>
+                                <div class="text-xs text-gray-400">Renders the Masculine Skincare section teaser.</div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="place-mens" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#C5A26F]"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between py-4">
+                            <div>
+                                <div class="text-sm font-bold text-gray-800">Luxury Carrier Oils Section</div>
+                                <div class="text-xs text-gray-400">Renders the 50ml drop bottle pure carrier oils collection banner.</div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="place-carrier" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#C5A26F]"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between py-4">
+                            <div>
+                                <div class="text-sm font-bold text-gray-800">Raw Ingredients & Butters Section</div>
+                                <div class="text-xs text-gray-400">Displays the Shea and Mango DIY butter block bags.</div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="place-raw" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#C5A26F]"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between py-4">
+                            <div>
+                                <div class="text-sm font-bold text-gray-800">Scent Finder Quiz Banner</div>
+                                <div class="text-xs text-gray-400">Displays the Interactive Scent Selection Finder.</div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="place-quiz" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#C5A26F]"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between py-4">
+                            <div>
+                                <div class="text-sm font-bold text-gray-800">Organic Benefits Trust Bar</div>
+                                <div class="text-xs text-gray-400">Displays global sourcing trust points under the hero.</div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="place-benefits" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#C5A26F]"></div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 flex justify-end">
+                        <button type="submit" class="bg-[#111111] hover:bg-[#C5A26F] text-white px-8 py-3.5 rounded-xl text-xs uppercase tracking-widest font-semibold transition-all">
+                            Save Layout
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- TAB: Product Database -->
+            <section id="tab-products" class="tab-content hidden space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h1 class="text-3xl font-black tracking-tight mb-1">Product Inventory</h1>
+                        <p class="text-xs text-gray-500 uppercase tracking-widest">Create, update, or remove storefront products.</p>
+                    </div>
+                    <button onclick="openProductModal()" class="bg-[#111111] hover:bg-[#C5A26F] text-white px-6 py-3 rounded-xl text-xs uppercase tracking-widest font-semibold transition-all shrink-0">
+                        <i class="fa-solid fa-plus-circle mr-1"></i> Add Product
+                    </button>
+                </div>
+
+                <!-- Products Table -->
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 text-[10px] uppercase font-bold text-gray-400 border-b border-gray-100">
+                                    <th class="py-4 px-6">Product details</th>
+                                    <th class="py-4 px-6">Category</th>
+                                    <th class="py-4 px-6">Size</th>
+                                    <th class="py-4 px-6">Price</th>
+                                    <th class="py-4 px-6 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="products-table-body" class="divide-y divide-gray-50 text-sm">
+                                <!-- Rendered dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: Chatbot Setup -->
+            <section id="tab-chatbot" class="tab-content hidden space-y-6">
+                <div>
+                    <h1 class="text-3xl font-black tracking-tight mb-1">AI Chatbot Assistant</h1>
+                    <p class="text-xs text-gray-500 uppercase tracking-widest">Configure your storefront's interactive AI assistant details and provide backend API keys securely.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Left: Behavior Config -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <form onsubmit="saveChatbotConfig(event)" class="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+                            <div class="flex items-center justify-between pb-4 border-b">
+                                <span class="text-xs uppercase tracking-widest font-bold text-gray-500">Enable AI Chat Widget</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="chatbot-enabled" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#C5A26F]"></div>
+                                </label>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-2">Chatbot Persona Name</label>
+                                    <input type="text" id="chatbot-name" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#C5A26F]" required>
+                                </div>
+                                <div>
+                                    <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-2">Active AI Engine Model</label>
+                                    <select id="chatbot-model" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#C5A26F]">
+                                        <option value="gemini">Google Gemini (Recommended)</option>
+                                        <option value="openai">OpenAI ChatGPT</option>
+                                    </select>
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-2">Chatbot Welcome Greeting</label>
+                                    <input type="text" id="chatbot-greeting" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#C5A26F]" required>
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-2">System Instructions / AI Personality</label>
+                                    <textarea id="chatbot-prompt" rows="5" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#C5A26F] text-xs leading-relaxed" required></textarea>
+                                    <span class="text-[10px] text-gray-400 leading-relaxed block mt-1">Specify detailed instructions (e.g. key ingredients, scent names, brand style) so the assistant acts as a tailored brand powerhouse.</span>
+                                </div>
+                            </div>
+
+                            <div class="pt-4 flex justify-end">
+                                <button type="submit" class="bg-[#111111] hover:bg-[#C5A26F] text-white px-8 py-3.5 rounded-xl text-xs uppercase tracking-widest font-semibold transition-all">
+                                    Save Assistant Config
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Right: API Keys & Secrets -->
+                    <div class="space-y-6">
+                        <form onsubmit="saveSecrets(event)" class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+                            <h3 class="text-xs uppercase tracking-widest font-bold text-gray-500 pb-2 border-b">API Keys & Access Security</h3>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-1">Google Gemini API Key</label>
+                                    <input type="password" id="secret-gemini" placeholder="Unconfigured" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#C5A26F]">
+                                    <span class="text-[9px] text-gray-400 mt-1 block">Used if active engine is set to Google Gemini.</span>
+                                </div>
+                                <div>
+                                    <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-1">OpenAI ChatGPT API Key</label>
+                                    <input type="password" id="secret-openai" placeholder="Unconfigured" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#C5A26F]">
+                                    <span class="text-[9px] text-gray-400 mt-1 block">Used if active engine is set to OpenAI.</span>
+                                </div>
+                                <hr class="my-4">
+                                <div>
+                                    <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-1">Change Console Password</label>
+                                    <input type="password" id="secret-password" placeholder="Leave blank to keep current password" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#C5A26F]">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="w-full bg-[#111111] hover:bg-[#C5A26F] text-white py-3 rounded-xl text-xs uppercase tracking-widest font-semibold transition-all">
+                                Update Secrets & Key
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- INVENTORY CRUD MODAL -->
+    <div id="product-modal" class="fixed inset-0 bg-[#111]/45 backdrop-blur-sm z-[100] flex items-center justify-center p-6 hidden">
+        <div class="bg-white max-w-2xl w-full rounded-3xl shadow-2xl p-6 md:p-8 overflow-y-auto max-h-[90vh] space-y-6">
+            <div class="flex items-center justify-between pb-4 border-b">
+                <h3 id="modal-title" class="text-xl font-bold">Add Product</h3>
+                <button onclick="closeProductModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-times text-lg"></i></button>
+            </div>
+
+            <form onsubmit="handleProductSubmit(event)" class="space-y-4">
+                <input type="hidden" id="prod-id">
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-1">Product Name</label>
+                        <input type="text" id="prod-name" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#C5A26F]" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-1">Category</label>
+                        <select id="prod-category" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#C5A26F]">
+                            <option value="glaze">Body Glaze (Women)</option>
+                            <option value="oil">Fragrance Oil</option>
+                            <option value="men">Men's Line</option>
+                            <option value="carrier">Carrier Oils</option>
+                            <option value="raw">Raw Ingredients</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-1">Pricing ($ USD)</label>
+                        <input type="number" id="prod-price" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#C5A26F]" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-1">Size (e.g. 4 oz, 50 ml)</label>
+                        <input type="text" id="prod-size" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#C5A26F]" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-1">Image Asset File Path</label>
+                        <input type="text" id="prod-image" placeholder="assets/filename.jpg" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#C5A26F]" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-1">Badge Flag label</label>
+                        <input type="text" id="prod-badge" placeholder="e.g. BEST SELLER, FOR HIM" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#C5A26F]">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-1">Product Details Description</label>
+                        <textarea id="prod-desc" rows="3" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#C5A26F] text-xs" required></textarea>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-1">Available Scents (Separate by commas if any)</label>
+                        <input type="text" id="prod-scents" placeholder="Mango Dream, Vanilla Orchid, Scent B..." class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#C5A26F]">
+                        <span class="text-[9px] text-gray-400 mt-1 block">Separate multiple scents with commas. Leave blank if product has no scent options (like carrier oils).</span>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex justify-end gap-x-3">
+                    <button type="button" onclick="closeProductModal()" class="border px-6 py-2.5 rounded-xl text-xs uppercase tracking-widest font-semibold hover:bg-gray-50">Cancel</button>
+                    <button type="submit" class="bg-[#111111] hover:bg-[#C5A26F] text-white px-6 py-2.5 rounded-xl text-xs uppercase tracking-widest font-semibold">Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Javascript Actions -->
+    <script>
+        let storefrontConfig = null;
+        let adminToken = sessionStorage.getItem('herbanAdminToken') || '';
+
+        // Auto-check auth state
+        if (adminToken) {
+            document.getElementById('login-gate').classList.add('hidden');
+            document.getElementById('admin-dashboard').classList.remove('hidden');
+            loadConfigData();
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const password = document.getElementById('login-password').value;
+            const errEl = document.getElementById('login-error');
+            
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    sessionStorage.setItem('herbanAdminToken', data.token);
+                    adminToken = data.token;
+                    document.getElementById('login-gate').classList.add('hidden');
+                    document.getElementById('admin-dashboard').classList.remove('hidden');
+                    loadConfigData();
+                    errEl.classList.add('hidden');
+                } else {
+                    const err = await res.json();
+                    errEl.textContent = err.error || 'Login failed';
+                    errEl.classList.remove('hidden');
+                }
+            } catch (err) {
+                console.error(err);
+                errEl.textContent = 'Server connection failed. Make sure server is running.';
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        function handleLogout() {
+            sessionStorage.removeItem('herbanAdminToken');
+            adminToken = '';
+            document.getElementById('login-gate').classList.remove('hidden');
+            document.getElementById('admin-dashboard').classList.add('hidden');
+        }
+
+        async function loadConfigData() {
+            try {
+                const res = await fetch('/api/config');
+                if (!res.ok) throw new Error('Failed to fetch config');
+                storefrontConfig = await res.json();
+                
+                // Populate UI components
+                populateBannerTab();
+                populatePlacementsTab();
+                populateProductsTab();
+                populateChatbotTab();
+                populateDashboardStats();
+
+                // Load active keys status
+                loadSecretsStatus();
+            } catch (err) {
+                alert('Failed to connect to backend configuration API. Ensure server is running.');
+            }
+        }
+
+        async function loadSecretsStatus() {
+            try {
+                const res = await fetch('/api/secrets', {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                if (res.ok) {
+                    const secrets = await res.json();
+                    const statusEl = document.getElementById('stat-keys-status');
+                    
+                    if (secrets.hasGemini || secrets.hasOpenai) {
+                        statusEl.textContent = 'Configured';
+                        statusEl.className = 'text-sm font-bold text-green-600';
+                        if (secrets.hasGemini) document.getElementById('secret-gemini').placeholder = '•••••••••••••••• (Configured)';
+                        if (secrets.hasOpenai) document.getElementById('secret-openai').placeholder = '•••••••••••••••• (Configured)';
+                    } else {
+                        statusEl.textContent = 'Unconfigured';
+                        statusEl.className = 'text-sm font-bold text-yellow-600';
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // TAB SWITCHER
+        function switchTab(tabId) {
+            // Hide all contents
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            // Remove active classes
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-[#FAF7F2]', 'text-[#C5A26F]');
+                btn.classList.add('text-gray-600');
+            });
+
+            // Show selected content
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            // Add active styles
+            const activeBtn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-[#FAF7F2]', 'text-[#C5A26F]');
+                activeBtn.classList.remove('text-gray-600');
+            }
+        }
+        // Set default active tab
+        switchTab('dashboard');
+
+        // DASHBOARD
+        function populateDashboardStats() {
+            document.getElementById('stat-products-count').textContent = storefrontConfig.products.length;
+            
+            const bStatus = document.getElementById('stat-banner-status');
+            if (storefrontConfig.banner.enabled) {
+                bStatus.textContent = 'Enabled';
+                bStatus.className = 'text-sm font-bold text-green-600';
+            } else {
+                bStatus.textContent = 'Disabled';
+                bStatus.className = 'text-sm font-bold text-gray-400';
+            }
+
+            const cStatus = document.getElementById('stat-chatbot-status');
+            if (storefrontConfig.chatbot.enabled) {
+                cStatus.textContent = storefrontConfig.chatbot.name + ' Active (' + storefrontConfig.chatbot.model + ')';
+                cStatus.className = 'text-sm font-bold text-green-600';
+            } else {
+                cStatus.textContent = 'Disabled';
+                cStatus.className = 'text-sm font-bold text-gray-400';
+            }
+        }
+
+        // BANNER CONFIG
+        function populateBannerTab() {
+            const banner = storefrontConfig.banner;
+            document.getElementById('banner-enabled').checked = banner.enabled;
+            document.getElementById('banner-text').value = banner.text || '';
+            document.getElementById('banner-link').value = banner.link || '';
+            document.getElementById('banner-bg').value = banner.bgColor || '#111111';
+            document.getElementById('banner-bg-hex').value = banner.bgColor || '#111111';
+            document.getElementById('banner-text-color').value = banner.textColor || '#ffffff';
+            document.getElementById('banner-text-color-hex').value = banner.textColor || '#ffffff';
+        }
+
+        // Color picker sync
+        document.getElementById('banner-bg').addEventListener('input', e => {
+            document.getElementById('banner-bg-hex').value = e.target.value;
+        });
+        document.getElementById('banner-bg-hex').addEventListener('input', e => {
+            if (/^#[0-9A-F]{6}$/i.test(e.target.value)) document.getElementById('banner-bg').value = e.target.value;
+        });
+        document.getElementById('banner-text-color').addEventListener('input', e => {
+            document.getElementById('banner-text-color-hex').value = e.target.value;
+        });
+        document.getElementById('banner-text-color-hex').addEventListener('input', e => {
+            if (/^#[0-9A-F]{6}$/i.test(e.target.value)) document.getElementById('banner-text-color').value = e.target.value;
+        });
+
+        async function saveBanner(e) {
+            e.preventDefault();
+            storefrontConfig.banner.enabled = document.getElementById('banner-enabled').checked;
+            storefrontConfig.banner.text = document.getElementById('banner-text').value;
+            storefrontConfig.banner.link = document.getElementById('banner-link').value;
+            storefrontConfig.banner.bgColor = document.getElementById('banner-bg-hex').value;
+            storefrontConfig.banner.textColor = document.getElementById('banner-text-color-hex').value;
+
+            const res = await saveConfig();
+            if (res) {
+                alert('Banner configuration saved successfully!');
+                populateDashboardStats();
+            }
+        }
+
+        // PLACEMENTS CONFIG
+        function populatePlacementsTab() {
+            const pl = storefrontConfig.placements;
+            document.getElementById('place-mens').checked = pl.mensCollection !== false;
+            document.getElementById('place-carrier').checked = pl.carrierOils !== false;
+            document.getElementById('place-raw').checked = pl.rawIngredients !== false;
+            document.getElementById('place-quiz').checked = pl.scentQuiz !== false;
+            document.getElementById('place-benefits').checked = pl.benefits !== false;
+        }
+
+        async function savePlacements(e) {
+            e.preventDefault();
+            storefrontConfig.placements.mensCollection = document.getElementById('place-mens').checked;
+            storefrontConfig.placements.carrierOils = document.getElementById('place-carrier').checked;
+            storefrontConfig.placements.rawIngredients = document.getElementById('place-raw').checked;
+            storefrontConfig.placements.scentQuiz = document.getElementById('place-quiz').checked;
+            storefrontConfig.placements.benefits = document.getElementById('place-benefits').checked;
+
+            const res = await saveConfig();
+            if (res) {
+                alert('Section placements updated successfully!');
+            }
+        }
+
+        // CHATBOT SETUP
+        function populateChatbotTab() {
+            const cb = storefrontConfig.chatbot;
+            document.getElementById('chatbot-enabled').checked = cb.enabled;
+            document.getElementById('chatbot-name').value = cb.name || 'Aura';
+            document.getElementById('chatbot-model').value = cb.model || 'gemini';
+            document.getElementById('chatbot-greeting').value = cb.greeting || '';
+            document.getElementById('chatbot-prompt').value = cb.systemPrompt || '';
+        }
+
+        async function saveChatbotConfig(e) {
+            e.preventDefault();
+            storefrontConfig.chatbot.enabled = document.getElementById('chatbot-enabled').checked;
+            storefrontConfig.chatbot.name = document.getElementById('chatbot-name').value;
+            storefrontConfig.chatbot.model = document.getElementById('chatbot-model').value;
+            storefrontConfig.chatbot.greeting = document.getElementById('chatbot-greeting').value;
+            storefrontConfig.chatbot.systemPrompt = document.getElementById('chatbot-prompt').value;
+
+            const res = await saveConfig();
+            if (res) {
+                alert('AI Chatbot settings updated successfully!');
+                populateDashboardStats();
+            }
+        }
+
+        async function saveSecrets(e) {
+            e.preventDefault();
+            const geminiKey = document.getElementById('secret-gemini').value;
+            const openaiKey = document.getElementById('secret-openai').value;
+            const newPassword = document.getElementById('secret-password').value;
+
+            const body = {};
+            if (geminiKey) body.geminiApiKey = geminiKey;
+            if (openaiKey) body.openaiApiKey = openaiKey;
+            if (newPassword) body.adminPassword = newPassword;
+
+            try {
+                const res = await fetch('/api/secrets', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify(body)
+                });
+                
+                if (res.ok) {
+                    alert('Secrets and keys saved securely on backend!');
+                    document.getElementById('secret-gemini').value = '';
+                    document.getElementById('secret-openai').value = '';
+                    document.getElementById('secret-password').value = '';
+                    if (newPassword) {
+                        sessionStorage.setItem('herbanAdminToken', newPassword);
+                        adminToken = newPassword;
+                    }
+                    loadSecretsStatus();
+                } else {
+                    const data = await res.json();
+                    alert('Error saving secrets: ' + data.error);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Server request failed.');
+            }
+        }
+
+        // SAVE GLOBAL CONFIG API CALL
+        async function saveConfig() {
+            try {
+                const res = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify(storefrontConfig)
+                });
+                
+                if (res.ok) {
+                    return true;
+                } else {
+                    const data = await res.json();
+                    alert('Failed to save config: ' + data.error);
+                    return false;
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Request to server failed.');
+                return false;
+            }
+        }
+
+        // PRODUCTS TAB & CRUD
+        function populateProductsTab() {
+            const tbody = document.getElementById('products-table-body');
+            tbody.innerHTML = '';
+            
+            storefrontConfig.products.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-50 border-b border-gray-100 transition-colors';
+                
+                const scentText = p.scents.length > 0 ? p.scents.join(', ') : 'None';
+                const typeText = p.type ? `<span class="text-[9px] bg-gray-100 text-gray-500 font-bold px-2 py-0.5 rounded-full ml-2 uppercase">${p.type}</span>` : '';
+
+                tr.innerHTML = `
+                    <td class="py-4 px-6 flex items-center gap-x-4">
+                        <img src="${p.image}" alt="${p.name}" class="h-10 w-10 object-contain bg-gray-50 rounded-lg border" onerror="this.src='assets/herban.jpg'">
+                        <div>
+                            <div class="font-bold text-gray-800 flex items-center">${p.name} ${typeText}</div>
+                            <div class="text-[10px] text-gray-400 line-clamp-1 max-w-sm mt-0.5">${p.description}</div>
+                        </div>
+                    </td>
+                    <td class="py-4 px-6 uppercase text-xs font-semibold text-gray-500">${p.category}</td>
+                    <td class="py-4 px-6 text-xs text-gray-600 font-medium">${p.size}</td>
+                    <td class="py-4 px-6 text-xs font-bold text-gray-900">$${p.price}.00</td>
+                    <td class="py-4 px-6 text-right space-x-1 shrink-0">
+                        <button onclick="editProduct(${p.id})" class="p-2 text-gray-400 hover:text-[#C5A26F] transition-all"><i class="fa-solid fa-edit"></i></button>
+                        <button onclick="deleteProduct(${p.id})" class="p-2 text-gray-400 hover:text-red-600 transition-all"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function openProductModal() {
+            // Reset form
+            document.getElementById('prod-id').value = '';
+            document.getElementById('prod-name').value = '';
+            document.getElementById('prod-category').value = 'glaze';
+            document.getElementById('prod-price').value = '';
+            document.getElementById('prod-size').value = '';
+            document.getElementById('prod-image').value = '';
+            document.getElementById('prod-badge').value = '';
+            document.getElementById('prod-desc').value = '';
+            document.getElementById('prod-scents').value = '';
+
+            document.getElementById('modal-title').textContent = 'Add Product';
+            document.getElementById('product-modal').classList.remove('hidden');
+        }
+
+        function closeProductModal() {
+            document.getElementById('product-modal').classList.add('hidden');
+        }
+
+        function editProduct(id) {
+            const p = storefrontConfig.products.find(prod => prod.id === id);
+            if (!p) return;
+
+            document.getElementById('prod-id').value = p.id;
+            document.getElementById('prod-name').value = p.name;
+            document.getElementById('prod-category').value = p.category;
+            document.getElementById('prod-price').value = p.price;
+            document.getElementById('prod-size').value = p.size;
+            document.getElementById('prod-image').value = p.image;
+            document.getElementById('prod-badge').value = p.badge || '';
+            document.getElementById('prod-desc').value = p.description;
+            document.getElementById('prod-scents').value = p.scents ? p.scents.join(', ') : '';
+
+            document.getElementById('modal-title').textContent = 'Edit Product';
+            document.getElementById('product-modal').classList.remove('hidden');
+        }
+
+        async function handleProductSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('prod-id').value;
+            const name = document.getElementById('prod-name').value;
+            const category = document.getElementById('prod-category').value;
+            const price = parseInt(document.getElementById('prod-price').value);
+            const size = document.getElementById('prod-size').value;
+            const image = document.getElementById('prod-image').value;
+            const badge = document.getElementById('prod-badge').value;
+            const description = document.getElementById('prod-desc').value;
+            const scentsInput = document.getElementById('prod-scents').value;
+
+            // Process scents list
+            const scents = scentsInput
+                ? scentsInput.split(',').map(s => s.trim()).filter(s => s !== '')
+                : [];
+
+            if (id) {
+                // Update
+                const p = storefrontConfig.products.find(prod => prod.id === parseInt(id));
+                if (p) {
+                    p.name = name;
+                    p.category = category;
+                    p.price = price;
+                    p.size = size;
+                    p.image = image;
+                    p.badge = badge || undefined;
+                    p.description = description;
+                    p.scents = scents;
+                }
+            } else {
+                // Create
+                const maxId = storefrontConfig.products.reduce((max, prod) => prod.id > max ? prod.id : max, 0);
+                const newProduct = {
+                    id: maxId + 1,
+                    category,
+                    type: category === 'carrier' ? 'carrier_oil' : category === 'men' ? 'men_glaze' : category, // default fallback type mapping
+                    name,
+                    price,
+                    size,
+                    image,
+                    badge: badge || undefined,
+                    description,
+                    scents
+                };
+                storefrontConfig.products.push(newProduct);
+            }
+
+            const success = await saveConfig();
+            if (success) {
+                closeProductModal();
+                populateProductsTab();
+                populateDashboardStats();
+                alert('Product saved successfully!');
+            }
+        }
+
+        async function deleteProduct(id) {
+            if (!confirm('Are you sure you want to delete this product?')) return;
+            
+            storefrontConfig.products = storefrontConfig.products.filter(p => p.id !== id);
+            const success = await saveConfig();
+            if (success) {
+                populateProductsTab();
+                populateDashboardStats();
+                alert('Product deleted successfully.');
+            }
+        }
+    </script>
+</body>
+</html>

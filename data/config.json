@@ -1,0 +1,174 @@
+{
+  "banner": {
+    "enabled": true,
+    "text": "FREE shipping on orders over $65",
+    "link": "shipping-returns.html",
+    "bgColor": "#111111",
+    "textColor": "#ffffff"
+  },
+  "placements": {
+    "mensCollection": true,
+    "carrierOils": true,
+    "rawIngredients": true,
+    "scentQuiz": true,
+    "benefits": true
+  },
+  "chatbot": {
+    "enabled": true,
+    "name": "Aura",
+    "greeting": "Hi there! I'm Aura, your Herban Alchemy skincare guide. How can I help you find your glow today?",
+    "systemPrompt": "You are Aura, an AI skincare assistant for Herban Alchemy (pronounced UR-ban Alchemy, a luxury body care brand for melanated skin). You are warm, knowledgeable, and premium. You recommend products from the Herban Alchemy line (Luxury Body Butter Glazes, Fragrance Oils, Raw Butters, and Carrier Oils) based on user concerns (dryness, hyperpigmentation, glow, moisture). If the user is a man, highlight the Men's collection (exclusively featuring argan oil and rosehip oil to nourish and seal moisture). Keep your replies concise, elegant, and helpful. Always sound luxurious.",
+    "model": "gemini"
+  },
+  "products": [
+    {
+      "id": 301,
+      "category": "men",
+      "type": "men_cleanser",
+      "name": "Men's Face Cleanser",
+      "price": 32,
+      "size": "4 oz",
+      "badge": "FOR HIM",
+      "description": "Deep cleanses, refines pores, and balances the skin without stripping. Packed exclusively with nourishing argan and rosehip oils in our signature black squeeze bottle.",
+      "image": "assets/men_face_cleanser.jfif",
+      "scents": ["Mango Dream", "Vanilla Orchid", "Citrus Zest", "Lavender Haze", "Amber Spice", "Rose Petal", "Coconut Kiss", "Eucalyptus Fresh", "Jasmine Nights", "Sandalwood Warm", "Grapefruit Glow", "Patchouli Earth"]
+    },
+    {
+      "id": 302,
+      "category": "men",
+      "type": "men_glaze",
+      "name": "Men's Body Glaze",
+      "price": 38,
+      "size": "4 oz",
+      "badge": "FOR HIM",
+      "description": "Our ultra-hydrating whipped body butter glaze. Formulated exclusively with argan and rosehip oils in a sleek black jar to leave skin smooth, conditioned, and glowing all day.",
+      "image": "assets/men_body_glaze.jfif",
+      "scents": ["Mango Dream", "Vanilla Orchid", "Citrus Zest", "Lavender Haze", "Amber Spice", "Rose Petal", "Coconut Kiss", "Eucalyptus Fresh", "Jasmine Nights", "Sandalwood Warm", "Grapefruit Glow", "Patchouli Earth"]
+    },
+    {
+      "id": 1,
+      "category": "glaze",
+      "type": "butter",
+      "name": "Luxury Body Butter Glaze",
+      "price": 38,
+      "size": "8 oz",
+      "description": "Our signature whipped body butter. Deeply hydrates while leaving skin silky, never greasy.",
+      "image": "assets/amber_spice_butter.jpg",
+      "scents": ["Mango Dream", "Vanilla Orchid", "Citrus Zest", "Lavender Haze", "Amber Spice", "Rose Petal", "Coconut Kiss", "Eucalyptus Fresh", "Jasmine Nights", "Sandalwood Warm", "Grapefruit Glow", "Patchouli Earth"]
+    },
+    {
+      "id": 2,
+      "category": "oil",
+      "type": "oil",
+      "name": "Full Body Fragrance Oil",
+      "price": 32,
+      "size": "2 oz",
+      "description": "Lightweight, fast-absorbing body oil. Perfect for layering or wearing alone.",
+      "image": "assets/mango_dream_oil.jpg",
+      "scents": ["Mango Dream", "Vanilla Orchid", "Citrus Zest", "Amber Spice", "Rose Petal", "Coconut Kiss", "Sandalwood Warm", "Grapefruit Glow", "Ylang Ylang", "Tonka Bean", "Fig Leaf", "Oud & Saffron", "Blue Lotus", "White Tea", "Lavender Haze"]
+    },
+    {
+      "id": 201,
+      "category": "raw",
+      "type": "raw",
+      "name": "Raw White Shea Butter",
+      "price": 34,
+      "size": "16 oz (1 lb)",
+      "packaging": "Signature black bag · 4 pre-portioned 4 oz blocks — easy to melt, measure, and customize at home.",
+      "description": "Natural, unrefined, pure white shea. Rich in vitamins A, E & F for skin, hair, nails, and DIY formulas.",
+      "image": "assets/raw-white-shea-le-card.jpg",
+      "images": ["assets/raw-white-shea-le-card.jpg", "assets/raw-white-shea-photo-enhanced.jpg"],
+      "scents": []
+    },
+    {
+      "id": 202,
+      "category": "raw",
+      "type": "raw",
+      "name": "Raw Mango Butter",
+      "price": 36,
+      "size": "16 oz (1 lb)",
+      "packaging": "Signature black bag · 4 pre-portioned 4 oz blocks — the same nourishing base we use in our glazes.",
+      "description": "Creamy, vitamin-rich raw mango butter — unrefined and ready for your own blends or deep moisture rituals.",
+      "image": "assets/raw-mango-butter-le-card.jpg",
+      "images": ["assets/raw-mango-butter-le-card.jpg", "assets/raw-mango-butter-photo-enhanced.jpg"],
+      "scents": []
+    },
+    {
+      "id": 401,
+      "category": "carrier",
+      "type": "carrier_oil",
+      "name": "Jamaican Black Castor Oil",
+      "price": 18,
+      "size": "50 ml",
+      "description": "Pure, raw cold-pressed Jamaican Black Castor Oil. Famous for locking in hydration, sealing moisture, and promoting healthy hair growth.",
+      "image": "assets/carrier_black_castor.png",
+      "scents": []
+    },
+    {
+      "id": 402,
+      "category": "carrier",
+      "type": "carrier_oil",
+      "name": "Aloe Vera Oil",
+      "price": 16,
+      "size": "50 ml",
+      "description": "Soothing, lightweight infusion of Aloe Vera. Promotes skin elasticity, cools irritation, and adds a natural dewy glow.",
+      "image": "assets/carrier_aloe.png",
+      "scents": []
+    },
+    {
+      "id": 403,
+      "category": "carrier",
+      "type": "carrier_oil",
+      "name": "Argan Oil",
+      "price": 22,
+      "size": "50 ml",
+      "description": "Pure, organic liquid gold. Loaded with fatty acids and vitamin E to nourish dry patches, soften hair, and protect skin.",
+      "image": "assets/carrier_argan.png",
+      "scents": []
+    },
+    {
+      "id": 404,
+      "category": "carrier",
+      "type": "carrier_oil",
+      "name": "Avocado Oil",
+      "price": 16,
+      "size": "50 ml",
+      "description": "Ultra-rich and deeply absorbing Avocado oil. Enhances collagen synthesis, heals dry cracked skin, and conditions hair shafts.",
+      "image": "assets/carrier_avocado.png",
+      "scents": []
+    },
+    {
+      "id": 405,
+      "category": "carrier",
+      "type": "carrier_oil",
+      "name": "Castor Oil",
+      "price": 14,
+      "size": "50 ml",
+      "description": "Cold-pressed natural Castor Oil. Creates an incredible protective barrier, seals split ends, and nourishes lashes and brows.",
+      "image": "assets/carrier_castor.png",
+      "scents": []
+    },
+    {
+      "id": 406,
+      "category": "carrier",
+      "type": "carrier_oil",
+      "name": "Shea Nut Oil",
+      "price": 18,
+      "size": "50 ml",
+      "description": "Fractionated Shea Nut liquid oil. Easy-to-apply moisture that keeps all the benefits of raw shea butter without the solid melt time.",
+      "image": "assets/carrier_shea_nut.png",
+      "scents": []
+    },
+    {
+      "id": 407,
+      "category": "carrier",
+      "type": "carrier_oil",
+      "name": "Tocopherol (Vitamin E)",
+      "price": 20,
+      "size": "50 ml",
+      "description": "Pure, highly concentrated Tocopherol Vitamin E oil. A powerful antioxidant that repairs damaged skin cells and strengthens skin elasticity.",
+      "image": "assets/carrier_vitamin_e.png",
+      "scents": []
+    }
+  ]
+}

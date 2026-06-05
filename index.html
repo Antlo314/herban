@@ -1037,6 +1037,13 @@
         }
 
         function addToCart(name, type, price, scent = '', imageOverride = '') {
+            // Read pricing from server config dynamically if present
+            if (window.currentConfig && window.currentConfig.products) {
+                const prod = window.currentConfig.products.find(p => p.name === name || (p.displayName && name.includes(p.displayName)));
+                if (prod) {
+                    price = prod.price;
+                }
+            }
             const existing = cart.findIndex(item => item.name === name && item.scent === scent);
             
             if (existing > -1) {
@@ -1404,5 +1411,6 @@
     </script>
     <script src="assets/skin-tone-experience.js"></script>
     <script src="assets/glow-experience.js"></script>
+    <script src="assets/storefront-integration.js"></script>
 </body>
 </html>

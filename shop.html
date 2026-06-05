@@ -202,7 +202,7 @@
             },
         ];
 
-        const products = [
+        let products = [
             { id: 101, category: 'limited', type: 'butter', name: 'Luxury Body Butter Glaze', displayName: 'Sweet Auburn', price: 38, size: '8 oz', badge: 'LIMITED', description: 'Warm. Rich. Timeless. Inspired by heritage, culture & community.', image: 'assets/atlanta-collection/sweet-auburn-le-card.jpg', images: ['assets/atlanta-collection/sweet-auburn-le-card.jpg', 'assets/atlanta-collection/sweet-auburn-photo-enhanced.jpg'], scents: ['Sweet Auburn'], singleScent: true },
             { id: 102, category: 'limited', type: 'butter', name: 'Luxury Body Butter Glaze', displayName: 'Peachtree', price: 38, size: '8 oz', badge: 'LIMITED', description: 'Fresh. Vibrant. Iconic. A tribute to sunshine, growth & southern charm.', image: 'assets/atlanta-collection/peachtree-le-card.jpg', images: ['assets/atlanta-collection/peachtree-le-card.jpg', 'assets/atlanta-collection/peachtree-photo-enhanced.jpg'], scents: ['Peachtree'], singleScent: true },
             { id: 103, category: 'limited', type: 'butter', name: 'Luxury Body Butter Glaze', displayName: 'Lenox', price: 38, size: '8 oz', badge: 'LIMITED', description: 'Bold. Luxe. Unapologetic. Inspired by style, ambition & the new ATL.', image: 'assets/atlanta-collection/lenox-le-card.jpg', images: ['assets/atlanta-collection/lenox-le-card.jpg', 'assets/atlanta-collection/lenox-photo-enhanced.jpg'], scents: ['Lenox'], singleScent: true },
@@ -690,7 +690,23 @@
             window.location.href = 'index.html';
         }
 
-        function initializeShop() {
+        async function fetchDynamicProducts() {
+            try {
+                const res = await fetch('/api/config');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.products && data.products.length) {
+                        products.length = 0;
+                        products.push(...data.products);
+                    }
+                }
+            } catch (err) {
+                console.warn('Static fallback: Failed to load products from server.', err);
+            }
+        }
+
+        async function initializeShop() {
+            await fetchDynamicProducts();
             const hash = (window.location.hash || '').replace('#', '');
             const hashToFilter = { 'atlanta-collection': 'limited', 'raw-ingredients': 'raw', 'carrier-oils': 'carrier' };
             const initial = hashToFilter[hash] || 'all';
@@ -749,5 +765,6 @@
         </div>
     </footer>
     <script src="assets/product-gallery.js"></script>
+    <script src="assets/storefront-integration.js"></script>
 </body>
 </html>
