@@ -269,15 +269,19 @@ app.post('/api/generate-image', checkAuth, async (req, res) => {
                 return res.status(400).json({ error: 'Gemini API key is not configured' });
             }
 
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:generateImages?key=${secrets.geminiApiKey}`;
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-fast-generate-001:predict?key=${secrets.geminiApiKey}`;
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    prompt: prompt,
-                    numberOfImages: 1,
-                    outputMimeType: 'image/jpeg',
-                    aspectRatio: '1:1'
+                    instances: [
+                        { prompt: prompt }
+                    ],
+                    parameters: {
+                        sampleCount: 1,
+                        outputMimeType: 'image/jpeg',
+                        aspectRatio: '1:1'
+                    }
                 })
             });
 
@@ -287,7 +291,7 @@ app.post('/api/generate-image', checkAuth, async (req, res) => {
             }
 
             const data = await response.json();
-            base64Data = data.generatedImages?.[0]?.image?.imageBytes;
+            base64Data = data.predictions?.[0]?.bytesBase64Encoded;
             if (!base64Data) {
                 throw new Error('No image data returned from Gemini Imagen');
             }
