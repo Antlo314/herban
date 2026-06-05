@@ -87,6 +87,13 @@
                 : 'assets/raw-white-shea-photo-enhanced.jpg';
         }
         if (type === 'carrier_oil') {
+            if (name.includes('Black Castor')) return 'assets/carrier_black_castor.png';
+            if (name.includes('Aloe Vera')) return 'assets/carrier_aloe.png';
+            if (name.includes('Argan')) return 'assets/carrier_argan.png';
+            if (name.includes('Avocado')) return 'assets/carrier_avocado.png';
+            if (name.includes('Castor')) return 'assets/carrier_castor.png';
+            if (name.includes('Shea Nut')) return 'assets/carrier_shea_nut.png';
+            if (name.includes('Tocopherol') || name.includes('Vitamin E')) return 'assets/carrier_vitamin_e.png';
             return 'assets/carrier_oil_base.png';
         }
         if (imageOverride && type !== 'butter' && type !== 'oil') return imageOverride;
