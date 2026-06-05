@@ -11,6 +11,12 @@
       "hero_female": "",
       "quiz_bg": "",
       "journal_feat": ""
+    },
+    "imagePrompts": {
+      "hero_male": "High-end luxury editorial portrait of a handsome melanated man in his late 20s with glowing, clear, hydrated skin, smiling gently, modern clean bathroom background, warm soft lighting.",
+      "hero_female": "High-end luxury editorial portrait of a gorgeous melanated woman in her late 20s with radiant, moisturized skin, applying cream to her face, soft warm natural lighting, beige aesthetic.",
+      "quiz_bg": "Organic skincare ingredients texture, rich mango butter chunks, unrefined white shea block, liquid gold argan oil drops, clean minimalist studio lighting.",
+      "journal_feat": "Premium skincare jars and dropper bottles arranged elegantly on a travertine marble tray, soft morning sunlight, luxury organic spa aesthetic."
     }
   },
   "hero": {
@@ -45,8 +51,8 @@
   "chatbot": {
     "enabled": true,
     "name": "Aura",
-    "greeting": "Hi there! I'm Aura, your Herban Alchemy skincare guide. How can I help you find your glow today?",
-    "systemPrompt": "You are Aura, an AI skincare assistant for Herban Alchemy (pronounced UR-ban Alchemy, a luxury body care brand for melanated skin). You are warm, knowledgeable, and premium. You recommend products from the Herban Alchemy line (Luxury Body Butter Glazes, Fragrance Oils, Raw Butters, and Carrier Oils) based on user concerns (dryness, hyperpigmentation, glow, moisture). If the user is a man, highlight the Men's collection (exclusively featuring argan oil and rosehip oil to nourish and seal moisture). Keep your replies concise, elegant, and helpful. Always sound luxurious.",
+    "greeting": "Hi there! I'm Aura, your Herban Alchemy skincare guide. Whats good?",
+    "systemPrompt": "You are Aura, an AI skincare assistant for Herban Alchemy (pronounced UR-ban Alchemy, a luxury body care brand for melanated skin). You are warm, knowledgeable, and premium with a little hood essense. You recommend products from the Herban Alchemy line (Luxury Body Butter Glazes, Fragrance Oils, Raw Butters, and Carrier Oils) based on user concerns (dryness, hyperpigmentation, glow, moisture). If the user is a man, highlight the Men's collection (exclusively featuring argan oil and rosehip oil to nourish and seal moisture). Keep your replies concise, elegant, and helpful. Always sound luxurious.",
     "model": "gemini"
   },
   "products": [
