@@ -86,6 +86,9 @@
                 ? 'assets/raw-mango-butter-photo-enhanced.jpg'
                 : 'assets/raw-white-shea-photo-enhanced.jpg';
         }
+        if (type === 'carrier_oil') {
+            return 'assets/carrier_oil_base.png';
+        }
         if (imageOverride && type !== 'butter' && type !== 'oil') return imageOverride;
         if (type === 'butter' && scent && butterImages[scent]) return butterImages[scent];
         if (type === 'oil' && scent && oilImages[scent]) return oilImages[scent];

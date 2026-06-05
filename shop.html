@@ -97,6 +97,7 @@
         <button data-filter="glaze" onclick="filterProducts('glaze')" class="filter-btn px-3 md:px-4 py-1.5 rounded-full border text-[10px] md:text-xs font-medium hover:bg-gray-50">BODY GLAZE</button>
         <button data-filter="oil" onclick="filterProducts('oil')" class="filter-btn px-3 md:px-4 py-1.5 rounded-full border text-[10px] md:text-xs font-medium hover:bg-gray-50">BODY OIL</button>
         <button data-filter="raw" onclick="filterProducts('raw')" class="filter-btn px-3 md:px-4 py-1.5 rounded-full border text-[10px] md:text-xs font-medium hover:bg-gray-50">RAW INGREDIENTS</button>
+        <button data-filter="carrier" onclick="filterProducts('carrier')" class="filter-btn px-3 md:px-4 py-1.5 rounded-full border text-[10px] md:text-xs font-medium hover:bg-gray-50">CARRIER OILS</button>
         <button data-filter="men" onclick="filterProducts('men')" class="filter-btn px-3 md:px-4 py-1.5 rounded-full border text-[10px] md:text-xs font-medium hover:bg-gray-50">FOR HIM</button>
     </div>
 
@@ -192,6 +193,13 @@
                 title: 'Raw Shea & Mango Butter',
                 subtitle: '16 oz (1 lb) in black bags · four 4 oz blocks for easy melting & use.',
             },
+            {
+                key: 'carrier',
+                anchor: 'carrier-oils',
+                eyebrow: 'PURE CARRIER OILS',
+                title: 'Luxury Carrier Oils',
+                subtitle: 'Single-source pure cold-pressed botanicals for hair, body, and custom mixing. All 50 ml dropper bottles.',
+            },
         ];
 
         const products = [
@@ -268,6 +276,83 @@
                 description: 'Creamy, vitamin-rich raw mango butter — unrefined and ready for your own blends or deep moisture rituals.',
                 image: 'assets/raw-mango-butter-le-card.jpg',
                 images: ['assets/raw-mango-butter-le-card.jpg', 'assets/raw-mango-butter-photo-enhanced.jpg'],
+                scents: [],
+            },
+            {
+                id: 401,
+                category: 'carrier',
+                type: 'carrier_oil',
+                name: 'Jamaican Black Castor Oil',
+                price: 18,
+                size: '50 ml',
+                description: 'Pure, raw cold-pressed Jamaican Black Castor Oil. Famous for locking in hydration, sealing moisture, and promoting healthy hair growth.',
+                image: 'assets/carrier_oil_base.png',
+                scents: [],
+            },
+            {
+                id: 402,
+                category: 'carrier',
+                type: 'carrier_oil',
+                name: 'Aloe Vera Oil',
+                price: 16,
+                size: '50 ml',
+                description: 'Soothing, lightweight infusion of Aloe Vera. Promotes skin elasticity, cools irritation, and adds a natural dewy glow.',
+                image: 'assets/carrier_oil_base.png',
+                scents: [],
+            },
+            {
+                id: 403,
+                category: 'carrier',
+                type: 'carrier_oil',
+                name: 'Argan Oil',
+                price: 22,
+                size: '50 ml',
+                description: 'Pure, organic liquid gold. Loaded with fatty acids and vitamin E to nourish dry patches, soften hair, and protect skin.',
+                image: 'assets/carrier_oil_base.png',
+                scents: [],
+            },
+            {
+                id: 404,
+                category: 'carrier',
+                type: 'carrier_oil',
+                name: 'Avocado Oil',
+                price: 16,
+                size: '50 ml',
+                description: 'Ultra-rich and deeply absorbing Avocado oil. Enhances collagen synthesis, heals dry cracked skin, and conditions hair shafts.',
+                image: 'assets/carrier_oil_base.png',
+                scents: [],
+            },
+            {
+                id: 405,
+                category: 'carrier',
+                type: 'carrier_oil',
+                name: 'Castor Oil',
+                price: 14,
+                size: '50 ml',
+                description: 'Cold-pressed natural Castor Oil. Creates an incredible protective barrier, seals split ends, and nourishes lashes and brows.',
+                image: 'assets/carrier_oil_base.png',
+                scents: [],
+            },
+            {
+                id: 406,
+                category: 'carrier',
+                type: 'carrier_oil',
+                name: 'Shea Nut Oil',
+                price: 18,
+                size: '50 ml',
+                description: 'Fractionated Shea Nut liquid oil. Easy-to-apply moisture that keeps all the benefits of raw shea butter without the solid melt time.',
+                image: 'assets/carrier_oil_base.png',
+                scents: [],
+            },
+            {
+                id: 407,
+                category: 'carrier',
+                type: 'carrier_oil',
+                name: 'Tocopherol (Vitamin E)',
+                price: 20,
+                size: '50 ml',
+                description: 'Pure, highly concentrated Tocopherol Vitamin E oil. A powerful antioxidant that repairs damaged skin cells and strengthens skin elasticity.',
+                image: 'assets/carrier_oil_base.png',
                 scents: [],
             },
         ];
@@ -567,6 +652,7 @@
             if (imageOverride) return imageOverride;
             const imgMap = type === 'butter' ? butterImages : oilImages;
             if (type === 'raw') return name.includes('Mango') ? 'assets/raw-mango-butter-le-card.jpg' : 'assets/raw-white-shea-le-card.jpg';
+            if (type === 'carrier_oil') return 'assets/carrier_oil_base.png';
             if (scent && imgMap[scent]) return imgMap[scent];
             return type === 'butter' ? 'assets/amber_spice_butter.jpg' : 'assets/mango_dream_oil.jpg';
         }
@@ -606,7 +692,7 @@
 
         function initializeShop() {
             const hash = (window.location.hash || '').replace('#', '');
-            const hashToFilter = { 'atlanta-collection': 'limited', 'raw-ingredients': 'raw' };
+            const hashToFilter = { 'atlanta-collection': 'limited', 'raw-ingredients': 'raw', 'carrier-oils': 'carrier' };
             const initial = hashToFilter[hash] || 'all';
             filterProducts(initial);
             updateCartCount();
