@@ -119,18 +119,18 @@
         }
 
         .le-section {
-            background: linear-gradient(180deg, #0a0a0a 0%, #141210 45%, #1a1510 100%);
+            background: linear-gradient(180deg, #FAF7F2 0%, #F5F2EB 100%);
         }
 
         .le-card {
-            background: linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
-            border: 1px solid rgba(197, 162, 111, 0.25);
+            background: #ffffff;
+            border: 1px solid rgba(197, 162, 111, 0.15);
             backdrop-filter: blur(8px);
         }
 
         .le-card:hover {
-            border-color: rgba(197, 162, 111, 0.55);
-            box-shadow: 0 24px 48px -12px rgba(197, 162, 111, 0.2);
+            border-color: rgba(197, 162, 111, 0.45);
+            box-shadow: 0 24px 48px -12px rgba(197, 162, 111, 0.1);
         }
 
         .le-product-img {
@@ -165,17 +165,17 @@
         }
 
         .tone-console-section {
-            background: #080808;
-            color: #f5f0e8;
+            background: #FAF7F2;
+            color: #111111;
         }
 
         .tone-console-mesh {
             position: absolute;
             inset: 0;
             background:
-                radial-gradient(ellipse 70% 50% at 20% 20%, rgba(197, 162, 111, 0.14) 0%, transparent 55%),
-                radial-gradient(ellipse 60% 45% at 85% 75%, rgba(255, 107, 53, 0.08) 0%, transparent 50%),
-                linear-gradient(180deg, #0a0a0a 0%, #111010 50%, #0a0a0a 100%);
+                radial-gradient(ellipse 70% 50% at 20% 20%, rgba(197, 162, 111, 0.08) 0%, transparent 55%),
+                radial-gradient(ellipse 60% 45% at 85% 75%, rgba(255, 107, 53, 0.04) 0%, transparent 50%),
+                linear-gradient(180deg, #FAF7F2 0%, #F5F2EB 50%, #FAF7F2 100%);
             pointer-events: none;
         }
 
@@ -185,7 +185,7 @@
             inset: 0;
             background-image: radial-gradient(rgba(197, 162, 111, 0.15) 1px, transparent 1px);
             background-size: 28px 28px;
-            opacity: 0.35;
+            opacity: 0.15;
             mask-image: linear-gradient(180deg, black 0%, transparent 85%);
         }
 
@@ -287,6 +287,7 @@
                 <div class="hidden md:flex items-center gap-x-8 text-sm font-medium">
                     <a href="index.html" class="nav-link">Home</a>
                     <a href="shop.html" class="nav-link">Shop</a>
+                    <a href="shop.html#men" class="nav-link text-[#C5A26F] font-semibold">For Him</a>
                     <a href="ingredients.html" class="nav-link">Ingredients</a>
                     <a href="about.html" class="nav-link">About</a>
                     <a href="journal.html" class="nav-link">Journal</a>
@@ -335,6 +336,7 @@
         <div class="px-6 py-4 space-y-2 text-sm">
             <a href="index.html" class="block py-2 hover:text-[#C5A26F]">Home</a>
             <a href="shop.html" class="block py-2 hover:text-[#C5A26F]">Shop</a>
+            <a href="shop.html#men" class="block py-2 text-[#C5A26F] font-semibold">For Him</a>
             <a href="about.html" class="block py-2 hover:text-[#C5A26F]">About</a>
             <a href="index.html#quiz" class="block py-2 hover:text-[#C5A26F]">Find Your Scent</a>
             <a href="ingredients.html" class="block py-2 hover:text-[#C5A26F]">Ingredients</a>
@@ -371,7 +373,7 @@
                     HERBAN<br>ALCHEMY
                 </h1>
                 <p class="text-sm md:text-base text-white/80 font-light mb-4 md:mb-5 max-w-md leading-relaxed">
-                    <span class="text-white/90">(HER-bən</span> · sounds like <span class="text-[#C5A26F] font-medium">Urban Alchemy</span><span class="text-white/90"> — the H is silent)</span>
+                    UR-ban
                 </p>
                 <p class="text-2xl md:text-4xl lg:text-5xl font-black tracking-[-2px] mb-4 md:mb-6 leading-tight">
                     THE GLAZE.<br>THE GLOW.
@@ -411,8 +413,8 @@
     </header>
 
     <!-- Atlanta Collection — Limited Edition (extracted from client flyer) -->
-    <section id="atlanta-collection" class="le-section text-white py-16 md:py-24 relative overflow-hidden">
-        <div class="absolute inset-0 opacity-30 pointer-events-none" style="background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(197,162,111,0.35) 0%, transparent 70%);"></div>
+    <section id="atlanta-collection" class="le-section text-[#111111] py-16 md:py-24 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10 pointer-events-none" style="background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(197,162,111,0.15) 0%, transparent 70%);"></div>
         <div class="max-w-7xl mx-auto px-6 relative z-10">
             <div class="text-center max-w-3xl mx-auto mb-12 md:mb-16">
                 <div class="inline-flex items-center gap-2 border border-[#C5A26F]/40 text-[#C5A26F] px-4 py-1 rounded-full text-[10px] md:text-xs tracking-[0.25em] font-semibold mb-5">
@@ -422,69 +424,69 @@
                 <h2 class="heading-serif text-4xl md:text-6xl lg:text-7xl tracking-tight mb-4">
                     The <span class="text-[#C5A26F]">Atlanta</span> Collection
                 </h2>
-                <p class="text-white/75 text-base md:text-xl font-light leading-relaxed">
+                <p class="text-gray-600 text-base md:text-xl font-light leading-relaxed">
                     Atlanta's essence. Nourished. Radiant. Iconic. Three brand-new Luxury Body Butter Glaze scents — available for a limited time only.
                 </p>
-                <p class="text-white/45 text-xs mt-3 tracking-wide">Real product photos appear in your cart after you add</p>
+                <p class="text-gray-400 text-xs mt-3 tracking-wide">Real product photos appear in your cart after you add</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6 lg:gap-10">
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6 lg:gap-10">
                 <!-- Sweet Auburn -->
-                <article class="le-card ha-card le-card-wrap group rounded-3xl overflow-hidden transition-all duration-500 shadow-2xl shadow-black/40">
-                    <div class="ha-card-media ha-card-media--dark">
+                <article class="le-card ha-card le-card-wrap group rounded-2xl overflow-hidden transition-all duration-500 shadow-md">
+                    <div class="ha-card-media">
                         <div class="ha-card-frame">
                             <img src="assets/atlanta-collection/sweet-auburn-le-card.jpg" alt="Sweet Auburn limited edition" class="ha-card-img" loading="eager">
                         </div>
                     </div>
-                    <div class="ha-card-body p-5 md:p-6 bg-[#0d0d0d] border-t border-[#C5A26F]/20">
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="text-[10px] tracking-[0.2em] text-white/50 font-medium">8 OZ • NOURISH • HYDRATE • GLOW</span>
-                            <span class="text-[#C5A26F] text-xl font-semibold">$38</span>
+                    <div class="ha-card-body p-3 sm:p-5 md:p-6 bg-white border-t border-gray-100">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-y-1">
+                            <span class="text-[9px] tracking-[0.1em] text-gray-500 font-medium">8 OZ • GLOW</span>
+                            <span class="text-[#C5A26F] text-base sm:text-xl font-semibold">$38</span>
                         </div>
-                        <button type="button" onclick="addAtlantaToCart('Sweet Auburn')" class="w-full bg-white text-[#111] hover:bg-[#C5A26F] hover:text-white font-semibold py-3.5 rounded-full text-sm tracking-wider transition-all">
+                        <button type="button" onclick="addAtlantaToCart('Sweet Auburn')" class="w-full bg-[#111111] text-white hover:bg-[#C5A26F] hover:text-white font-semibold py-2 sm:py-3.5 rounded-xl sm:rounded-full text-xs sm:text-sm tracking-wider transition-all">
                             ADD TO CART
                         </button>
                     </div>
                 </article>
 
                 <!-- Peachtree -->
-                <article class="le-card ha-card le-card-wrap group rounded-3xl overflow-hidden transition-all duration-500 md:-translate-y-4 shadow-2xl shadow-black/40 ring-1 ring-[#FF6B35]/30">
-                    <div class="ha-card-media ha-card-media--dark">
+                <article class="le-card ha-card le-card-wrap group rounded-2xl overflow-hidden transition-all duration-500 md:-translate-y-4 shadow-md ring-1 ring-[#FF6B35]/30">
+                    <div class="ha-card-media">
                         <div class="ha-card-frame">
                             <img src="assets/atlanta-collection/peachtree-le-card.jpg" alt="Peachtree limited edition" class="ha-card-img" loading="lazy">
                         </div>
                     </div>
-                    <div class="ha-card-body p-5 md:p-6 bg-[#1a0f05] border-t border-[#FF6B35]/25">
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="text-[10px] tracking-[0.2em] text-white/50 font-medium">8 OZ • NOURISH • HYDRATE • GLOW</span>
-                            <span class="text-[#FF9F6B] text-xl font-semibold">$38</span>
+                    <div class="ha-card-body p-3 sm:p-5 md:p-6 bg-white border-t border-gray-100">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-y-1">
+                            <span class="text-[9px] tracking-[0.1em] text-gray-500 font-medium">8 OZ • GLOW</span>
+                            <span class="text-[#FF9F6B] text-base sm:text-xl font-semibold">$38</span>
                         </div>
-                        <button type="button" onclick="addAtlantaToCart('Peachtree')" class="w-full bg-[#FF6B35] text-white hover:bg-white hover:text-[#111] font-semibold py-3.5 rounded-full text-sm tracking-wider transition-all">
+                        <button type="button" onclick="addAtlantaToCart('Peachtree')" class="w-full bg-[#111111] text-white hover:bg-[#C5A26F] hover:text-white font-semibold py-2 sm:py-3.5 rounded-xl sm:rounded-full text-xs sm:text-sm tracking-wider transition-all">
                             ADD TO CART
                         </button>
                     </div>
                 </article>
 
                 <!-- Lenox -->
-                <article class="le-card ha-card le-card-wrap group rounded-3xl overflow-hidden transition-all duration-500 shadow-2xl shadow-black/40">
-                    <div class="ha-card-media ha-card-media--dark">
+                <article class="le-card ha-card le-card-wrap group rounded-2xl overflow-hidden transition-all duration-500 shadow-md">
+                    <div class="ha-card-media">
                         <div class="ha-card-frame">
                             <img src="assets/atlanta-collection/lenox-le-card.jpg" alt="Lenox limited edition" class="ha-card-img" loading="lazy">
                         </div>
                     </div>
-                    <div class="ha-card-body p-5 md:p-6 bg-[#0d0d0d] border-t border-white/15">
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="text-[10px] tracking-[0.2em] text-white/50 font-medium">8 OZ • NOURISH • HYDRATE • GLOW</span>
-                            <span class="text-[#C5A26F] text-xl font-semibold">$38</span>
+                    <div class="ha-card-body p-3 sm:p-5 md:p-6 bg-white border-t border-gray-100">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-y-1">
+                            <span class="text-[9px] tracking-[0.1em] text-gray-500 font-medium">8 OZ • GLOW</span>
+                            <span class="text-[#C5A26F] text-base sm:text-xl font-semibold">$38</span>
                         </div>
-                        <button type="button" onclick="addAtlantaToCart('Lenox')" class="w-full border border-white/60 text-white hover:bg-white hover:text-[#111] font-semibold py-3.5 rounded-full text-sm tracking-wider transition-all">
+                        <button type="button" onclick="addAtlantaToCart('Lenox')" class="w-full bg-[#111111] text-white hover:bg-[#C5A26F] hover:text-white font-semibold py-2 sm:py-3.5 rounded-xl sm:rounded-full text-xs sm:text-sm tracking-wider transition-all">
                             ADD TO CART
                         </button>
                     </div>
                 </article>
             </div>
 
-            <div class="mt-12 md:mt-16 flex flex-wrap items-center justify-center gap-6 md:gap-10 text-[10px] md:text-xs tracking-[0.2em] text-white/50 font-medium">
+            <div class="mt-12 md:mt-16 flex flex-wrap items-center justify-center gap-6 md:gap-10 text-[10px] md:text-xs tracking-[0.2em] text-gray-500 font-medium">
                 <span class="flex items-center gap-2"><i class="fa-solid fa-leaf text-[#C5A26F]"></i> PLANT BASED</span>
                 <span class="flex items-center gap-2"><i class="fa-solid fa-droplet text-[#C5A26F]"></i> INTENSE HYDRATION</span>
                 <span class="flex items-center gap-2"><i class="fa-solid fa-star text-[#C5A26F]"></i> RADIANT GLOW</span>
@@ -506,35 +508,35 @@
                 </div>
                 <a href="shop.html#raw-ingredients" class="text-sm font-semibold hover:text-[#C5A26F] shrink-0">SHOP RAW <i class="fa-solid fa-arrow-right-long ml-1"></i></a>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 max-w-5xl mx-auto">
-                <article class="ha-card le-card-wrap group rounded-3xl overflow-hidden border border-gray-100 shadow-lg hover:shadow-2xl transition-shadow bg-white">
+            <div class="grid grid-cols-2 md:grid-cols-2 gap-3 md:gap-10 max-w-5xl mx-auto">
+                <article class="ha-card le-card-wrap group rounded-2xl overflow-hidden border border-gray-150 shadow-md bg-white">
                     <div class="ha-card-media">
                         <div class="ha-card-frame">
                             <img src="assets/raw-white-shea-le-card.jpg" alt="Raw White Shea Butter" class="ha-card-img" loading="lazy">
                         </div>
                     </div>
-                    <div class="ha-card-body p-5 md:p-6 bg-[#0d0d0d] border-t border-[#C5A26F]/20">
-                        <div class="flex items-center justify-between">
-                            <span class="text-[10px] tracking-[0.2em] text-white/50">16 OZ · 4 × 4 OZ BLOCKS</span>
-                            <span class="text-[#C5A26F] text-xl font-semibold">$34</span>
+                    <div class="ha-card-body p-3 sm:p-5 md:p-6 bg-white border-t border-gray-100">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-y-1">
+                            <span class="text-[9px] tracking-[0.1em] text-gray-500 font-medium">16 OZ · 4 × 4 OZ</span>
+                            <span class="text-[#C5A26F] text-base sm:text-xl font-semibold">$34</span>
                         </div>
-                        <button type="button" onclick="addRawToCart('Raw White Shea Butter', 34, 'assets/raw-white-shea-le-card.jpg')" class="w-full mt-4 bg-white text-[#111] hover:bg-[#C5A26F] hover:text-white font-semibold py-3.5 rounded-full text-sm tracking-wider transition-all">
+                        <button type="button" onclick="addRawToCart('Raw White Shea Butter', 34, 'assets/raw-white-shea-le-card.jpg')" class="w-full bg-[#111111] text-white hover:bg-[#C5A26F] hover:text-white font-semibold py-2 sm:py-3.5 rounded-xl sm:rounded-full text-xs sm:text-sm tracking-wider transition-all">
                             ADD TO CART
                         </button>
                     </div>
                 </article>
-                <article class="ha-card le-card-wrap group rounded-3xl overflow-hidden border border-gray-100 shadow-lg hover:shadow-2xl transition-shadow bg-white">
+                <article class="ha-card le-card-wrap group rounded-2xl overflow-hidden border border-gray-150 shadow-md bg-white">
                     <div class="ha-card-media">
                         <div class="ha-card-frame">
                             <img src="assets/raw-mango-butter-le-card.jpg" alt="Raw Mango Butter" class="ha-card-img" loading="lazy">
                         </div>
                     </div>
-                    <div class="ha-card-body p-5 md:p-6 bg-[#1a0f05] border-t border-[#FF6B35]/25">
-                        <div class="flex items-center justify-between">
-                            <span class="text-[10px] tracking-[0.2em] text-white/50">16 OZ · 4 × 4 OZ BLOCKS</span>
-                            <span class="text-[#FF9F6B] text-xl font-semibold">$36</span>
+                    <div class="ha-card-body p-3 sm:p-5 md:p-6 bg-white border-t border-gray-100">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-y-1">
+                            <span class="text-[9px] tracking-[0.1em] text-gray-500 font-medium">16 OZ · 4 × 4 OZ</span>
+                            <span class="text-[#FF9F6B] text-base sm:text-xl font-semibold">$36</span>
                         </div>
-                        <button type="button" onclick="addRawToCart('Raw Mango Butter', 36, 'assets/raw-mango-butter-le-card.jpg')" class="w-full mt-4 bg-[#FF6B35] text-white hover:bg-white hover:text-[#111] font-semibold py-3.5 rounded-full text-sm tracking-wider transition-all">
+                        <button type="button" onclick="addRawToCart('Raw Mango Butter', 36, 'assets/raw-mango-butter-le-card.jpg')" class="w-full bg-[#111111] text-white hover:bg-[#C5A26F] hover:text-white font-semibold py-2 sm:py-3.5 rounded-xl sm:rounded-full text-xs sm:text-sm tracking-wider transition-all">
                             ADD TO CART
                         </button>
                     </div>
@@ -553,13 +555,13 @@
                     <span class="w-1.5 h-1.5 rounded-full bg-[#C5A26F] animate-pulse"></span>
                     LIVE SKIN SPECTRUM
                 </div>
-                <h2 class="text-3xl md:text-5xl lg:text-6xl font-black tracking-[-2px] text-white">Every Shade.<br class="hidden sm:block"> One Ritual.</h2>
-                <p class="text-white/55 mt-4 text-sm md:text-base leading-relaxed">
+                <h2 class="text-3xl md:text-5xl lg:text-6xl font-black tracking-[-2px] text-[#111111]">Every Shade.<br class="hidden sm:block"> One Ritual.</h2>
+                <p class="text-gray-600 mt-4 text-sm md:text-base leading-relaxed">
                     Select your tone on the spectrum. Watch how each formula maps to melanin-rich skin — hydration, glow, and everyday comfort, calibrated in real time.
                 </p>
             </div>
             <div id="skin-spectrum-console" class="w-full"></div>
-            <p class="text-center text-[10px] text-white/35 mt-8 max-w-lg mx-auto leading-relaxed">
+            <p class="text-center text-[10px] text-gray-400 mt-8 max-w-lg mx-auto leading-relaxed">
                 Cosmetic guidance only — not medical advice. Individual results vary.
             </p>
         </div>
@@ -658,6 +660,70 @@
                     
                     <p class="text-center text-[10px] text-gray-500 mt-3">Perfect for layering with the Glaze</p>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MEN'S COLLECTION -->
+    <section id="mens-collection" class="bg-[#FAF7F2] py-14 md:py-20 border-y border-[#C5A26F]/20 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10 md:mb-12">
+                <div>
+                    <div class="text-xs tracking-[0.25em] text-[#C5A26F] font-semibold mb-2">EXCLUSIVE FORMULAS • FOR HIM</div>
+                    <h2 class="text-3xl md:text-5xl font-black tracking-[-2px]">The Men's Collection</h2>
+                    <p class="text-gray-600 mt-2 max-w-lg text-sm md:text-base">Featuring our sleek, signature <strong class="text-[#111]">black jars</strong>. Packed with <strong class="text-[#111]">argan oil and rosehip oil</strong> exclusively to repair, protect, and lock in the ultimate healthy sheen.</p>
+                </div>
+                <a href="shop.html" class="text-sm font-semibold hover:text-[#C5A26F] shrink-0">VIEW MEN'S LINE <i class="fa-solid fa-arrow-right-long ml-1"></i></a>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-2 gap-3 md:gap-10 max-w-5xl mx-auto">
+                <!-- Face Cleanser -->
+                <article class="ha-card le-card-wrap group rounded-2xl overflow-hidden border border-gray-150 shadow-md bg-white">
+                    <div class="ha-card-media">
+                        <div class="ha-card-frame">
+                            <img src="assets/men_face_cleanser.jfif" alt="Men's Face Cleanser" class="ha-card-img" loading="lazy">
+                        </div>
+                    </div>
+                    <div class="ha-card-body p-3 sm:p-5 md:p-6 bg-white border-t border-gray-100">
+                        <div class="ha-card-meta mb-2">
+                            <span class="ha-card-badge bg-[#111] text-white">ARGAN &amp; ROSEHIP</span>
+                        </div>
+                        <h3 class="text-base sm:text-2xl font-black tracking-tight text-[#111] line-clamp-1">Men's Face Cleanser</h3>
+                        <p class="text-[10px] text-[#C5A26F] font-medium uppercase tracking-wider mt-0.5">Sleek Black Jar</p>
+                        <p class="text-xs text-gray-500 mt-1.5 line-clamp-2 hidden sm:block">Deep cleanses, refines pores, and hydrates without stripping. Infused exclusively with argan and rosehip oil.</p>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-3 sm:mt-4 gap-y-1">
+                            <span class="text-[9px] tracking-[0.1em] text-gray-500 font-medium">4 OZ • DEEP CLEANSE</span>
+                            <span class="text-[#111] text-base sm:text-xl font-semibold">$32</span>
+                        </div>
+                        <button type="button" onclick="addMenToCart('Men\'s Face Cleanser', 32)" class="w-full mt-3 bg-[#111111] text-white hover:bg-[#C5A26F] hover:text-white font-semibold py-2 sm:py-3.5 rounded-xl sm:rounded-full text-xs sm:text-sm tracking-wider transition-all">
+                            ADD TO CART
+                        </button>
+                    </div>
+                </article>
+
+                <!-- Body Glaze -->
+                <article class="ha-card le-card-wrap group rounded-2xl overflow-hidden border border-gray-150 shadow-md bg-white">
+                    <div class="ha-card-media">
+                        <div class="ha-card-frame">
+                            <img src="assets/men_body_glaze.jfif" alt="Men's Body Glaze" class="ha-card-img" loading="lazy">
+                        </div>
+                    </div>
+                    <div class="ha-card-body p-3 sm:p-5 md:p-6 bg-white border-t border-gray-100">
+                        <div class="ha-card-meta mb-2">
+                            <span class="ha-card-badge bg-[#111] text-white">ARGAN &amp; ROSEHIP</span>
+                        </div>
+                        <h3 class="text-base sm:text-2xl font-black tracking-tight text-[#111] line-clamp-1">Men's Body Glaze</h3>
+                        <p class="text-[10px] text-[#C5A26F] font-medium uppercase tracking-wider mt-0.5">Sleek Black Jar</p>
+                        <p class="text-xs text-gray-500 mt-1.5 line-clamp-2 hidden sm:block">Intense hydration that absorbs quickly with no greasy residue. Formulated exclusively with argan and rosehip oil.</p>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-3 sm:mt-4 gap-y-1">
+                            <span class="text-[9px] tracking-[0.1em] text-gray-500 font-medium">8 OZ • ULTRA-HYDRATE</span>
+                            <span class="text-[#111] text-base sm:text-xl font-semibold">$38</span>
+                        </div>
+                        <button type="button" onclick="addMenToCart('Men\'s Body Glaze', 38)" class="w-full mt-3 bg-[#111111] text-white hover:bg-[#C5A26F] hover:text-white font-semibold py-2 sm:py-3.5 rounded-xl sm:rounded-full text-xs sm:text-sm tracking-wider transition-all">
+                            ADD TO CART
+                        </button>
+                    </div>
+                </article>
             </div>
         </div>
     </section>
@@ -1065,6 +1131,11 @@
 
         function addRawToCart(name, price, image) {
             addToCart(name, 'raw', price, '', image);
+        }
+
+        function addMenToCart(name, price) {
+            const img = name.includes('Cleanser') ? 'assets/men_face_cleanser.jfif' : 'assets/men_body_glaze.jfif';
+            addToCart(name, 'men', price, '', img);
         }
 
         // Launch modal

@@ -42,6 +42,10 @@
     };
 
     function resolveCartImage(type, scent, name = '', imageOverride = '') {
+        if (name && (name.includes("Men's Face Cleanser") || name.includes("Men's Cleanser"))) return 'assets/men_face_cleanser.jfif';
+        if (name && (name.includes("Men's Body Glaze") || name.includes("Men's Glaze"))) return 'assets/men_body_glaze.jfif';
+        if (scent && (scent.includes("Men's Face Cleanser") || scent.includes("Men's Cleanser"))) return 'assets/men_face_cleanser.jfif';
+        if (scent && (scent.includes("Men's Body Glaze") || scent.includes("Men's Glaze"))) return 'assets/men_body_glaze.jfif';
         if (type === 'raw') {
             if (name && rawCartImages[name]) return rawCartImages[name];
             return name.includes('Mango')

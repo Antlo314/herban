@@ -37,7 +37,8 @@
             <div class="flex items-center gap-x-4 text-sm">
                 <div class="hidden md:flex items-center gap-x-6">
                     <a href="index.html" class="hover:text-[#C5A26F]">Home</a>
-                    <a href="shop.html" class="font-semibold">Shop</a>
+                    <a href="shop.html" class="hover:text-[#C5A26F]">Shop</a>
+                    <a href="shop.html#men" class="text-[#C5A26F] font-semibold">For Him</a>
                     <a href="about.html">About</a>
                     <a href="journal.html">Journal</a>
                     <a href="index.html#quiz">Find Your Scent</a>
@@ -66,6 +67,7 @@
         <div class="px-6 py-4 space-y-2 text-sm">
             <a href="index.html" class="block py-2 hover:text-[#C5A26F]">Home</a>
             <a href="shop.html" class="block py-2 hover:text-[#C5A26F]">Shop</a>
+            <a href="shop.html#men" class="block py-2 text-[#C5A26F] font-semibold">For Him</a>
             <a href="about.html" class="block py-2 hover:text-[#C5A26F]">About</a>
             <a href="index.html#quiz" class="block py-2 hover:text-[#C5A26F]">Find Your Scent</a>
             <a href="ingredients.html" class="block py-2 hover:text-[#C5A26F]">Ingredients</a>
@@ -81,7 +83,7 @@
             <div>
                 <div class="text-xs uppercase tracking-[3px] text-[#C5A26F] font-semibold">HERBAN ALCHEMY</div>
                 <h1 class="text-4xl sm:text-5xl md:text-6xl font-black tracking-[-3px]">Shop</h1>
-                <p class="text-sm text-gray-500 mt-1 font-light">(HER-bən · sounds like <span class="text-[#C5A26F]">Urban Alchemy</span> — silent H)</p>
+                <p class="text-sm text-gray-500 mt-1 font-light">UR-ban</p>
             </div>
             <div class="text-gray-500 max-w-sm text-xs sm:text-sm leading-relaxed">Limited drops, signature glazes &amp; oils, plus raw shea and mango butter — all organized for melanated skin.</div>
         </div>
@@ -95,6 +97,7 @@
         <button data-filter="glaze" onclick="filterProducts('glaze')" class="filter-btn px-3 md:px-4 py-1.5 rounded-full border text-[10px] md:text-xs font-medium hover:bg-gray-50">BODY GLAZE</button>
         <button data-filter="oil" onclick="filterProducts('oil')" class="filter-btn px-3 md:px-4 py-1.5 rounded-full border text-[10px] md:text-xs font-medium hover:bg-gray-50">BODY OIL</button>
         <button data-filter="raw" onclick="filterProducts('raw')" class="filter-btn px-3 md:px-4 py-1.5 rounded-full border text-[10px] md:text-xs font-medium hover:bg-gray-50">RAW INGREDIENTS</button>
+        <button data-filter="men" onclick="filterProducts('men')" class="filter-btn px-3 md:px-4 py-1.5 rounded-full border text-[10px] md:text-xs font-medium hover:bg-gray-50">FOR HIM</button>
     </div>
 
     <!-- Products by section -->
@@ -164,6 +167,13 @@
                 subtitle: 'Three exclusive Body Butter Glaze scents — handcrafted in Atlanta.',
             },
             {
+                key: 'men',
+                anchor: 'mens-collection',
+                eyebrow: 'EXCLUSIVE FORMULAS • FOR HIM',
+                title: 'The Men\'s Collection',
+                subtitle: 'Sleek black jars formulated exclusively with argan oil and rosehip oil to balance, hydrate, and nourish.',
+            },
+            {
                 key: 'glaze',
                 eyebrow: 'SIGNATURE FORMULA',
                 title: 'Luxury Body Butter Glaze',
@@ -188,6 +198,30 @@
             { id: 101, category: 'limited', type: 'butter', name: 'Luxury Body Butter Glaze', displayName: 'Sweet Auburn', price: 38, size: '8 oz', badge: 'LIMITED', description: 'Warm. Rich. Timeless. Inspired by heritage, culture & community.', image: 'assets/atlanta-collection/sweet-auburn-le-card.jpg', images: ['assets/atlanta-collection/sweet-auburn-le-card.jpg', 'assets/atlanta-collection/sweet-auburn-photo-enhanced.jpg'], scents: ['Sweet Auburn'], singleScent: true },
             { id: 102, category: 'limited', type: 'butter', name: 'Luxury Body Butter Glaze', displayName: 'Peachtree', price: 38, size: '8 oz', badge: 'LIMITED', description: 'Fresh. Vibrant. Iconic. A tribute to sunshine, growth & southern charm.', image: 'assets/atlanta-collection/peachtree-le-card.jpg', images: ['assets/atlanta-collection/peachtree-le-card.jpg', 'assets/atlanta-collection/peachtree-photo-enhanced.jpg'], scents: ['Peachtree'], singleScent: true },
             { id: 103, category: 'limited', type: 'butter', name: 'Luxury Body Butter Glaze', displayName: 'Lenox', price: 38, size: '8 oz', badge: 'LIMITED', description: 'Bold. Luxe. Unapologetic. Inspired by style, ambition & the new ATL.', image: 'assets/atlanta-collection/lenox-le-card.jpg', images: ['assets/atlanta-collection/lenox-le-card.jpg', 'assets/atlanta-collection/lenox-photo-enhanced.jpg'], scents: ['Lenox'], singleScent: true },
+            {
+                id: 301,
+                category: 'men',
+                type: 'men_cleanser',
+                name: 'Men\'s Face Cleanser',
+                price: 32,
+                size: '4 oz',
+                badge: 'FOR HIM',
+                description: 'Deep cleanses, refines pores, and balances the skin without stripping. Packed exclusively with nourishing argan and rosehip oils in our signature black jar.',
+                image: 'assets/men_face_cleanser.jfif',
+                scents: [],
+            },
+            {
+                id: 302,
+                category: 'men',
+                type: 'men_glaze',
+                name: 'Men\'s Body Glaze',
+                price: 38,
+                size: '8 oz',
+                badge: 'FOR HIM',
+                description: 'Our ultra-hydrating whipped body butter glaze. Formulated exclusively with argan and rosehip oils in a sleek black jar to leave skin smooth, conditioned, and glowing all day.',
+                image: 'assets/men_body_glaze.jfif',
+                scents: [],
+            },
             {
                 id: 1,
                 category: 'glaze',
@@ -302,9 +336,9 @@
             const scentLabel = product.scents.length > 1 ? `${product.scents.length} SCENTS` : (product.scents[0] || 'ONE SIZE');
             const badgeText = product.badge || (product.category === 'raw' ? 'RAW' : product.type === 'oil' ? 'OIL' : 'GLAZE');
             const btnPrimary = product.scents.length <= 1 && !product.scents[0]
-                ? `<button onclick="quickAddProduct(${product.id}, event)" class="flex-1 bg-[#111111] text-white py-2.5 rounded-2xl text-sm font-semibold">ADD TO BAG</button>`
-                : `<button onclick="openProductModal(${product.id})" class="flex-1 bg-white border border-[#111] hover:bg-[#111] hover:text-white transition py-2.5 rounded-2xl text-sm font-semibold">${product.singleScent ? 'VIEW & ADD' : 'SHOP SCENTS'}</button>
-                   <button onclick="quickAddProduct(${product.id}, event)" class="px-5 bg-[#111111] text-white rounded-2xl text-sm font-semibold">QUICK ADD</button>`;
+                ? `<button onclick="quickAddProduct(${product.id}, event)" class="flex-1 bg-[#111111] text-white py-2 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-semibold">ADD TO BAG</button>`
+                : `<button onclick="openProductModal(${product.id})" class="flex-1 bg-white border border-[#111] hover:bg-[#111] hover:text-white transition py-2 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-semibold">${product.singleScent ? 'VIEW' : 'SCENTS'}</button>
+                   <button onclick="quickAddProduct(${product.id}, event)" class="px-2 sm:px-5 bg-[#111111] text-white rounded-xl sm:rounded-2xl text-xs sm:text-sm font-semibold">ADD</button>`;
 
             const thumbs = hasGallery ? images.map((src, i) => `
                 <button type="button" class="gallery-thumb shrink-0 w-11 h-11 rounded-md overflow-hidden border border-gray-200 ${i === 0 ? 'ring-2 ring-[#C5A26F] opacity-100' : 'opacity-55'}" data-index="${i}">
@@ -326,21 +360,21 @@
                     </div>`;
 
             return `
-                <div class="product-card ha-card bg-white border border-gray-100 rounded-3xl fenty-card">
+                <div class="product-card ha-card bg-white border border-gray-150 rounded-2xl shadow-sm hover:shadow-md">
                     <div class="ha-card-media">
                         ${imageBlock}
                     </div>
-                    <div class="ha-card-body p-5">
+                    <div class="ha-card-body p-3 sm:p-5">
                         <div class="ha-card-meta">
                             <span class="ha-card-badge ${product.badge === 'LIMITED' ? 'bg-[#C5A26F] text-[#111]' : 'bg-[#111] text-white'}">${badgeText}</span>
                             ${product.scents.length ? `<span class="ha-card-badge bg-gray-100 text-[#111] border border-gray-200">${scentLabel}</span>` : ''}
                         </div>
-                        <div class="font-semibold text-lg leading-snug">${product.displayName || product.name}</div>
-                        ${product.displayName ? `<div class="text-xs text-gray-400 mt-0.5">${product.name}</div>` : ''}
-                        <div class="text-sm text-gray-500 mt-1">${product.size} • $${product.price}</div>
-                        <div class="text-xs mt-3 text-gray-600 line-clamp-3">${product.description}</div>
-                        ${product.packaging ? `<div class="text-[10px] mt-2 text-[#C5A26F] font-medium tracking-wide">4 × 4 OZ BLOCKS · BLACK BAG</div>` : ''}
-                        <div class="flex gap-2 mt-5">${btnPrimary}</div>
+                        <div class="font-semibold text-sm sm:text-lg leading-snug">${product.displayName || product.name}</div>
+                        ${product.displayName ? `<div class="text-[10px] sm:text-xs text-gray-400 mt-0.5">${product.name}</div>` : ''}
+                        <div class="text-[11px] sm:text-sm text-gray-500 mt-1">${product.size} • $${product.price}</div>
+                        <div class="text-xs mt-2 text-gray-600 line-clamp-2 hidden sm:block">${product.description}</div>
+                        ${product.packaging ? `<div class="text-[9px] sm:text-[10px] mt-1.5 text-[#C5A26F] font-medium tracking-wide">4 × 4 OZ BLOCKS</div>` : ''}
+                        <div class="flex gap-1.5 sm:gap-2 mt-4">${btnPrimary}</div>
                     </div>
                 </div>`;
         }
@@ -367,7 +401,7 @@
                         <h2 class="text-2xl md:text-4xl font-black tracking-tight mt-1">${section.title}</h2>
                         <p class="text-sm text-gray-500 mt-2 max-w-2xl">${section.subtitle}</p>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 section-grid"></div>
+                    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 section-grid"></div>
                 `;
                 const grid = sectionEl.querySelector('.section-grid');
                 items.forEach(product => {

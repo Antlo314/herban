@@ -253,8 +253,8 @@
 
     function scoreStyle(level) {
         if (level >= 3) return 'background: linear-gradient(135deg, #C5A26F 0%, #e8d4b0 100%); color: #111;';
-        if (level >= 2) return 'background: rgba(197, 162, 111, 0.35); color: #f5f0e8;';
-        return 'background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.45);';
+        if (level >= 2) return 'background: rgba(197, 162, 111, 0.25); color: #111;';
+        return 'background: rgba(0,0,0,0.04); color: rgba(0,0,0,0.45);';
     }
 
     function buildConsole(root) {
@@ -265,13 +265,13 @@
         let demoTimer = null;
 
         root.innerHTML = `
-            <div class="rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-md overflow-hidden shadow-2xl shadow-black/50">
-                <div class="flex flex-wrap items-center justify-between gap-3 px-4 md:px-6 py-3 border-b border-white/10 bg-black/40">
+            <div class="rounded-3xl border border-gray-200/60 bg-white/80 backdrop-blur-md overflow-hidden shadow-xl shadow-gray-200/50">
+                <div class="flex flex-wrap items-center justify-between gap-3 px-4 md:px-6 py-3 border-b border-gray-100 bg-[#F5F2EB]/50">
                     <div class="flex items-center gap-2 text-[10px] tracking-[0.2em] text-[#C5A26F] font-semibold">
                         <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>
                         SPECTRUM ANALYZER v1
                     </div>
-                    <div id="ha-live-label" class="text-[10px] text-white/40 font-mono">tone: rich · product: glaze</div>
+                    <div id="ha-live-label" class="text-[10px] text-gray-500 font-mono">tone: rich · product: glaze</div>
                 </div>
 
                 <div class="p-4 md:p-8">
@@ -279,14 +279,14 @@
 
                     <div class="grid lg:grid-cols-12 gap-6 md:gap-8">
                         <div class="lg:col-span-4 space-y-4">
-                            <div id="ha-profile-card" class="rounded-2xl border border-white/10 bg-black/30 p-5 md:p-6"></div>
-                            <div id="ha-metrics" class="rounded-2xl border border-white/10 bg-black/20 p-5 space-y-3"></div>
+                            <div id="ha-profile-card" class="rounded-2xl border border-gray-200 bg-[#F5F2EB]/20 p-5 md:p-6"></div>
+                            <div id="ha-metrics" class="rounded-2xl border border-gray-200 bg-[#F5F2EB]/10 p-5 space-y-3"></div>
                         </div>
 
                         <div class="lg:col-span-5">
                             <div class="flex items-center justify-between mb-3">
-                                <span class="text-[10px] uppercase tracking-widest text-white/40">Formula matrix</span>
-                                <span class="text-[10px] text-white/30">tap any cell</span>
+                                <span class="text-[10px] uppercase tracking-widest text-gray-500">Formula matrix</span>
+                                <span class="text-[10px] text-gray-400">tap any cell</span>
                             </div>
                             <div id="ha-heatmap" class="relative"></div>
                         </div>
@@ -296,16 +296,16 @@
                         </div>
                     </div>
 
-                    <div id="ha-insight-strip" class="mt-6 md:mt-8 rounded-2xl border border-white/10 bg-black/25 p-5 md:p-6 min-h-[100px]"></div>
+                    <div id="ha-insight-strip" class="mt-6 md:mt-8 rounded-2xl border border-gray-200 bg-[#F5F2EB]/20 p-5 md:p-6 min-h-[100px]"></div>
 
-                    <div class="mt-8 pt-6 border-t border-white/10">
+                    <div class="mt-8 pt-6 border-t border-gray-200/60">
                         <div class="flex items-center gap-2 mb-4">
                             <i class="fa-solid fa-flask text-[#C5A26F] text-sm"></i>
-                            <span class="text-sm font-semibold text-white/90">Everyday skin feels</span>
-                            <span class="text-[10px] text-white/35">— cosmetic only</span>
+                            <span class="text-sm font-semibold text-gray-800">Everyday skin feels</span>
+                            <span class="text-[10px] text-gray-400">— cosmetic only</span>
                         </div>
                         <div id="ha-concern-pills" class="flex flex-wrap gap-2 mb-4"></div>
-                        <div id="ha-concern-body" class="rounded-2xl border border-white/10 bg-black/20 p-5 md:p-6"></div>
+                        <div id="ha-concern-body" class="rounded-2xl border border-gray-200 bg-[#F5F2EB]/15 p-5 md:p-6"></div>
                     </div>
                 </div>
             </div>`;
@@ -325,11 +325,11 @@
                 const on = s.id === activeShade;
                 return `
                 <button type="button" data-shade="${s.id}" class="ha-shade-btn shrink-0 flex flex-col items-center gap-2 p-3 md:p-4 rounded-2xl border transition-all duration-300 min-w-[88px] md:min-w-[110px]
-                    ${on ? 'border-[#C5A26F] bg-[#C5A26F]/15 scale-[1.02] shadow-lg shadow-[#C5A26F]/20' : 'border-white/10 bg-white/[0.02] hover:border-white/25'}"
+                    ${on ? 'border-[#C5A26F] bg-[#C5A26F]/15 scale-[1.02] shadow-lg shadow-[#C5A26F]/20' : 'border-gray-200 bg-white hover:border-[#C5A26F]/50'}"
                     aria-pressed="${on}">
-                    <span class="w-12 h-12 md:w-14 md:h-14 rounded-full border-2 transition-all ${on ? 'border-[#C5A26F] scale-110' : 'border-white/20'}"
+                    <span class="w-12 h-12 md:w-14 md:h-14 rounded-full border-2 transition-all ${on ? 'border-[#C5A26F] scale-110' : 'border-gray-300'}"
                         style="background: radial-gradient(circle at 30% 30%, ${s.ring}, ${s.swatch}); box-shadow: inset 0 -4px 12px rgba(0,0,0,0.4);"></span>
-                    <span class="text-[10px] md:text-xs font-semibold tracking-wide ${on ? 'text-[#C5A26F]' : 'text-white/60'}">${s.short}</span>
+                    <span class="text-[10px] md:text-xs font-semibold tracking-wide ${on ? 'text-[#C5A26F]' : 'text-gray-600'}">${s.short}</span>
                 </button>`;
             }).join('');
 
@@ -353,16 +353,16 @@
                 { key: 'comfort', label: 'Daily comfort' },
             ];
             metricsEl.innerHTML = `
-                <div class="text-[10px] uppercase tracking-widest text-white/40 mb-1">Calibrated for ${shade.short}</div>
+                <div class="text-[10px] uppercase tracking-widest text-gray-500 mb-1">Calibrated for ${shade.short}</div>
                 ${labels
                     .map(
                         (m) => `
                 <div>
                     <div class="flex justify-between text-xs mb-1">
-                        <span class="text-white/70">${m.label}</span>
+                        <span class="text-gray-700">${m.label}</span>
                         <span class="text-[#C5A26F] font-mono font-semibold">${shade.metrics[m.key]}%</span>
                     </div>
-                    <div class="h-1.5 rounded-full bg-white/10 overflow-hidden">
+                    <div class="h-1.5 rounded-full bg-gray-200 overflow-hidden">
                         <div class="ha-metric-bar-fill h-full rounded-full bg-gradient-to-r from-[#8f5e34] to-[#C5A26F]" style="width: ${shade.metrics[m.key]}%"></div>
                     </div>
                 </div>`
@@ -375,20 +375,20 @@
                 <div class="flex items-center gap-3 mb-3">
                     <span class="w-10 h-10 rounded-full border-2 border-[#C5A26F]/50" style="background: radial-gradient(circle at 30% 25%, ${shade.ring}, ${shade.swatch});"></span>
                     <div>
-                        <h3 class="text-lg font-bold text-white tracking-tight">${escapeHtml(shade.label)}</h3>
+                        <h3 class="text-lg font-bold text-gray-800 tracking-tight">${escapeHtml(shade.label)}</h3>
                         <p class="text-[10px] text-[#C5A26F] tracking-widest uppercase">Active profile</p>
                     </div>
                 </div>
-                <p class="text-sm text-white/65 leading-relaxed">${escapeHtml(shade.profile)}</p>
+                <p class="text-sm text-gray-600 leading-relaxed">${escapeHtml(shade.profile)}</p>
                 <ul class="mt-4 space-y-1.5">
-                    ${shade.traits.map((t) => `<li class="text-xs text-white/45 flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-[#C5A26F]"></span>${escapeHtml(t)}</li>`).join('')}
+                    ${shade.traits.map((t) => `<li class="text-xs text-gray-500 flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-[#C5A26F]"></span>${escapeHtml(t)}</li>`).join('')}
                 </ul>`;
         }
 
         function renderHeatmap() {
             const colHeads = PRODUCTS.map(
                 (p) =>
-                    `<button type="button" data-product-head="${p.id}" class="ha-prod-head text-[9px] md:text-[10px] font-semibold text-center py-2 rounded-lg transition-colors text-white/50 hover:text-[#C5A26F] ${activeProduct === p.id ? 'text-[#C5A26F] bg-white/5' : ''}">${p.short}</button>`
+                    `<button type="button" data-product-head="${p.id}" class="ha-prod-head text-[9px] md:text-[10px] font-semibold text-center py-2 rounded-lg transition-colors text-gray-500 hover:text-[#C5A26F] ${activeProduct === p.id ? 'text-[#C5A26F] bg-black/5' : ''}">${p.short}</button>`
             ).join('');
 
             const rows = SHADES.map((shade) => {
@@ -397,17 +397,17 @@
                     const active = shade.id === activeShade && product.id === activeProduct;
                     return `
                     <button type="button" data-cell data-shade="${shade.id}" data-product="${product.id}" data-level="${level}"
-                        class="ha-cell relative aspect-square rounded-xl md:rounded-2xl text-[11px] font-bold transition-all duration-300 ${active ? 'ha-cell-active ring-2 ring-[#C5A26F] scale-105 z-10' : 'hover:scale-[1.03] hover:ring-1 hover:ring-white/20'}"
+                        class="ha-cell relative aspect-square rounded-xl md:rounded-2xl text-[11px] font-bold transition-all duration-300 ${active ? 'ha-cell-active ring-2 ring-[#C5A26F] scale-105 z-10' : 'hover:scale-[1.03] hover:ring-1 hover:ring-[#C5A26F]/30'}"
                         style="${scoreStyle(level)}"
                         aria-label="${shade.short} skin, ${product.label}, ${SCORE_LABEL[level]}">
                         <span class="opacity-90">${level >= 3 ? '●●●' : level >= 2 ? '●●' : '●'}</span>
-                        ${active ? '<span class="absolute inset-0 rounded-xl md:rounded-2xl border border-white/30 pointer-events-none"></span>' : ''}
+                        ${active ? '<span class="absolute inset-0 rounded-xl md:rounded-2xl border border-[#C5A26F]/40 pointer-events-none"></span>' : ''}
                     </button>`;
                 }).join('');
                 const rowActive = shade.id === activeShade;
                 return `
                 <div class="grid grid-cols-[64px_repeat(5,1fr)] md:grid-cols-[72px_repeat(5,1fr)] gap-1.5 md:gap-2 items-center ${rowActive ? 'opacity-100' : 'opacity-40 hover:opacity-70 transition-opacity'}">
-                    <button type="button" data-shade-row="${shade.id}" class="text-left text-[10px] md:text-xs font-medium flex items-center gap-1.5 ${rowActive ? 'text-[#C5A26F]' : 'text-white/50'}">
+                    <button type="button" data-shade-row="${shade.id}" class="text-left text-[10px] md:text-xs font-medium flex items-center gap-1.5 ${rowActive ? 'text-[#C5A26F]' : 'text-gray-500'}">
                         <span class="w-3 h-3 rounded-full shrink-0" style="background:${shade.swatch}"></span>${shade.short}
                     </button>
                     ${cells}
@@ -420,10 +420,10 @@
                     ${colHeads}
                 </div>
                 <div class="space-y-1.5 md:space-y-2">${rows}</div>
-                <div class="flex flex-wrap gap-3 mt-4 text-[9px] text-white/35">
+                <div class="flex flex-wrap gap-3 mt-4 text-[9px] text-gray-400">
                     <span><span class="text-[#C5A26F]">●●●</span> Optimal</span>
-                    <span><span class="text-white/50">●●</span> Strong</span>
-                    <span><span class="text-white/25">●</span> Support</span>
+                    <span><span class="text-gray-600">●●</span> Strong</span>
+                    <span><span class="text-gray-400">●</span> Support</span>
                 </div>`;
 
             heatmap.querySelectorAll('[data-cell]').forEach((cell) => {
@@ -463,15 +463,15 @@
             productFocus.innerHTML = `
                 <div class="text-[10px] uppercase tracking-widest text-[#C5A26F] mb-2">${SCORE_LABEL[level]} match</div>
                 <div class="flex items-center gap-2 mb-3">
-                    <span class="w-9 h-9 rounded-xl bg-black/40 flex items-center justify-center text-[#C5A26F]"><i class="fa-solid ${product.icon}"></i></span>
-                    <h4 class="text-lg font-bold text-white leading-tight">${escapeHtml(product.label)}</h4>
+                    <span class="w-9 h-9 rounded-xl bg-[#F5F2EB]/50 flex items-center justify-center text-[#C5A26F]"><i class="fa-solid ${product.icon}"></i></span>
+                    <h4 class="text-lg font-bold text-gray-800 leading-tight">${escapeHtml(product.label)}</h4>
                 </div>
-                <div class="relative w-full h-2 rounded-full bg-white/10 mb-4 overflow-hidden">
+                <div class="relative w-full h-2 rounded-full bg-gray-200 mb-4 overflow-hidden">
                     <div class="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-[#C5A26F] to-[#f0e6d2] transition-all duration-700" style="width: ${SCORE_PCT[level]}%"></div>
                 </div>
-                <p class="text-sm text-white/70 leading-relaxed">${escapeHtml(insight.why)}</p>
-                <p class="text-xs text-white/45 mt-3 italic">${escapeHtml(insight.tip)}</p>
-                <a href="${product.shop}" class="inline-flex mt-5 items-center gap-2 text-xs font-semibold tracking-wider text-[#111] bg-[#C5A26F] hover:bg-white px-4 py-2.5 rounded-full transition-colors">
+                <p class="text-sm text-gray-600 leading-relaxed">${escapeHtml(insight.why)}</p>
+                <p class="text-xs text-gray-400 mt-3 italic">${escapeHtml(insight.tip)}</p>
+                <a href="${product.shop}" class="inline-flex mt-5 items-center gap-2 text-xs font-semibold tracking-wider text-white bg-[#111111] hover:bg-[#C5A26F] px-4 py-2.5 rounded-full transition-colors">
                     SHOP ${product.short.toUpperCase()} <i class="fa-solid fa-arrow-right text-[10px]"></i>
                 </a>`;
         }
@@ -481,13 +481,13 @@
             insightStrip.innerHTML = `
                 <div class="flex flex-col md:flex-row md:items-start gap-4 md:gap-8">
                     <div class="shrink-0">
-                        <div class="text-[10px] text-white/40 uppercase tracking-widest mb-1">Signal</div>
-                        <div class="text-2xl md:text-3xl font-black text-white">${SCORE_PCT[level]}<span class="text-lg text-[#C5A26F]">%</span></div>
+                        <div class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Signal</div>
+                        <div class="text-2xl md:text-3xl font-black text-gray-800">${SCORE_PCT[level]}<span class="text-lg text-[#C5A26F]">%</span></div>
                         <div class="text-xs text-[#C5A26F] font-semibold">${SCORE_LABEL[level]} synergy</div>
                     </div>
-                    <div class="flex-1 border-l-0 md:border-l border-white/10 md:pl-8">
-                        <p class="text-sm md:text-base text-white/80 leading-relaxed">
-                            <strong class="text-white">${escapeHtml(shade.label)}</strong> + <strong class="text-[#C5A26F]">${escapeHtml(product.label)}</strong>:
+                    <div class="flex-1 border-l-0 md:border-l border-gray-200 md:pl-8">
+                        <p class="text-sm md:text-base text-gray-700 leading-relaxed">
+                            <strong class="text-gray-900">${escapeHtml(shade.label)}</strong> + <strong class="text-[#C5A26F]">${escapeHtml(product.label)}</strong>:
                             ${escapeHtml(insight ? insight.why : 'Layer-friendly formula for everyday cosmetic moisture.')}
                         </p>
                     </div>
@@ -497,7 +497,7 @@
         function renderConcerns() {
             concernPills.innerHTML = CONCERNS.map(
                 (c) =>
-                    `<button type="button" data-concern="${c.id}" class="ha-concern-pill px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${c.id === activeConcern ? 'bg-[#C5A26F] text-[#111] border-[#C5A26F]' : 'border-white/15 text-white/60 hover:border-[#C5A26F]/50'}">${escapeHtml(c.label)}</button>`
+                    `<button type="button" data-concern="${c.id}" class="ha-concern-pill px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${c.id === activeConcern ? 'bg-[#C5A26F] text-[#111] border-[#C5A26F]' : 'border-gray-200 text-gray-600 hover:border-[#C5A26F]/50'}">${escapeHtml(c.label)}</button>`
             ).join('');
 
             const c = CONCERNS.find((x) => x.id === activeConcern) || CONCERNS[0];
@@ -505,22 +505,22 @@
                 <div class="flex items-start gap-3 mb-4">
                     <span class="w-9 h-9 rounded-xl bg-[#C5A26F]/15 flex items-center justify-center text-[#C5A26F]"><i class="fa-solid ${c.icon}"></i></span>
                     <div>
-                        <p class="text-sm text-white/80">${escapeHtml(c.summary)}</p>
+                        <p class="text-sm text-gray-700">${escapeHtml(c.summary)}</p>
                     </div>
                 </div>
                 <div class="grid sm:grid-cols-3 gap-4">
                     ${c.ingredients
                         .map(
                             (ing) => `
-                    <div class="rounded-xl bg-white/[0.03] border border-white/10 p-3">
+                    <div class="rounded-xl bg-white border border-gray-150 p-3">
                         <div class="text-xs font-semibold text-[#C5A26F]">${escapeHtml(ing.name)}</div>
-                        <p class="text-[11px] text-white/50 mt-1 leading-relaxed">${escapeHtml(ing.note)}</p>
+                        <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">${escapeHtml(ing.note)}</p>
                     </div>`
                         )
                         .join('')}
                 </div>
                 <div class="flex flex-wrap gap-2 mt-4">
-                    ${c.picks.map((p) => `<span class="text-[10px] px-2.5 py-1 rounded-full border border-white/15 text-white/55">${escapeHtml(p)}</span>`).join('')}
+                    ${c.picks.map((p) => `<span class="text-[10px] px-2.5 py-1 rounded-full border border-gray-200 text-gray-500">${escapeHtml(p)}</span>`).join('')}
                 </div>`;
 
             concernPills.querySelectorAll('.ha-concern-pill').forEach((pill) => {
