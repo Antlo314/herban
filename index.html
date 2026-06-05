@@ -363,12 +363,12 @@
         <div class="absolute inset-0 w-full h-full flex flex-col md:flex-row pointer-events-none z-0">
             <!-- Left image: Man applying cream, skin glowing -->
             <div class="w-full md:w-1/2 h-1/2 md:h-full relative overflow-hidden">
-                <img src="https://images.unsplash.com/photo-1507038772120-7fff76f8773e?q=80&w=1000&auto=format&fit=crop" alt="Healed, hydrated, luminous skin - For Him" class="w-full h-full object-cover object-center opacity-85 md:opacity-90" loading="eager">
+                <img id="hero-img-male" src="https://images.unsplash.com/photo-1507038772120-7fff76f8773e?q=80&w=1000&auto=format&fit=crop" alt="Healed, hydrated, luminous skin - For Him" class="w-full h-full object-cover object-center opacity-85 md:opacity-90" loading="eager">
                 <div class="absolute inset-0 bg-gradient-to-t from-[#FAF7F2] via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:to-[#FAF7F2]/40"></div>
             </div>
             <!-- Right image: Woman applying cream, skin glowing -->
             <div class="w-full md:w-1/2 h-1/2 md:h-full relative overflow-hidden border-t md:border-t-0 md:border-l border-[#C5A26F]/10">
-                <img src="https://images.unsplash.com/photo-1618284554746-71e1b439eb5b?q=80&w=1000&auto=format&fit=crop" alt="Healed, hydrated, luminous skin - For Her" class="w-full h-full object-cover object-center opacity-85 md:opacity-90" loading="eager">
+                <img id="hero-img-female" src="https://images.unsplash.com/photo-1618284554746-71e1b439eb5b?q=80&w=1000&auto=format&fit=crop" alt="Healed, hydrated, luminous skin - For Her" class="w-full h-full object-cover object-center opacity-85 md:opacity-90" loading="eager">
                 <div class="absolute inset-0 bg-gradient-to-t from-[#FAF7F2] via-transparent to-[#FAF7F2]/30 md:bg-gradient-to-l md:from-transparent md:to-[#FAF7F2]/40"></div>
             </div>
         </div>
@@ -378,31 +378,31 @@
             <div class="max-w-xl bg-white/70 backdrop-blur-xl rounded-3xl p-6 sm:p-8 md:p-10 border border-white/80 shadow-2xl text-[#111111] transition-transform duration-500 hover:scale-[1.01]">
                 <!-- Small badge -->
                 <div class="inline-flex items-center gap-x-2 bg-[#111111] text-white px-4 py-1.5 rounded-full text-xs tracking-widest mb-4 border border-gray-800">
-                    <span class="font-bold">THE NEW ERA OF SKINCARE</span>
+                    <span id="hero-badge" class="font-bold">THE NEW ERA OF SKINCARE</span>
                 </div>
 
-                <h1 class="text-4xl sm:text-5xl md:text-[60px] lg:text-[70px] leading-[0.92] font-black tracking-[-4px] mb-2 text-[#111111]">
+                <h1 id="hero-title" class="text-4xl sm:text-5xl md:text-[60px] lg:text-[70px] leading-[0.92] font-black tracking-[-4px] mb-2 text-[#111111]">
                     HERBAN<br>ALCHEMY
                 </h1>
                 <p class="text-xs md:text-sm text-gray-500 font-bold tracking-widest uppercase mb-4">
                     UR-ban
                 </p>
-                <p class="text-xl md:text-3xl font-black tracking-[-1.5px] mb-3 leading-tight text-gray-800">
+                <p id="hero-subtitle" class="text-xl md:text-3xl font-black tracking-[-1.5px] mb-3 leading-tight text-gray-800">
                     THE GLAZE. THE GLOW.
                 </p>
                 
-                <p class="text-base md:text-lg text-gray-600 mb-6 leading-relaxed">
+                <p id="hero-description" class="text-base md:text-lg text-gray-600 mb-6 leading-relaxed">
                     Luxurious body care for melanated skin. Handcrafted formulas packed with pure, unrefined botanicals.
                     <span class="block mt-1 text-[#C5A26F] font-semibold">Vibrant. Nourishing. Unforgettably Luminous.</span>
                 </p>
 
                 <div class="flex flex-col sm:flex-row gap-3">
-                    <a href="shop.html" 
+                    <a id="hero-btn-primary" href="shop.html" 
                        class="vibrant-btn inline-flex items-center justify-center bg-[#111111] hover:bg-black text-white font-bold px-8 py-3.5 rounded-full text-sm tracking-wider transition-all active:scale-[0.985] shadow-lg">
                         SHOP THE COLLECTION
                     </a>
                     
-                    <a href="#every-shade" 
+                    <a id="hero-btn-secondary" href="#every-shade" 
                        class="vibrant-btn inline-flex items-center justify-center border border-gray-300 hover:border-[#111111] bg-white/40 hover:bg-white text-[#111111] font-semibold px-6 py-3.5 rounded-full text-sm transition-all shadow-sm">
                         FIND YOUR SHADE <i class="fa-solid fa-arrow-down ml-2"></i>
                     </a>

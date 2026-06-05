@@ -85,6 +85,12 @@
                 <button onclick="switchTab('chatbot')" class="tab-btn w-full flex items-center gap-x-3 px-4 py-3 rounded-xl text-left text-xs uppercase tracking-wider font-semibold text-gray-600 hover:bg-[#FAF7F2] transition-all" data-tab="chatbot">
                     <i class="fa-solid fa-robot text-sm"></i> AI Chatbot Setup
                 </button>
+                <button onclick="switchTab('theme')" class="tab-btn w-full flex items-center gap-x-3 px-4 py-3 rounded-xl text-left text-xs uppercase tracking-wider font-semibold text-gray-600 hover:bg-[#FAF7F2] transition-all" data-tab="theme">
+                    <i class="fa-solid fa-palette text-sm"></i> AI Theme &amp; Images
+                </button>
+                <button onclick="switchTab('brand')" class="tab-btn w-full flex items-center gap-x-3 px-4 py-3 rounded-xl text-left text-xs uppercase tracking-wider font-semibold text-gray-600 hover:bg-[#FAF7F2] transition-all" data-tab="brand">
+                    <i class="fa-solid fa-sliders text-sm"></i> Brand Settings
+                </button>
             </nav>
 
             <!-- Bottom Actions -->
@@ -385,16 +391,27 @@
                     <!-- Right: API Keys & Secrets -->
                     <div class="space-y-6">
                         <form onsubmit="saveSecrets(event)" class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
-                            <h3 class="text-xs uppercase tracking-widest font-bold text-gray-500 pb-2 border-b">API Keys & Access Security</h3>
+                            <div class="flex items-center justify-between pb-2 border-b">
+                                <h3 class="text-xs uppercase tracking-widest font-bold text-gray-500">API Keys &amp; Access Security</h3>
+                                <button type="button" onclick="openApiGuideModal()" class="text-xs text-[#C5A26F] hover:text-[#111] transition-all" title="Help guide: How to hook up keys">
+                                    <i class="fa-solid fa-circle-info text-base"></i>
+                                </button>
+                            </div>
                             
                             <div class="space-y-4">
                                 <div>
-                                    <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-1">Google Gemini API Key</label>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500">Google Gemini API Key</label>
+                                        <button type="button" onclick="openApiGuideModal()" class="text-[10px] text-[#C5A26F] hover:underline"><i class="fa-solid fa-circle-info mr-0.5"></i> How to get key?</button>
+                                    </div>
                                     <input type="password" id="secret-gemini" placeholder="Unconfigured" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#C5A26F]">
                                     <span class="text-[9px] text-gray-400 mt-1 block">Used if active engine is set to Google Gemini.</span>
                                 </div>
                                 <div>
-                                    <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-1">OpenAI ChatGPT API Key</label>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500">OpenAI ChatGPT API Key</label>
+                                        <button type="button" onclick="openApiGuideModal()" class="text-[10px] text-[#C5A26F] hover:underline"><i class="fa-solid fa-circle-info mr-0.5"></i> How to get key?</button>
+                                    </div>
                                     <input type="password" id="secret-openai" placeholder="Unconfigured" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#C5A26F]">
                                     <span class="text-[9px] text-gray-400 mt-1 block">Used if active engine is set to OpenAI.</span>
                                 </div>
@@ -406,12 +423,311 @@
                             </div>
 
                             <button type="submit" class="w-full bg-[#111111] hover:bg-[#C5A26F] text-white py-3 rounded-xl text-xs uppercase tracking-widest font-semibold transition-all">
-                                Update Secrets & Key
+                                Update Secrets &amp; Key
                             </button>
                         </form>
                     </div>
                 </div>
             </section>
+
+            <!-- TAB: Theme & AI Images -->
+            <section id="tab-theme" class="tab-content hidden space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h1 class="text-3xl font-black tracking-tight mb-1">AI Theme &amp; Image Generator</h1>
+                        <p class="text-xs text-gray-500 uppercase tracking-widest">Cohesively brand your storefront using AI-designed palettes and image generation.</p>
+                    </div>
+                </div>
+
+                <!-- AI Theme Prompt Generator -->
+                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+                    <h2 class="text-lg font-bold text-gray-800 flex items-center gap-x-2">
+                        <i class="fa-solid fa-wand-magic-sparkles text-[#C5A26F]"></i> Generate Cohesive Theme Vibe
+                    </h2>
+                    <p class="text-xs text-gray-500">Enter a design prompt describing your brand's mood, colours, or fragrance theme. The AI will design a matching color palette and write tailored image prompts for all slots below.</p>
+                    <div class="flex flex-col md:flex-row gap-3">
+                        <textarea id="theme-vibe-prompt" rows="2" placeholder="e.g. A sensual rose petal and dark charcoal clay theme, warm and luxurious" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-[#C5A26F]"></textarea>
+                        <button type="button" onclick="generateAIThemePalette()" class="bg-[#111111] hover:bg-[#C5A26F] text-white px-6 py-3 rounded-xl text-xs uppercase tracking-widest font-semibold transition-all shrink-0 flex items-center justify-center gap-x-2">
+                            <span id="theme-gen-btn-text">Generate Vibe</span>
+                            <i id="theme-gen-spinner" class="fa-solid fa-spinner animate-spin hidden"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Theme Color Presets & Controls -->
+                <form onsubmit="saveThemeSettings(event)" class="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Left: Presets -->
+                        <div class="space-y-4 border-r border-gray-100 pr-0 md:pr-6">
+                            <h3 class="text-xs uppercase tracking-wider font-bold text-gray-500">Theme Presets</h3>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button type="button" onclick="applyPreset('gold')" class="p-3 border rounded-xl text-left hover:border-[#C5A26F] transition-all">
+                                    <div class="text-xs font-bold">Gold &amp; Ivory</div>
+                                    <div class="flex gap-x-1 mt-1.5">
+                                        <span class="w-3.5 h-3.5 rounded-full border bg-[#111]"></span>
+                                        <span class="w-3.5 h-3.5 rounded-full border bg-[#C5A26F]"></span>
+                                        <span class="w-3.5 h-3.5 rounded-full border bg-[#FAF7F2]"></span>
+                                    </div>
+                                </button>
+                                <button type="button" onclick="applyPreset('onyx')" class="p-3 border rounded-xl text-left hover:border-[#C5A26F] transition-all">
+                                    <div class="text-xs font-bold">Onyx &amp; Amber</div>
+                                    <div class="flex gap-x-1 mt-1.5">
+                                        <span class="w-3.5 h-3.5 rounded-full border bg-[#0d0d0d]"></span>
+                                        <span class="w-3.5 h-3.5 rounded-full border bg-[#FF9F6B]"></span>
+                                        <span class="w-3.5 h-3.5 rounded-full border bg-[#fcf9f2]"></span>
+                                    </div>
+                                </button>
+                                <button type="button" onclick="applyPreset('mint')" class="p-3 border rounded-xl text-left hover:border-[#C5A26F] transition-all">
+                                    <div class="text-xs font-bold">Eucalyptus Mint</div>
+                                    <div class="flex gap-x-1 mt-1.5">
+                                        <span class="w-3.5 h-3.5 rounded-full border bg-[#1E3F20]"></span>
+                                        <span class="w-3.5 h-3.5 rounded-full border bg-[#8EAF9D]"></span>
+                                        <span class="w-3.5 h-3.5 rounded-full border bg-[#F4F9F5]"></span>
+                                    </div>
+                                </button>
+                                <button type="button" onclick="applyPreset('rose')" class="p-3 border rounded-xl text-left hover:border-[#C5A26F] transition-all">
+                                    <div class="text-xs font-bold">Rose &amp; Slate</div>
+                                    <div class="flex gap-x-1 mt-1.5">
+                                        <span class="w-3.5 h-3.5 rounded-full border bg-[#2c3e50]"></span>
+                                        <span class="w-3.5 h-3.5 rounded-full border bg-[#e84393]"></span>
+                                        <span class="w-3.5 h-3.5 rounded-full border bg-[#FDFBF7]"></span>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Mid: Custom Color Pickers -->
+                        <div class="col-span-2 space-y-4">
+                            <h3 class="text-xs uppercase tracking-wider font-bold text-gray-500">Cohesive Color Settings</h3>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Primary Color</label>
+                                    <div class="flex gap-x-2">
+                                        <input type="color" id="theme-primary" class="h-10 w-10 rounded-lg border border-gray-200 cursor-pointer">
+                                        <input type="text" id="theme-primary-hex" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-2 text-xs focus:outline-none uppercase">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Accent (Gold) Color</label>
+                                    <div class="flex gap-x-2">
+                                        <input type="color" id="theme-accent" class="h-10 w-10 rounded-lg border border-gray-200 cursor-pointer">
+                                        <input type="text" id="theme-accent-hex" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-2 text-xs focus:outline-none uppercase">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Background Color</label>
+                                    <div class="flex gap-x-2">
+                                        <input type="color" id="theme-bg" class="h-10 w-10 rounded-lg border border-gray-200 cursor-pointer">
+                                        <input type="text" id="theme-bg-hex" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-2 text-xs focus:outline-none uppercase">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Text Color</label>
+                                    <div class="flex gap-x-2">
+                                        <input type="color" id="theme-text" class="h-10 w-10 rounded-lg border border-gray-200 cursor-pointer">
+                                        <input type="text" id="theme-text-hex" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-2 text-xs focus:outline-none uppercase">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Typography Pairing</label>
+                                    <select id="theme-font-pairing" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-[#C5A26F]">
+                                        <option value="playfair-inter">Luxury Serif + Clean Sans (Playfair + Inter)</option>
+                                        <option value="outfit">Modern Minimalist (Outfit Sans)</option>
+                                        <option value="lora-outfit">Warm Editorial (Lora Serif + Outfit)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Image Cards -->
+                    <div class="border-t border-gray-100 pt-6">
+                        <h3 class="text-xs uppercase tracking-wider font-bold text-gray-500 mb-4">Storefront Brand Images</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Image Card 1: Male Hero -->
+                            <div class="border border-gray-100 rounded-2xl p-4 bg-gray-50 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-gray-800">Male Hero Image (Left)</span>
+                                    <span class="text-[9px] text-gray-400 font-bold uppercase">Target: hero_male</span>
+                                </div>
+                                <div class="flex gap-x-4">
+                                    <img id="prev-hero_male" src="https://images.unsplash.com/photo-1507038772120-7fff76f8773e?q=80&w=200&auto=format&fit=crop" class="w-20 h-20 object-cover rounded-xl border bg-white flex-shrink-0" onerror="this.src='assets/herban.jpg'">
+                                    <div class="flex-1 space-y-2">
+                                        <textarea id="prompt-hero_male" rows="2" placeholder="AI Image prompt..." class="w-full bg-white border border-gray-200 rounded-xl p-2 text-xs focus:outline-none focus:border-[#C5A26F]"></textarea>
+                                        <div class="flex gap-x-2">
+                                            <button type="button" onclick="generateSingleImage('hero_male')" class="flex-1 bg-[#111] hover:bg-[#C5A26F] text-white text-[10px] uppercase font-bold py-2 rounded-lg transition-all flex items-center justify-center gap-x-1.5">
+                                                <span>Generate AI</span>
+                                                <i id="spin-hero_male" class="fa-solid fa-spinner animate-spin hidden"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] uppercase font-bold text-gray-400 mb-1">Custom Image File or URL Path</label>
+                                    <input type="text" id="url-hero_male" placeholder="assets/custom_image.jpg" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none">
+                                </div>
+                            </div>
+
+                            <!-- Image Card 2: Female Hero -->
+                            <div class="border border-gray-100 rounded-2xl p-4 bg-gray-50 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-gray-800">Female Hero Image (Right)</span>
+                                    <span class="text-[9px] text-gray-400 font-bold uppercase">Target: hero_female</span>
+                                </div>
+                                <div class="flex gap-x-4">
+                                    <img id="prev-hero_female" src="https://images.unsplash.com/photo-1618284554746-71e1b439eb5b?q=80&w=200&auto=format&fit=crop" class="w-20 h-20 object-cover rounded-xl border bg-white flex-shrink-0" onerror="this.src='assets/herban.jpg'">
+                                    <div class="flex-1 space-y-2">
+                                        <textarea id="prompt-hero_female" rows="2" placeholder="AI Image prompt..." class="w-full bg-white border border-gray-200 rounded-xl p-2 text-xs focus:outline-none focus:border-[#C5A26F]"></textarea>
+                                        <div class="flex gap-x-2">
+                                            <button type="button" onclick="generateSingleImage('hero_female')" class="flex-1 bg-[#111] hover:bg-[#C5A26F] text-white text-[10px] uppercase font-bold py-2 rounded-lg transition-all flex items-center justify-center gap-x-1.5">
+                                                <span>Generate AI</span>
+                                                <i id="spin-hero_female" class="fa-solid fa-spinner animate-spin hidden"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] uppercase font-bold text-gray-400 mb-1">Custom Image File or URL Path</label>
+                                    <input type="text" id="url-hero_female" placeholder="assets/custom_image.jpg" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none">
+                                </div>
+                            </div>
+
+                            <!-- Image Card 3: Scent Quiz Background -->
+                            <div class="border border-gray-100 rounded-2xl p-4 bg-gray-50 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-gray-800">Scent Quiz Banner Background</span>
+                                    <span class="text-[9px] text-gray-400 font-bold uppercase">Target: quiz_bg</span>
+                                </div>
+                                <div class="flex gap-x-4">
+                                    <img id="prev-quiz_bg" src="assets/herban.jpg" class="w-20 h-20 object-cover rounded-xl border bg-white flex-shrink-0" onerror="this.src='assets/herban.jpg'">
+                                    <div class="flex-1 space-y-2">
+                                        <textarea id="prompt-quiz_bg" rows="2" placeholder="AI Image prompt..." class="w-full bg-white border border-gray-200 rounded-xl p-2 text-xs focus:outline-none focus:border-[#C5A26F]"></textarea>
+                                        <div class="flex gap-x-2">
+                                            <button type="button" onclick="generateSingleImage('quiz_bg')" class="flex-1 bg-[#111] hover:bg-[#C5A26F] text-white text-[10px] uppercase font-bold py-2 rounded-lg transition-all flex items-center justify-center gap-x-1.5">
+                                                <span>Generate AI</span>
+                                                <i id="spin-quiz_bg" class="fa-solid fa-spinner animate-spin hidden"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] uppercase font-bold text-gray-400 mb-1">Custom Image File or URL Path</label>
+                                    <input type="text" id="url-quiz_bg" placeholder="assets/custom_image.jpg" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none">
+                                </div>
+                            </div>
+
+                            <!-- Image Card 4: Journal Featured Image -->
+                            <div class="border border-gray-100 rounded-2xl p-4 bg-gray-50 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-gray-800">Journal Featured Image</span>
+                                    <span class="text-[9px] text-gray-400 font-bold uppercase">Target: journal_feat</span>
+                                </div>
+                                <div class="flex gap-x-4">
+                                    <img id="prev-journal_feat" src="assets/herban3.jpg" class="w-20 h-20 object-cover rounded-xl border bg-white flex-shrink-0" onerror="this.src='assets/herban.jpg'">
+                                    <div class="flex-1 space-y-2">
+                                        <textarea id="prompt-journal_feat" rows="2" placeholder="AI Image prompt..." class="w-full bg-white border border-gray-200 rounded-xl p-2 text-xs focus:outline-none focus:border-[#C5A26F]"></textarea>
+                                        <div class="flex gap-x-2">
+                                            <button type="button" onclick="generateSingleImage('journal_feat')" class="flex-1 bg-[#111] hover:bg-[#C5A26F] text-white text-[10px] uppercase font-bold py-2 rounded-lg transition-all flex items-center justify-center gap-x-1.5">
+                                                <span>Generate AI</span>
+                                                <i id="spin-journal_feat" class="fa-solid fa-spinner animate-spin hidden"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] uppercase font-bold text-gray-400 mb-1">Custom Image File or URL Path</label>
+                                    <input type="text" id="url-journal_feat" placeholder="assets/custom_image.jpg" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 flex justify-end">
+                        <button type="submit" class="bg-[#111111] hover:bg-[#C5A26F] text-white px-8 py-3.5 rounded-xl text-xs uppercase tracking-widest font-semibold transition-all">
+                            Save &amp; Apply Theme
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- TAB: Brand Settings -->
+            <section id="tab-brand" class="tab-content hidden space-y-6">
+                <div>
+                    <h1 class="text-3xl font-black tracking-tight mb-1">Brand Copy &amp; General Settings</h1>
+                    <p class="text-xs text-gray-500 uppercase tracking-widest">Customize the main hero title, descriptions, CTA buttons, and storefront footer info.</p>
+                </div>
+
+                <form onsubmit="saveBrandSettings(event)" class="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+                    <!-- Hero Content Editing -->
+                    <div class="space-y-4">
+                        <h3 class="text-xs uppercase tracking-wider font-bold text-gray-500 pb-2 border-b">Hero Section Copy</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Hero Badge Alert</label>
+                                <input type="text" id="brand-hero-badge" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-[#C5A26F]">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Hero Subtitle</label>
+                                <input type="text" id="brand-hero-subtitle" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-[#C5A26F]">
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Hero Main Title (Supports HTML, e.g. &lt;br&gt;)</label>
+                                <input type="text" id="brand-hero-title" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-[#C5A26F]">
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Hero Description</label>
+                                <textarea id="brand-hero-description" rows="2" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-[#C5A26F]"></textarea>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Hero Bottom Highlights (Vibrant Text)</label>
+                                <input type="text" id="brand-hero-highlight" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-[#C5A26F]">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Primary Button Label</label>
+                                <input type="text" id="brand-hero-btn-primary" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-[#C5A26F]">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Secondary Button Label</label>
+                                <input type="text" id="brand-hero-btn-secondary" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-[#C5A26F]">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Content Editing -->
+                    <div class="space-y-4 pt-4">
+                        <h3 class="text-xs uppercase tracking-wider font-bold text-gray-500 pb-2 border-b">Storefront Footer Copy</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="col-span-2">
+                                <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Footer Short Bio</label>
+                                <input type="text" id="brand-footer-desc" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-[#C5A26F]">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Contact Email Address</label>
+                                <input type="email" id="brand-footer-email" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-[#C5A26F]">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Instagram Link (Full URL)</label>
+                                <input type="text" id="brand-footer-insta" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-[#C5A26F]">
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Copyright Text</label>
+                                <input type="text" id="brand-footer-copy" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-[#C5A26F]">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 flex justify-end">
+                        <button type="submit" class="bg-[#111111] hover:bg-[#C5A26F] text-white px-8 py-3.5 rounded-xl text-xs uppercase tracking-widest font-semibold transition-all">
+                            Save Brand Settings
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </main>
+    </div>
         </main>
     </div>
 
@@ -473,6 +789,70 @@
                     <button type="submit" class="bg-[#111111] hover:bg-[#C5A26F] text-white px-6 py-2.5 rounded-xl text-xs uppercase tracking-widest font-semibold">Save Product</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- API KEY GUIDE MODAL -->
+    <div id="api-guide-modal" class="fixed inset-0 bg-[#111]/45 backdrop-blur-sm z-[100] flex items-center justify-center p-6 hidden">
+        <div class="bg-white max-w-2xl w-full rounded-3xl shadow-2xl p-6 md:p-8 overflow-y-auto max-h-[90vh] space-y-6">
+            <div class="flex items-center justify-between pb-4 border-b">
+                <h3 class="text-xl font-bold flex items-center gap-x-2">
+                    <i class="fa-solid fa-key text-[#C5A26F]"></i> How to Connect Your API Keys
+                </h3>
+                <button type="button" onclick="closeApiGuideModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-times text-lg"></i></button>
+            </div>
+
+            <div class="space-y-6 text-sm text-gray-600 leading-relaxed overflow-y-auto pr-2">
+                <!-- Info Alert -->
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-xl text-blue-900 text-xs flex gap-x-3">
+                    <i class="fa-solid fa-info-circle text-lg shrink-0 mt-0.5"></i>
+                    <div>
+                        <strong>Why do we need this?</strong> The API keys are used securely on your backend server. They power the interactive AI Skincare Guide chat widget (Aura) on the storefront and the AI Theme/Image generators in this admin control center.
+                    </div>
+                </div>
+
+                <!-- Gemini Guide -->
+                <div class="space-y-2.5">
+                    <h4 class="font-bold text-gray-800 flex items-center gap-x-2">
+                        <span class="bg-blue-100 text-blue-800 text-[10px] uppercase font-black px-2 py-0.5 rounded-md">Google Gemini</span>
+                        Option A: Gemini API Key (Recommended)
+                    </h4>
+                    <p class="text-xs">Google Gemini provides a free tier with very fast speeds, making it the ideal selection for standard storefronts.</p>
+                    <ol class="list-decimal pl-5 space-y-1.5 text-xs font-medium">
+                        <li>Visit the <strong><a href="https://aistudio.google.com/" target="_blank" class="text-[#C5A26F] hover:underline font-semibold">Google AI Studio <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i></a></strong> console.</li>
+                        <li>Log in with any normal Google/Gmail account.</li>
+                        <li>Click the prominent <strong>"Get API key"</strong> button in the top left sidebar.</li>
+                        <li>Click <strong>"Create API key"</strong>, select standard terms, and click <strong>"Create API key in new project"</strong>.</li>
+                        <li>Copy the generated code string (starts with <code>AIzaSy...</code>).</li>
+                        <li>Paste it into the <strong>Google Gemini API Key</strong> field in the Chatbot settings page and click Save.</li>
+                    </ol>
+                </div>
+
+                <hr class="border-gray-150">
+
+                <!-- OpenAI Guide -->
+                <div class="space-y-2.5">
+                    <h4 class="font-bold text-gray-800 flex items-center gap-x-2">
+                        <span class="bg-green-100 text-green-800 text-[10px] uppercase font-black px-2 py-0.5 rounded-md">OpenAI ChatGPT</span>
+                        Option B: OpenAI API Key
+                    </h4>
+                    <p class="text-xs">If you prefer OpenAI's models (ChatGPT &amp; DALL-E), you can configure a standard OpenAI platform developer key.</p>
+                    <ol class="list-decimal pl-5 space-y-1.5 text-xs font-medium">
+                        <li>Go to the <strong><a href="https://platform.openai.com/" target="_blank" class="text-[#C5A26F] hover:underline font-semibold">OpenAI Developer Platform <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i></a></strong>.</li>
+                        <li>Sign up or log in.</li>
+                        <li>Go to <strong>Settings -> Billing</strong> and add a payment method, topping up at least $5.00 in credits (OpenAI API key requires a positive credit balance to function).</li>
+                        <li>Click <strong>"API Keys"</strong> in the left sidebar, and click <strong>"Create new secret key"</strong>.</li>
+                        <li>Copy the resulting key string (starts with <code>sk-...</code>).</li>
+                        <li>Paste it into the <strong>OpenAI ChatGPT API Key</strong> field, then save.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="pt-4 flex justify-end">
+                <button type="button" onclick="closeApiGuideModal()" class="bg-[#111111] hover:bg-[#C5A26F] text-white px-6 py-2.5 rounded-xl text-xs uppercase tracking-widest font-semibold transition-all">
+                    Got it, close
+                </button>
+            </div>
         </div>
     </div>
 
@@ -538,6 +918,8 @@
                 populatePlacementsTab();
                 populateProductsTab();
                 populateChatbotTab();
+                populateThemeTab();
+                populateBrandTab();
                 populateDashboardStats();
 
                 // Load active keys status
@@ -909,6 +1291,341 @@
                 populateProductsTab();
                 populateDashboardStats();
                 alert('Product deleted successfully.');
+            }
+        }
+
+        // --- NEW ENHANCEMENTS FOR THEME & COPY CONTROLS ---
+
+        // Modal triggers for API Guide
+        function openApiGuideModal() {
+            document.getElementById('api-guide-modal').classList.remove('hidden');
+        }
+        function closeApiGuideModal() {
+            document.getElementById('api-guide-modal').classList.add('hidden');
+        }
+
+        // Preset theme apply
+        function applyPreset(type) {
+            const presets = {
+                gold: { primary: '#111111', accent: '#C5A26F', bg: '#FAF7F2', text: '#111111', font: 'playfair-inter' },
+                onyx: { primary: '#0d0d0d', accent: '#FF9F6B', bg: '#FAF7F2', text: '#0d0d0d', font: 'playfair-inter' },
+                mint: { primary: '#1E3F20', accent: '#8EAF9D', bg: '#F4F9F5', text: '#1E3F20', font: 'outfit' },
+                rose: { primary: '#2c3e50', accent: '#e84393', bg: '#FDFBF7', text: '#2c3e50', font: 'lora-outfit' }
+            };
+            
+            const p = presets[type];
+            if (!p) return;
+            
+            document.getElementById('theme-primary').value = p.primary;
+            document.getElementById('theme-primary-hex').value = p.primary;
+            document.getElementById('theme-accent').value = p.accent;
+            document.getElementById('theme-accent-hex').value = p.accent;
+            document.getElementById('theme-bg').value = p.bg;
+            document.getElementById('theme-bg-hex').value = p.bg;
+            document.getElementById('theme-text').value = p.text;
+            document.getElementById('theme-text-hex').value = p.text;
+            document.getElementById('theme-font-pairing').value = p.font;
+        }
+
+        // Color Sync Event Listeners
+        document.getElementById('theme-primary').addEventListener('input', e => {
+            document.getElementById('theme-primary-hex').value = e.target.value;
+        });
+        document.getElementById('theme-primary-hex').addEventListener('input', e => {
+            if (/^#[0-9A-F]{6}$/i.test(e.target.value)) document.getElementById('theme-primary').value = e.target.value;
+        });
+        document.getElementById('theme-accent').addEventListener('input', e => {
+            document.getElementById('theme-accent-hex').value = e.target.value;
+        });
+        document.getElementById('theme-accent-hex').addEventListener('input', e => {
+            if (/^#[0-9A-F]{6}$/i.test(e.target.value)) document.getElementById('theme-accent').value = e.target.value;
+        });
+        document.getElementById('theme-bg').addEventListener('input', e => {
+            document.getElementById('theme-bg-hex').value = e.target.value;
+        });
+        document.getElementById('theme-bg-hex').addEventListener('input', e => {
+            if (/^#[0-9A-F]{6}$/i.test(e.target.value)) document.getElementById('theme-bg').value = e.target.value;
+        });
+        document.getElementById('theme-text').addEventListener('input', e => {
+            document.getElementById('theme-text-hex').value = e.target.value;
+        });
+        document.getElementById('theme-text-hex').addEventListener('input', e => {
+            if (/^#[0-9A-F]{6}$/i.test(e.target.value)) document.getElementById('theme-text').value = e.target.value;
+        });
+
+        // Populate Theme Data Tab
+        function populateThemeTab() {
+            if (!storefrontConfig.theme) {
+                storefrontConfig.theme = {
+                    name: "Luxury Gold & Ivory",
+                    primaryColor: "#111111",
+                    accentColor: "#C5A26F",
+                    backgroundColor: "#FAF7F2",
+                    textColor: "#111111",
+                    fontPairing: "playfair-inter",
+                    images: {
+                        hero_male: "",
+                        hero_female: "",
+                        quiz_bg: "",
+                        journal_feat: ""
+                    }
+                };
+            }
+            
+            const theme = storefrontConfig.theme;
+            
+            // Sync Color Fields
+            document.getElementById('theme-primary').value = theme.primaryColor || '#111111';
+            document.getElementById('theme-primary-hex').value = theme.primaryColor || '#111111';
+            document.getElementById('theme-accent').value = theme.accentColor || '#C5A26F';
+            document.getElementById('theme-accent-hex').value = theme.accentColor || '#C5A26F';
+            document.getElementById('theme-bg').value = theme.backgroundColor || '#FAF7F2';
+            document.getElementById('theme-bg-hex').value = theme.backgroundColor || '#FAF7F2';
+            document.getElementById('theme-text').value = theme.textColor || '#111111';
+            document.getElementById('theme-text-hex').value = theme.textColor || '#111111';
+            document.getElementById('theme-font-pairing').value = theme.fontPairing || 'playfair-inter';
+            
+            // Set prompts
+            if (!theme.imagePrompts) {
+                theme.imagePrompts = {
+                    hero_male: "High-end luxury editorial portrait of a handsome melanated man in his late 20s with glowing, clear, hydrated skin, smiling gently, modern clean bathroom background, warm soft lighting.",
+                    hero_female: "High-end luxury editorial portrait of a gorgeous melanated woman in her late 20s with radiant, moisturized skin, applying cream to her face, soft warm natural lighting, beige aesthetic.",
+                    quiz_bg: "Organic skincare ingredients texture, rich mango butter chunks, unrefined white shea block, liquid gold argan oil drops, clean minimalist studio lighting.",
+                    journal_feat: "Premium skincare jars and dropper bottles arranged elegantly on a travertine marble tray, soft morning sunlight, luxury organic spa aesthetic."
+                };
+            }
+            document.getElementById('prompt-hero_male').value = theme.imagePrompts.hero_male || '';
+            document.getElementById('prompt-hero_female').value = theme.imagePrompts.hero_female || '';
+            document.getElementById('prompt-quiz_bg').value = theme.imagePrompts.quiz_bg || '';
+            document.getElementById('prompt-journal_feat').value = theme.imagePrompts.journal_feat || '';
+            
+            // Set paths
+            if (!theme.images) theme.images = {};
+            document.getElementById('url-hero_male').value = theme.images.hero_male || '';
+            document.getElementById('url-hero_female').value = theme.images.hero_female || '';
+            document.getElementById('url-quiz_bg').value = theme.images.quiz_bg || '';
+            document.getElementById('url-journal_feat').value = theme.images.journal_feat || '';
+            
+            // Set images preview
+            document.getElementById('prev-hero_male').src = theme.images.hero_male || 'https://images.unsplash.com/photo-1507038772120-7fff76f8773e?q=80&w=200&auto=format&fit=crop';
+            document.getElementById('prev-hero_female').src = theme.images.hero_female || 'https://images.unsplash.com/photo-1618284554746-71e1b439eb5b?q=80&w=200&auto=format&fit=crop';
+            document.getElementById('prev-quiz_bg').src = theme.images.quiz_bg || 'assets/herban.jpg';
+            document.getElementById('prev-journal_feat').src = theme.images.journal_feat || 'assets/herban3.jpg';
+        }
+
+        // Populate Brand/Copy settings
+        function populateBrandTab() {
+            if (!storefrontConfig.hero) {
+                storefrontConfig.hero = {
+                    badge: "THE NEW ERA OF SKINCARE",
+                    title: "HERBAN<br>ALCHEMY",
+                    subtitle: "THE GLAZE. THE GLOW.",
+                    description: "Luxurious body care for melanated skin. Handcrafted formulas packed with pure, unrefined botanicals.",
+                    highlightText: "Vibrant. Nourishing. Unforgettably Luminous.",
+                    primaryBtnText: "SHOP THE COLLECTION",
+                    secondaryBtnText: "FIND YOUR SHADE"
+                };
+            }
+            if (!storefrontConfig.footer) {
+                storefrontConfig.footer = {
+                    description: "Luxury body care for melanated skin.",
+                    contactEmail: "glow@herbanalchemy.com",
+                    instagramLink: "https://www.instagram.com/herban_alchemynaturalskincare",
+                    copyright: "© 2026 Herban Alchemy. All rights reserved."
+                };
+            }
+            
+            const hero = storefrontConfig.hero;
+            const footer = storefrontConfig.footer;
+            
+            document.getElementById('brand-hero-badge').value = hero.badge || '';
+            document.getElementById('brand-hero-title').value = hero.title || '';
+            document.getElementById('brand-hero-subtitle').value = hero.subtitle || '';
+            document.getElementById('brand-hero-description').value = hero.description || '';
+            document.getElementById('brand-hero-highlight').value = hero.highlightText || '';
+            document.getElementById('brand-hero-btn-primary').value = hero.primaryBtnText || '';
+            document.getElementById('brand-hero-btn-secondary').value = hero.secondaryBtnText || '';
+            
+            document.getElementById('brand-footer-desc').value = footer.description || '';
+            document.getElementById('brand-footer-email').value = footer.contactEmail || '';
+            document.getElementById('brand-footer-insta').value = footer.instagramLink || '';
+            document.getElementById('brand-footer-copy').value = footer.copyright || '';
+        }
+
+        // Save brand Settings
+        async function saveBrandSettings(e) {
+            e.preventDefault();
+            
+            storefrontConfig.hero = {
+                badge: document.getElementById('brand-hero-badge').value,
+                title: document.getElementById('brand-hero-title').value,
+                subtitle: document.getElementById('brand-hero-subtitle').value,
+                description: document.getElementById('brand-hero-description').value,
+                highlightText: document.getElementById('brand-hero-highlight').value,
+                primaryBtnText: document.getElementById('brand-hero-btn-primary').value,
+                secondaryBtnText: document.getElementById('brand-hero-btn-secondary').value
+            };
+            
+            storefrontConfig.footer = {
+                description: document.getElementById('brand-footer-desc').value,
+                contactEmail: document.getElementById('brand-footer-email').value,
+                instagramLink: document.getElementById('brand-footer-insta').value,
+                copyright: document.getElementById('brand-footer-copy').value
+            };
+            
+            const res = await saveConfig();
+            if (res) {
+                alert('General Brand Settings & storefront copywriting saved successfully!');
+            }
+        }
+
+        // Save Theme Color & Image settings
+        async function saveThemeSettings(e) {
+            e.preventDefault();
+            
+            const theme = storefrontConfig.theme;
+            theme.primaryColor = document.getElementById('theme-primary-hex').value;
+            theme.accentColor = document.getElementById('theme-accent-hex').value;
+            theme.backgroundColor = document.getElementById('theme-bg-hex').value;
+            theme.textColor = document.getElementById('theme-text-hex').value;
+            theme.fontPairing = document.getElementById('theme-font-pairing').value;
+            
+            theme.images = {
+                hero_male: document.getElementById('url-hero_male').value,
+                hero_female: document.getElementById('url-hero_female').value,
+                quiz_bg: document.getElementById('url-quiz_bg').value,
+                journal_feat: document.getElementById('url-journal_feat').value
+            };
+            
+            theme.imagePrompts = {
+                hero_male: document.getElementById('prompt-hero_male').value,
+                hero_female: document.getElementById('prompt-hero_female').value,
+                quiz_bg: document.getElementById('prompt-quiz_bg').value,
+                journal_feat: document.getElementById('prompt-journal_feat').value
+            };
+            
+            const res = await saveConfig();
+            if (res) {
+                alert('Cohesive storefront theme changes saved and applied!');
+                populateDashboardStats();
+            }
+        }
+
+        // AI generator for theme color and prompts
+        async function generateAIThemePalette() {
+            const vibeText = document.getElementById('theme-vibe-prompt').value.trim();
+            if (!vibeText) {
+                alert('Please describe your vibe prompt first.');
+                return;
+            }
+            
+            const btnText = document.getElementById('theme-gen-btn-text');
+            const spin = document.getElementById('theme-gen-spinner');
+            
+            btnText.textContent = 'Generating...';
+            spin.classList.remove('hidden');
+            
+            const activeModel = storefrontConfig.chatbot.model || 'gemini';
+            
+            const prompt = `Design a cohesive brand theme for: ${vibeText}`;
+            const systemPrompt = `You are a luxury branding designer. Based on the user's vibe description, design a cohesive web theme. Output a JSON object ONLY, with NO markdown formatting, containing these fields exactly:\n{\n  "name": "Theme Name",\n  "primaryColor": "#HEX",\n  "accentColor": "#HEX",\n  "backgroundColor": "#HEX",\n  "textColor": "#HEX",\n  "fontPairing": "playfair-inter",\n  "imagePrompts": {\n    "hero_male": "Detailed prompt for generating a landscape/portrait image of a melanated man using skin care products...",\n    "hero_female": "Detailed prompt for generating a landscape/portrait image of a melanated woman using skin care products...",\n    "quiz_bg": "Detailed prompt for generating a clean background texture image of organic ingredients like oils or seeds...",\n    "journal_feat": "Detailed prompt for generating a luxury lifestyle image of skincare jars on an elegant tray..."\n  }\n}\nEnsure it is valid JSON. Do not include markdown code block syntax (like \`\`\`json).`;
+
+            try {
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: prompt,
+                        systemPrompt: systemPrompt,
+                        isThemeGen: true
+                    })
+                });
+                
+                btnText.textContent = 'Generate Vibe';
+                spin.classList.add('hidden');
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    let replyText = data.reply.trim();
+                    
+                    if (replyText.startsWith('```')) {
+                        replyText = replyText.replace(/^```json\s*/i, '').replace(/```$/, '').trim();
+                    }
+                    
+                    const parsedTheme = JSON.parse(replyText);
+                    
+                    // Populate colors
+                    document.getElementById('theme-primary').value = parsedTheme.primaryColor || '#111111';
+                    document.getElementById('theme-primary-hex').value = parsedTheme.primaryColor || '#111111';
+                    document.getElementById('theme-accent').value = parsedTheme.accentColor || '#C5A26F';
+                    document.getElementById('theme-accent-hex').value = parsedTheme.accentColor || '#C5A26F';
+                    document.getElementById('theme-bg').value = parsedTheme.backgroundColor || '#FAF7F2';
+                    document.getElementById('theme-bg-hex').value = parsedTheme.backgroundColor || '#FAF7F2';
+                    document.getElementById('theme-text').value = parsedTheme.textColor || '#111111';
+                    document.getElementById('theme-text-hex').value = parsedTheme.textColor || '#111111';
+                    if (parsedTheme.fontPairing) {
+                        document.getElementById('theme-font-pairing').value = parsedTheme.fontPairing;
+                    }
+                    
+                    // Populate prompts
+                    if (parsedTheme.imagePrompts) {
+                        document.getElementById('prompt-hero_male').value = parsedTheme.imagePrompts.hero_male || '';
+                        document.getElementById('prompt-hero_female').value = parsedTheme.imagePrompts.hero_female || '';
+                        document.getElementById('prompt-quiz_bg').value = parsedTheme.imagePrompts.quiz_bg || '';
+                        document.getElementById('prompt-journal_feat').value = parsedTheme.imagePrompts.journal_feat || '';
+                    }
+                    
+                    alert("AI Theme designed successfully! Pre-populated color codes and image prompts for you. Hit 'Generate AI' on any image slot to fetch the assets, then click Save at the bottom.");
+                } else {
+                    const err = await res.json();
+                    alert(`AI Theme Generation failed: ${err.error || 'Server error'}`);
+                }
+            } catch (err) {
+                console.error(err);
+                btnText.textContent = 'Generate Vibe';
+                spin.classList.add('hidden');
+                alert('AI proxy connection failed. Ensure AI key is correct and server is running.');
+            }
+        }
+
+        // AI single Image Generation
+        async function generateSingleImage(target) {
+            const prompt = document.getElementById(`prompt-${target}`).value.trim();
+            if (!prompt) {
+                alert('Please input a prompt to generate.');
+                return;
+            }
+            
+            const spin = document.getElementById(`spin-${target}`);
+            spin.classList.remove('hidden');
+            
+            const activeModel = storefrontConfig.chatbot.model || 'gemini';
+            
+            try {
+                const res = await fetch('/api/generate-image', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ prompt, target, engine: activeModel })
+                });
+                
+                spin.classList.add('hidden');
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById(`prev-${target}`).src = data.imageUrl;
+                    document.getElementById(`url-${target}`).value = data.imageUrl.split('?')[0]; // Store URL without the cache buster timestamp
+                    alert('Image generated and saved locally to server assets folder!');
+                } else {
+                    const err = await res.json();
+                    alert(`Failed to generate: ${err.error || 'Server error'}`);
+                }
+            } catch (err) {
+                console.error(err);
+                spin.classList.add('hidden');
+                alert('Connection to server failed. Verify API Key settings.');
             }
         }
     </script>

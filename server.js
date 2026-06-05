@@ -135,12 +135,13 @@ app.post('/api/chat', async (req, res) => {
     const config = readJSON(CONFIG_PATH);
     const secrets = readJSON(SECRETS_PATH);
     const chatbot = config.chatbot || { enabled: true, model: 'gemini', systemPrompt: '' };
+    const isThemeGen = req.body.isThemeGen || false;
 
-    if (!chatbot.enabled) {
+    if (!chatbot.enabled && !isThemeGen) {
         return res.status(400).json({ error: 'Chatbot is currently disabled' });
     }
 
-    const systemPrompt = chatbot.systemPrompt || 'You are Aura, an AI assistant for Herban Alchemy.';
+    const systemPrompt = req.body.systemPrompt || chatbot.systemPrompt || 'You are Aura, an AI assistant for Herban Alchemy.';
     const activeModel = chatbot.model || 'gemini';
 
     try {
@@ -240,6 +241,103 @@ app.post('/api/chat', async (req, res) => {
     } catch (error) {
         console.error('AI Proxy Error:', error);
         res.status(500).json({ error: error.message || 'Error communicating with AI service' });
+    }
+});
+
+// IMAGE GENERATION PROXY (Protected)
+app.post('/api/generate-image', checkAuth, async (req, res) => {
+    const { prompt, target, engine } = req.body;
+    if (!prompt || !target || !engine) {
+        return res.status(400).json({ error: 'Prompt, target, and engine are required' });
+    }
+
+    const validTargets = ['hero_male', 'hero_female', 'quiz_bg', 'journal_feat'];
+    if (!validTargets.includes(target)) {
+        return res.status(400).json({ error: 'Invalid image target specified' });
+    }
+
+    const secrets = readJSON(SECRETS_PATH);
+    const targetFilename = `generated_${target}.jpg`;
+    const targetPath = path.join(__dirname, 'assets', targetFilename);
+
+    try {
+        let base64Data = '';
+
+        if (engine === 'gemini') {
+            if (!secrets.geminiApiKey) {
+                return res.status(400).json({ error: 'Gemini API key is not configured' });
+            }
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:generateImages?key=${secrets.geminiApiKey}`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    numberOfImages: 1,
+                    outputMimeType: 'image/jpeg',
+                    aspectRatio: '1:1'
+                })
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(`Gemini Imagen Error: ${response.status} ${errText}`);
+            }
+
+            const data = await response.json();
+            base64Data = data.generatedImages?.[0]?.image?.imageBytes;
+            if (!base64Data) {
+                throw new Error('No image data returned from Gemini Imagen');
+            }
+
+        } else if (engine === 'openai') {
+            if (!secrets.openaiApiKey) {
+                return res.status(400).json({ error: 'OpenAI API key is not configured' });
+            }
+
+            const response = await fetch('https://api.openai.com/v1/images/generations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${secrets.openaiApiKey}`
+                },
+                body: JSON.stringify({
+                    model: 'dall-e-3',
+                    prompt: prompt,
+                    n: 1,
+                    size: '1024x1024',
+                    response_format: 'b64_json'
+                })
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(`OpenAI DALL-E Error: ${response.status} ${errText}`);
+            }
+
+            const data = await response.json();
+            base64Data = data.data?.[0]?.b64_json;
+            if (!base64Data) {
+                throw new Error('No image data returned from OpenAI DALL-E');
+            }
+        } else {
+            return res.status(400).json({ error: 'Unsupported active image generation engine' });
+        }
+
+        // Save base64 string to file
+        const imageBuffer = Buffer.from(base64Data, 'base64');
+        fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+        fs.writeFileSync(targetPath, imageBuffer);
+
+        res.json({
+            success: true,
+            imageUrl: `assets/${targetFilename}?t=${Date.now()}`
+        });
+
+    } catch (error) {
+        console.error('Image Generation Error:', error);
+        res.status(500).json({ error: error.message || 'Error generating image' });
     }
 });
 

@@ -49,6 +49,9 @@
         applyPlacements();
         applyDynamicPrices();
         routeAccountButton();
+        applyThemeStyles();
+        applyThemeImages();
+        applyBrandSettings();
         if (currentConfig.chatbot.enabled) {
             injectChatbotWidget();
         }
@@ -371,6 +374,229 @@
             const spin = document.getElementById('herban-chat-loader');
             if (spin) spin.remove();
             addMessageBubble('assistant', '⚠️ I am unable to reach the AI engine right now. Please verify your backend server connection.');
+        }
+    }
+
+    // Adjust color brightness utility
+    function adjustColor(hex, percent) {
+        if (!hex || hex.length < 7) return hex;
+        let R = parseInt(hex.substring(1, 3), 16);
+        let G = parseInt(hex.substring(3, 5), 16);
+        let B = parseInt(hex.substring(5, 7), 16);
+
+        R = parseInt(R * (100 + percent) / 100);
+        G = parseInt(G * (100 + percent) / 100);
+        B = parseInt(B * (100 + percent) / 100);
+
+        R = (R < 255) ? R : 255;
+        G = (G < 255) ? G : 255;
+        B = (B < 255) ? B : 255;
+
+        R = (R > 0) ? R : 0;
+        G = (G > 0) ? G : 0;
+        B = (B > 0) ? B : 0;
+
+        const rHex = R.toString(16).padStart(2, '0');
+        const gHex = G.toString(16).padStart(2, '0');
+        const bHex = B.toString(16).padStart(2, '0');
+
+        return `#${rHex}${gHex}${bHex}`;
+    }
+
+    // Dynamic Color & Font Theme Application
+    function applyThemeStyles() {
+        const theme = currentConfig.theme;
+        if (!theme) return;
+
+        // 1. Handle Font Pairing Injection
+        if (theme.fontPairing) {
+            let fontLink = document.getElementById('herban-theme-fonts');
+            if (!fontLink) {
+                fontLink = document.createElement('link');
+                fontLink.id = 'herban-theme-fonts';
+                fontLink.rel = 'stylesheet';
+                document.head.appendChild(fontLink);
+            }
+            
+            if (theme.fontPairing === 'outfit') {
+                fontLink.href = 'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;800;900&display=swap';
+            } else if (theme.fontPairing === 'lora-outfit') {
+                fontLink.href = 'https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500;600;800&display=swap';
+            } else {
+                fontLink.href = 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600&display=swap';
+            }
+        }
+
+        // 2. Inject override stylesheet
+        let styleEl = document.getElementById('herban-theme-styles');
+        if (!styleEl) {
+            styleEl = document.createElement('style');
+            styleEl.id = 'herban-theme-styles';
+            document.head.appendChild(styleEl);
+        }
+
+        const primary = theme.primaryColor || '#111111';
+        const accent = theme.accentColor || '#C5A26F';
+        const bg = theme.backgroundColor || '#FAF7F2';
+        const text = theme.textColor || '#111111';
+        
+        let headingFont = "'Playfair Display', Georgia, serif";
+        let bodyFont = "'Inter', system-ui, sans-serif";
+        
+        if (theme.fontPairing === 'outfit') {
+            headingFont = "'Outfit', sans-serif";
+            bodyFont = "'Outfit', sans-serif";
+        } else if (theme.fontPairing === 'lora-outfit') {
+            headingFont = "'Lora', serif";
+            bodyFont = "'Outfit', sans-serif";
+        }
+
+        const lighterBg = adjustColor(bg, 5);
+        const darkerBg = adjustColor(bg, -4);
+        const cardBg = bg === '#FAF7F2' || bg === '#FAF7F2'.toLowerCase() ? '#ffffff' : lighterBg;
+
+        styleEl.innerHTML = `
+            :root {
+                --gold: ${accent} !important;
+                --accent-gold: ${accent} !important;
+            }
+            
+            body {
+                background-color: ${bg} !important;
+                color: ${text} !important;
+                font-family: ${bodyFont} !important;
+            }
+            
+            h1, h2, h3, h4, .heading-serif, .serif-title, .herban-logo {
+                font-family: ${headingFont} !important;
+            }
+
+            .bg-\\[\\#FAF7F2\\], .bg-gray-50, .le-section {
+                background-color: ${darkerBg} !important;
+                background: linear-gradient(180deg, ${bg} 0%, ${darkerBg} 100%) !important;
+            }
+            .bg-\\[\\#F9F7F4\\] {
+                background-color: ${lighterBg} !important;
+            }
+            
+            .ha-card, .le-card, .bg-white, .product-card {
+                background-color: ${cardBg} !important;
+                color: ${text} !important;
+                border-color: ${adjustColor(bg, -15)} !important;
+            }
+
+            .text-\\[\\#C5A26F\\], .text-[#C5A26F], .gold-accent {
+                color: ${accent} !important;
+            }
+            .text-\\[\\#111111\\], .text-gray-800, .text-gray-900 {
+                color: ${text} !important;
+            }
+            
+            .border-\\[\\#C5A26F\\], .border-[#C5A26F], .ring-[#FF6B35]\\/30 {
+                border-color: ${accent} !important;
+            }
+            .bg-\\[\\#111111\\], .bg-black, button:not([class*="bg-white"]):not([class*="bg-[#C5A26F]/10"]):not([onclick*="changeQty"]):not([id*="herban-chat"]) {
+                background-color: ${primary} !important;
+                color: #ffffff !important;
+            }
+            .bg-\\[\\#111111\\]:hover, .bg-black:hover, button:not([class*="bg-white"]):not([class*="bg-[#C5A26F]/10"]):not([onclick*="changeQty"]):not([id*="herban-chat"]):hover {
+                background-color: ${accent} !important;
+                color: #ffffff !important;
+            }
+            
+            .bg-green-50, .bg-[#C5A26F]/10 {
+                background-color: ${adjustColor(accent, 45)}40 !important;
+                color: ${accent} !important;
+            }
+        `;
+    }
+
+    // Dynamic Image Loading
+    function applyThemeImages() {
+        const theme = currentConfig.theme;
+        if (!theme || !theme.images) return;
+
+        const imgMale = document.getElementById('hero-img-male');
+        if (imgMale && theme.images.hero_male) {
+            imgMale.src = theme.images.hero_male;
+        }
+
+        const imgFemale = document.getElementById('hero-img-female');
+        if (imgFemale && theme.images.hero_female) {
+            imgFemale.src = theme.images.hero_female;
+        }
+
+        const quizSec = document.getElementById('quiz');
+        if (quizSec && theme.images.quiz_bg) {
+            quizSec.style.backgroundImage = `linear-gradient(rgba(17,17,17,0.75), rgba(17,17,17,0.85)), url('${theme.images.quiz_bg}')`;
+            quizSec.style.backgroundSize = 'cover';
+            quizSec.style.backgroundPosition = 'center';
+            quizSec.style.backgroundRepeat = 'no-repeat';
+        }
+
+        const journalImg = document.getElementById('journal-feat-img');
+        if (journalImg && theme.images.journal_feat) {
+            journalImg.src = theme.images.journal_feat;
+        }
+    }
+
+    // Dynamic copywriting and footer customizations
+    function applyBrandSettings() {
+        // 1. Hero Content Copy
+        if (currentConfig.hero) {
+            const hero = currentConfig.hero;
+            const badge = document.getElementById('hero-badge');
+            if (badge && hero.badge) badge.textContent = hero.badge;
+
+            const title = document.getElementById('hero-title');
+            if (title && hero.title) title.innerHTML = hero.title;
+
+            const subtitle = document.getElementById('hero-subtitle');
+            if (subtitle && hero.subtitle) subtitle.textContent = hero.subtitle;
+
+            const desc = document.getElementById('hero-description');
+            if (desc && hero.description) {
+                const highlight = hero.highlightText ? `<span class="block mt-1 text-[#C5A26F] font-semibold">${hero.highlightText}</span>` : '';
+                desc.innerHTML = hero.description + ' ' + highlight;
+            }
+
+            const btnPrimary = document.getElementById('hero-btn-primary');
+            if (btnPrimary && hero.primaryBtnText) btnPrimary.textContent = hero.primaryBtnText;
+
+            const btnSecondary = document.getElementById('hero-btn-secondary');
+            if (btnSecondary && hero.secondaryBtnText) btnSecondary.textContent = hero.secondaryBtnText;
+        }
+
+        // 2. Footer Copy
+        if (currentConfig.footer) {
+            const footer = currentConfig.footer;
+            
+            document.querySelectorAll('footer p, footer div').forEach(el => {
+                if (el.textContent.includes('Luxury body care for melanated skin.') && el.children.length === 0) {
+                    el.textContent = footer.description;
+                }
+            });
+
+            document.querySelectorAll('footer p, footer div').forEach(el => {
+                if (el.textContent.includes('©') && el.textContent.includes('Herban Alchemy')) {
+                    el.textContent = footer.copyright;
+                }
+            });
+
+            document.querySelectorAll('footer a, nav a').forEach(el => {
+                if (el.href && el.href.includes('instagram.com/herban_alchemynaturalskincare')) {
+                    el.href = footer.instagramLink;
+                }
+            });
+            
+            document.querySelectorAll('body p, body div, body a').forEach(el => {
+                if (el.textContent.includes('glow@herbanalchemy.com') && el.children.length === 0) {
+                    el.textContent = footer.contactEmail;
+                }
+                if (el.href && el.href.includes('mailto:glow@herbanalchemy.com')) {
+                    el.href = `mailto:${footer.contactEmail}`;
+                }
+            });
         }
     }
 

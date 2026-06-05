@@ -1,4 +1,33 @@
 {
+  "theme": {
+    "name": "Luxury Gold & Ivory",
+    "primaryColor": "#111111",
+    "accentColor": "#C5A26F",
+    "backgroundColor": "#FAF7F2",
+    "textColor": "#111111",
+    "fontPairing": "playfair-inter",
+    "images": {
+      "hero_male": "",
+      "hero_female": "",
+      "quiz_bg": "",
+      "journal_feat": ""
+    }
+  },
+  "hero": {
+    "badge": "THE NEW ERA OF SKINCARE",
+    "title": "HERBAN<br>ALCHEMY",
+    "subtitle": "THE GLAZE. THE GLOW.",
+    "description": "Luxurious body care for melanated skin. Handcrafted formulas packed with pure, unrefined botanicals.",
+    "highlightText": "Vibrant. Nourishing. Unforgettably Luminous.",
+    "primaryBtnText": "SHOP THE COLLECTION",
+    "secondaryBtnText": "FIND YOUR SHADE"
+  },
+  "footer": {
+    "description": "Luxury body care for melanated skin.",
+    "contactEmail": "glow@herbanalchemy.com",
+    "instagramLink": "https://www.instagram.com/herban_alchemynaturalskincare",
+    "copyright": "© 2026 Herban Alchemy. All rights reserved."
+  },
   "banner": {
     "enabled": true,
     "text": "FREE shipping on orders over $65",
