@@ -399,3 +399,5 @@ app.use((req, res) => {
 app.listen(PORT, () => {
     console.log(`Herban Alchemy backend server listening on port ${PORT}`);
 });
+
+module.exports = app;
