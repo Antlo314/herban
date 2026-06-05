@@ -578,11 +578,77 @@
                 }
             });
 
-            document.querySelectorAll('footer a, nav a').forEach(el => {
-                if (el.href && el.href.includes('instagram.com/herban_alchemynaturalskincare')) {
-                    el.href = footer.instagramLink;
+            // Render dynamic socials in footer
+            const socialContainer = document.querySelector('footer .flex.items-center.gap-x-3.text-lg') || 
+                                      document.querySelector('footer .fa-instagram')?.parentElement?.parentElement;
+            if (socialContainer && footer.socials) {
+                socialContainer.innerHTML = '';
+                const icons = {
+                    instagram: 'fa-brands fa-instagram',
+                    tiktok: 'fa-brands fa-tiktok',
+                    facebook: 'fa-brands fa-facebook',
+                    youtube: 'fa-brands fa-youtube',
+                    amazon: 'fa-brands fa-amazon',
+                    pinterest: 'fa-brands fa-pinterest',
+                    twitter: 'fa-brands fa-x-twitter'
+                };
+                
+                for (const [key, value] of Object.entries(footer.socials)) {
+                    if (value && value.trim() !== '') {
+                        const a = document.createElement('a');
+                        a.href = value.trim();
+                        a.target = '_blank';
+                        a.className = 'hover:text-[#C5A26F] transition-colors';
+                        const iconClass = icons[key] || 'fa-solid fa-link';
+                        a.innerHTML = `<i class="${iconClass}"></i>`;
+                        socialContainer.appendChild(a);
+                    }
                 }
-            });
+            } else {
+                // Fallback to legacy single link if socials object doesn't exist
+                document.querySelectorAll('footer a, nav a').forEach(el => {
+                    if (el.href && el.href.includes('instagram.com/herban_alchemynaturalskincare')) {
+                        el.href = footer.instagramLink || 'https://www.instagram.com/herban_alchemynaturalskincare';
+                    }
+                });
+            }
+            
+            // Update header Instagram nav link if configured
+            const headerSocial = document.querySelector('nav .fa-instagram')?.parentElement || 
+                                 document.querySelector('header .fa-instagram')?.parentElement;
+            if (headerSocial) {
+                if (footer.socials && footer.socials.instagram) {
+                    headerSocial.href = footer.socials.instagram;
+                    headerSocial.style.display = 'inline-block';
+                } else if (footer.instagramLink) {
+                    headerSocial.href = footer.instagramLink;
+                    headerSocial.style.display = 'inline-block';
+                } else {
+                    // find first available social link
+                    const firstVal = Object.values(footer.socials || {}).find(v => v && v.trim() !== '');
+                    if (firstVal) {
+                        headerSocial.href = firstVal;
+                        // Find icon inside headerSocial and update classes
+                        const iconEl = headerSocial.querySelector('i');
+                        if (iconEl) {
+                            const activeKey = Object.keys(footer.socials).find(k => footer.socials[k] === firstVal);
+                            const icons = {
+                                instagram: 'fa-brands fa-instagram',
+                                tiktok: 'fa-brands fa-tiktok',
+                                facebook: 'fa-brands fa-facebook',
+                                youtube: 'fa-brands fa-youtube',
+                                amazon: 'fa-brands fa-amazon',
+                                pinterest: 'fa-brands fa-pinterest',
+                                twitter: 'fa-brands fa-x-twitter'
+                            };
+                            iconEl.className = icons[activeKey] || 'fa-solid fa-link';
+                        }
+                        headerSocial.style.display = 'inline-block';
+                    } else {
+                        headerSocial.style.display = 'none';
+                    }
+                }
+            }
             
             document.querySelectorAll('body p, body div, body a').forEach(el => {
                 if (el.textContent.includes('glow@herbanalchemy.com') && el.children.length === 0) {

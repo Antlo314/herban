@@ -30,7 +30,16 @@
     "description": "Luxury body care for melanated skin.",
     "contactEmail": "glow@herbanalchemy.com",
     "instagramLink": "https://www.instagram.com/herban_alchemynaturalskincare",
-    "copyright": "© 2026 Herban Alchemy. All rights reserved."
+    "copyright": "© 2026 Herban Alchemy. All rights reserved.",
+    "socials": {
+      "instagram": "https://www.instagram.com/herban_alchemynaturalskincare",
+      "tiktok": "",
+      "facebook": "",
+      "youtube": "",
+      "amazon": "",
+      "pinterest": "",
+      "twitter": ""
+    }
   },
   "banner": {
     "enabled": true,

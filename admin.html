@@ -363,7 +363,16 @@
                                     <input type="text" id="chatbot-name" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#C5A26F]" required>
                                 </div>
                                 <div>
-                                    <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-2">Active AI Engine Model</label>
+                                    <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-2 flex items-center gap-x-1">
+                                        <span>Active AI Engine Model</span>
+                                        <span class="relative group cursor-help">
+                                            <i class="fa-solid fa-circle-info text-gray-300 hover:text-[#C5A26F] text-[10px]"></i>
+                                            <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block w-56 p-2 bg-[#111] text-white text-[9px] font-normal rounded-lg shadow-xl z-50 normal-case leading-relaxed text-center">
+                                                <strong>Model Choice:</strong> Gemini 1.5/2.5 offers extremely low latency and reasoning, included in the free/paid tier. OpenAI's mini models require an external key.
+                                                <span class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-[#111]"></span>
+                                            </span>
+                                        </span>
+                                    </label>
                                     <select id="chatbot-model" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#C5A26F]">
                                         <option value="gemini">Google Gemini (Recommended)</option>
                                         <option value="openai">OpenAI ChatGPT</option>
@@ -374,7 +383,16 @@
                                     <input type="text" id="chatbot-greeting" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#C5A26F]" required>
                                 </div>
                                 <div class="col-span-2">
-                                    <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-2">System Instructions / AI Personality</label>
+                                    <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-2 flex items-center gap-x-1">
+                                        <span>System Instructions / AI Personality</span>
+                                        <span class="relative group cursor-help">
+                                            <i class="fa-solid fa-circle-info text-gray-300 hover:text-[#C5A26F] text-[10px]"></i>
+                                            <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block w-64 p-2 bg-[#111] text-white text-[9px] font-normal rounded-lg shadow-xl z-50 normal-case leading-relaxed text-center">
+                                                <strong>AI Prompt Tuning:</strong> Changes how Aura talks, behaves, and what she recommends. Define the brand voice (e.g. "You are knowledgeable, luxurious, warm, recommending body butter glazes...").
+                                                <span class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-[#111]"></span>
+                                            </span>
+                                        </span>
+                                    </label>
                                     <textarea id="chatbot-prompt" rows="5" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#C5A26F] text-xs leading-relaxed" required></textarea>
                                     <span class="text-[10px] text-gray-400 leading-relaxed block mt-1">Specify detailed instructions (e.g. key ingredients, scent names, brand style) so the assistant acts as a tailored brand powerhouse.</span>
                                 </div>
@@ -441,15 +459,24 @@
 
                 <!-- AI Theme Prompt Generator -->
                 <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm space-y-4">
-                    <h2 class="text-lg font-bold text-gray-800 flex items-center gap-x-2">
-                        <i class="fa-solid fa-wand-magic-sparkles text-[#C5A26F]"></i> Generate Cohesive Theme Vibe
+                    <h2 class="text-lg font-bold text-gray-800 flex items-center justify-between">
+                        <span class="flex items-center gap-x-2">
+                            <i class="fa-solid fa-wand-magic-sparkles text-[#C5A26F]"></i> Generate Cohesive Theme Vibe
+                        </span>
+                        <span class="relative group cursor-help">
+                            <i class="fa-solid fa-circle-info text-gray-400 hover:text-[#C5A26F] text-sm"></i>
+                            <span class="absolute bottom-full right-0 mb-2 hidden group-hover:block w-64 p-2.5 bg-[#111] text-white text-[9px] font-normal rounded-lg shadow-xl z-50 normal-case leading-relaxed text-center">
+                                <strong>Vibe Generator Help:</strong> Type in a descriptive, sensual atmosphere. The AI will write custom HSL-colored CSS rules, font systems, matching advertising banner copy, and specific visual prompts for you.
+                                <span class="absolute top-full right-2 border-4 border-transparent border-t-[#111]"></span>
+                            </span>
+                        </span>
                     </h2>
                     <div class="text-xs text-gray-500 space-y-2 leading-relaxed">
                         <p>Enter a descriptive mood or sensory vibe for your brand (e.g. <em>"A cozy vanilla orchid campfire night, warm and sweet, natural wood highlights"</em> or <em>"A refreshing eucalyptus mint spa ritual, clean silver and sage"</em>). The AI will dynamically design the entire storefront look and feel:</p>
                         <ul class="list-disc pl-5 space-y-1">
                             <li><strong>Color Palette:</strong> Designs matching Primary, Accent, Background, and Text colors.</li>
                             <li><strong>Typography Pairing:</strong> Selects a font system (e.g. Playfair + Inter, Lora + Outfit, or clean Outfit) that fits the aesthetic.</li>
-                            <li><strong>AI Image Prompts:</strong> Creates customized high-end prompts for all 4 image slots (Hero Male, Hero Female, Quiz BG, and Journal Featured Image).</li>
+                            <li><strong>AI Image Prompts:</strong> Creates customized high-end prompts for all 3 image slots (Hero Background, Quiz BG, and Journal Featured Image).</li>
                             <li><strong>Themed Copywriting:</strong> Writes matching hero copy (Badge, Title, Subtitle, Description, CTA Buttons) and announcement banner/footer text to make the brand's voice match the visuals!</li>
                         </ul>
                         <p class="text-[10px] text-[#C5A26F] font-semibold flex items-center gap-x-1.5 pt-1"><i class="fa-solid fa-lightbulb"></i> Tip: Vibe generation updates inputs across both the "AI Theme &amp; Images" and "Brand Settings" tabs. Review and tweak them, then click Save on either tab to apply.</p>
@@ -507,7 +534,16 @@
 
                         <!-- Mid: Custom Color Pickers -->
                         <div class="col-span-2 space-y-4">
-                            <h3 class="text-xs uppercase tracking-wider font-bold text-gray-500">Cohesive Color Settings</h3>
+                            <h3 class="text-xs uppercase tracking-wider font-bold text-gray-500 flex items-center justify-between">
+                                <span>Cohesive Color Settings</span>
+                                <span class="relative group cursor-help">
+                                    <i class="fa-solid fa-circle-info text-gray-400 hover:text-[#C5A26F] text-[10px]"></i>
+                                    <span class="absolute bottom-full right-0 mb-2 hidden group-hover:block w-64 p-2.5 bg-[#111] text-white text-[9px] font-normal rounded-lg shadow-xl z-50 normal-case leading-relaxed text-center">
+                                        <strong>Design Tokens:</strong> These colors define the brand theme. The primary color is used for dark blocks/buttons, accent color for highlights, background for body backgrounds, and text for reading legibility.
+                                        <span class="absolute top-full right-2 border-4 border-transparent border-t-[#111]"></span>
+                                    </span>
+                                </span>
+                            </h3>
                             <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                 <div>
                                     <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Primary Color</label>
@@ -531,7 +567,7 @@
                                     </div>
                                 </div>
                             </div>
-
+ 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                                 <div>
                                     <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Text Color</label>
@@ -541,7 +577,16 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Typography Pairing</label>
+                                    <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1 flex items-center gap-x-1">
+                                        <span>Typography Pairing</span>
+                                        <span class="relative group cursor-help">
+                                            <i class="fa-solid fa-circle-info text-gray-300 hover:text-[#C5A26F] text-[10px]"></i>
+                                            <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block w-56 p-2 bg-[#111] text-white text-[9px] font-normal rounded-lg shadow-xl z-50 normal-case leading-relaxed text-center">
+                                                <strong>Typography Styles:</strong> Selects Google Fonts for headings and body. Playfair/Inter offers classic luxury, Outfit is minimal, Lora/Outfit is warm.
+                                                <span class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-[#111]"></span>
+                                            </span>
+                                        </span>
+                                    </label>
                                     <select id="theme-font-pairing" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-[#C5A26F]">
                                         <option value="playfair-inter">Luxury Serif + Clean Sans (Playfair + Inter)</option>
                                         <option value="outfit">Modern Minimalist (Outfit Sans)</option>
@@ -716,7 +761,16 @@
 
                     <!-- Footer Content Editing -->
                     <div class="space-y-4 pt-4">
-                        <h3 class="text-xs uppercase tracking-wider font-bold text-gray-500 pb-2 border-b">Storefront Footer Copy</h3>
+                        <h3 class="text-xs uppercase tracking-wider font-bold text-gray-500 pb-2 border-b flex items-center justify-between">
+                            <span>Storefront Footer Copy & Social Links</span>
+                            <span class="relative group ml-1 inline-block cursor-help">
+                                <i class="fa-solid fa-circle-info text-gray-400 hover:text-[#C5A26F] text-xs"></i>
+                                <span class="absolute bottom-full right-0 mb-2 hidden group-hover:block w-64 p-2.5 bg-[#111] text-white text-[10px] font-normal rounded-lg shadow-xl z-50 normal-case leading-relaxed text-center">
+                                    <strong>Footer & Socials Help:</strong> Enter active storefront links. If a social link is left empty, its respective clickable logo is automatically hidden from the storefront.
+                                    <span class="absolute top-full right-2 border-4 border-transparent border-t-[#111]"></span>
+                                </span>
+                            </span>
+                        </h3>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div class="col-span-2">
                                 <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Footer Short Bio</label>
@@ -729,6 +783,30 @@
                             <div>
                                 <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Instagram Link (Full URL)</label>
                                 <input type="text" id="brand-footer-insta" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-[#C5A26F]">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">TikTok Link (Full URL)</label>
+                                <input type="text" id="brand-footer-tiktok" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-[#C5A26F]">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Facebook Link (Full URL)</label>
+                                <input type="text" id="brand-footer-facebook" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-[#C5A26F]">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">YouTube Link (Full URL)</label>
+                                <input type="text" id="brand-footer-youtube" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-[#C5A26F]">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Amazon Storefront Link (Full URL)</label>
+                                <input type="text" id="brand-footer-amazon" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-[#C5A26F]">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Pinterest Link (Full URL)</label>
+                                <input type="text" id="brand-footer-pinterest" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-[#C5A26F]">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Twitter/X Link (Full URL)</label>
+                                <input type="text" id="brand-footer-twitter" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-[#C5A26F]">
                             </div>
                             <div class="col-span-2">
                                 <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Copyright Text</label>
@@ -1467,9 +1545,21 @@
                     copyright: "© 2026 Herban Alchemy. All rights reserved."
                 };
             }
+            if (!storefrontConfig.footer.socials) {
+                storefrontConfig.footer.socials = {
+                    instagram: storefrontConfig.footer.instagramLink || "https://www.instagram.com/herban_alchemynaturalskincare",
+                    tiktok: "",
+                    facebook: "",
+                    youtube: "",
+                    amazon: "",
+                    pinterest: "",
+                    twitter: ""
+                };
+            }
             
             const hero = storefrontConfig.hero;
             const footer = storefrontConfig.footer;
+            const socials = footer.socials;
             
             document.getElementById('brand-hero-badge').value = hero.badge || '';
             document.getElementById('brand-hero-title').value = hero.title || '';
@@ -1481,7 +1571,13 @@
             
             document.getElementById('brand-footer-desc').value = footer.description || '';
             document.getElementById('brand-footer-email').value = footer.contactEmail || '';
-            document.getElementById('brand-footer-insta').value = footer.instagramLink || '';
+            document.getElementById('brand-footer-insta').value = socials.instagram || '';
+            document.getElementById('brand-footer-tiktok').value = socials.tiktok || '';
+            document.getElementById('brand-footer-facebook').value = socials.facebook || '';
+            document.getElementById('brand-footer-youtube').value = socials.youtube || '';
+            document.getElementById('brand-footer-amazon').value = socials.amazon || '';
+            document.getElementById('brand-footer-pinterest').value = socials.pinterest || '';
+            document.getElementById('brand-footer-twitter').value = socials.twitter || '';
             document.getElementById('brand-footer-copy').value = footer.copyright || '';
         }
 
@@ -1503,7 +1599,16 @@
                 description: document.getElementById('brand-footer-desc').value,
                 contactEmail: document.getElementById('brand-footer-email').value,
                 instagramLink: document.getElementById('brand-footer-insta').value,
-                copyright: document.getElementById('brand-footer-copy').value
+                copyright: document.getElementById('brand-footer-copy').value,
+                socials: {
+                    instagram: document.getElementById('brand-footer-insta').value,
+                    tiktok: document.getElementById('brand-footer-tiktok').value,
+                    facebook: document.getElementById('brand-footer-facebook').value,
+                    youtube: document.getElementById('brand-footer-youtube').value,
+                    amazon: document.getElementById('brand-footer-amazon').value,
+                    pinterest: document.getElementById('brand-footer-pinterest').value,
+                    twitter: document.getElementById('brand-footer-twitter').value
+                }
             };
             
             const res = await saveConfig();
