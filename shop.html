@@ -206,9 +206,9 @@
                 price: 32,
                 size: '4 oz',
                 badge: 'FOR HIM',
-                description: 'Deep cleanses, refines pores, and balances the skin without stripping. Packed exclusively with nourishing argan and rosehip oils in our signature black jar.',
+                description: 'Deep cleanses, refines pores, and balances the skin without stripping. Packed exclusively with nourishing argan and rosehip oils in our signature black squeeze bottle.',
                 image: 'assets/men_face_cleanser.jfif',
-                scents: [],
+                scents: ['Mango Dream', 'Vanilla Orchid', 'Citrus Zest', 'Lavender Haze', 'Amber Spice', 'Rose Petal', 'Coconut Kiss', 'Eucalyptus Fresh', 'Jasmine Nights', 'Sandalwood Warm', 'Grapefruit Glow', 'Patchouli Earth'],
             },
             {
                 id: 302,
@@ -220,7 +220,7 @@
                 badge: 'FOR HIM',
                 description: 'Our ultra-hydrating whipped body butter glaze. Formulated exclusively with argan and rosehip oils in a sleek black jar to leave skin smooth, conditioned, and glowing all day.',
                 image: 'assets/men_body_glaze.jfif',
-                scents: [],
+                scents: ['Mango Dream', 'Vanilla Orchid', 'Citrus Zest', 'Lavender Haze', 'Amber Spice', 'Rose Petal', 'Coconut Kiss', 'Eucalyptus Fresh', 'Jasmine Nights', 'Sandalwood Warm', 'Grapefruit Glow', 'Patchouli Earth'],
             },
             {
                 id: 1,
@@ -311,6 +311,36 @@
             'Lavender Haze': 'assets/lavender_haze_oil.jpg',
         };
 
+        const menGlazeImages = {
+            'Mango Dream': 'assets/men_glaze_mango_dream.jpg',
+            'Vanilla Orchid': 'assets/men_glaze_vanilla_orchid.jpg',
+            'Citrus Zest': 'assets/men_glaze_citrus_zest.jpg',
+            'Lavender Haze': 'assets/men_glaze_lavender_haze.jpg',
+            'Amber Spice': 'assets/men_glaze_amber_spice.jpg',
+            'Rose Petal': 'assets/men_glaze_rose_petal.jpg',
+            'Coconut Kiss': 'assets/men_glaze_coconut_kiss.jpg',
+            'Eucalyptus Fresh': 'assets/men_glaze_eucalyptus_fresh.jpg',
+            'Jasmine Nights': 'assets/men_glaze_jasmine_nights.jpg',
+            'Sandalwood Warm': 'assets/men_glaze_sandalwood_warm.jpg',
+            'Grapefruit Glow': 'assets/men_glaze_grapefruit_glow.jpg',
+            'Patchouli Earth': 'assets/men_glaze_patchouli_earth.jpg',
+        };
+
+        const menCleanserImages = {
+            'Mango Dream': 'assets/men_cleanser_mango_dream.jpg',
+            'Vanilla Orchid': 'assets/men_cleanser_vanilla_orchid.jpg',
+            'Citrus Zest': 'assets/men_cleanser_citrus_zest.jpg',
+            'Lavender Haze': 'assets/men_cleanser_lavender_haze.jpg',
+            'Amber Spice': 'assets/men_cleanser_amber_spice.jpg',
+            'Rose Petal': 'assets/men_cleanser_rose_petal.jpg',
+            'Coconut Kiss': 'assets/men_cleanser_coconut_kiss.jpg',
+            'Eucalyptus Fresh': 'assets/men_cleanser_eucalyptus_fresh.jpg',
+            'Jasmine Nights': 'assets/men_cleanser_jasmine_nights.jpg',
+            'Sandalwood Warm': 'assets/men_cleanser_sandalwood_warm.jpg',
+            'Grapefruit Glow': 'assets/men_cleanser_grapefruit_glow.jpg',
+            'Patchouli Earth': 'assets/men_cleanser_patchouli_earth.jpg',
+        };
+
         function getProductImages(product) {
             if (product.images && product.images.length) return product.images;
             return [product.image];
@@ -320,7 +350,11 @@
             if (product.images && product.images.length) return product.images[0];
             if (product.type === 'raw') return product.image;
             if (product.category === 'limited') return product.image;
-            const map = product.type === 'butter' ? butterImages : oilImages;
+            let map = butterImages;
+            if (product.type === 'butter') map = butterImages;
+            else if (product.type === 'oil') map = oilImages;
+            else if (product.type === 'men_glaze') map = menGlazeImages;
+            else if (product.type === 'men_cleanser') map = menCleanserImages;
             return (scent && map[scent]) ? map[scent] : product.image;
         }
 

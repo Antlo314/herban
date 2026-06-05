@@ -598,8 +598,11 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Body Butter Glaze Card -->
             <div class="product-card ha-card group bg-white border border-gray-100 rounded-3xl overflow-hidden">
-                <div class="ha-card-media bg-[#F8F1E9]">
+                <div class="ha-card-media bg-[#F8F1E9] relative overflow-hidden">
                     <div class="ha-card-frame ha-card-frame--hero">
+                        <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 pointer-events-none">
+                            <source src="assets/mango_butter_scoop.mp4" type="video/mp4">
+                        </video>
                         <img src="assets/amber_spice_butter.jpg" alt="Herban Alchemy Luxury Body Butter Glaze" class="ha-card-img product-img">
                     </div>
                 </div>
@@ -631,8 +634,11 @@
 
             <!-- Body Fragrance Oil Card -->
             <div class="product-card ha-card group bg-white border border-gray-100 rounded-3xl overflow-hidden">
-                <div class="ha-card-media bg-gradient-to-br from-[#FFF5F0] to-white">
+                <div class="ha-card-media bg-gradient-to-br from-[#FFF5F0] to-white relative overflow-hidden">
                     <div class="ha-card-frame ha-card-frame--hero">
+                        <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 pointer-events-none">
+                            <source src="assets/mango_oil_pour.mp4" type="video/mp4">
+                        </video>
                         <img src="assets/mango_dream_oil.jpg" alt="Herban Alchemy Full Body Fragrance Oil" class="ha-card-img product-img">
                     </div>
                 </div>
@@ -766,53 +772,6 @@
                     <div class="font-semibold text-sm md:text-base">Rose Petal</div>
                     <div class="text-xs text-gray-500">Body Butter Glaze • 8oz</div>
                     <div class="flex justify-between items-center mt-2"><span class="font-semibold">$38</span></div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- THE RITUAL IN MOTION - Enterprise-grade, storytelling placement -->
-    <section class="max-w-7xl mx-auto px-6 py-12 md:py-20">
-        <div class="text-center mb-8 md:mb-12">
-            <div class="uppercase text-xs tracking-[3.5px] text-[#C5A26F] font-semibold mb-2">CRAFTED WITH INTENTION</div>
-            <h2 class="text-4xl sm:text-5xl font-black tracking-[-2px]">The Ritual in Motion</h2>
-            <p class="mt-3 max-w-md mx-auto text-gray-600 text-base sm:text-lg">Watch the alchemy unfold. No filters. No distractions. Just pure texture and transformation.</p>
-        </div>
-
-        <div class="grid md:grid-cols-2 gap-8">
-            <!-- Butter Video - Integrated storytelling -->
-            <div class="group ha-card rounded-3xl overflow-hidden border border-gray-100 shadow-xl bg-white">
-                <div class="aspect-video overflow-hidden bg-black">
-                    <video autoplay muted loop playsinline class="w-full h-full object-cover">
-                        <source src="assets/mango_butter_scoop.mp4" type="video/mp4">
-                    </video>
-                </div>
-                <div class="p-4 sm:p-6 md:p-8 text-center md:text-left">
-                    <div class="uppercase tracking-[2px] text-xs text-[#C5A26F] mb-1">SIGNATURE GLAZE</div>
-                    <h3 class="text-2xl sm:text-3xl font-semibold tracking-tight text-[#111]">The Slow Scoop</h3>
-                    <p class="mt-2 text-gray-600 text-sm sm:text-base max-w-full md:max-w-[28ch] mx-auto md:mx-0">Velvety richness meets skin. Witness the deliberate, hypnotic pour that delivers deep nourishment with every layer.</p>
-                </div>
-                <div class="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs sm:text-sm px-1 gap-y-1">
-                    <div class="text-gray-500">Mango Dream • 8oz Body Butter Glaze</div>
-                    <a href="shop.html" class="text-[#C5A26F] hover:underline font-medium flex items-center gap-1">Shop this ritual <span class="text-xs">→</span></a>
-                </div>
-            </div>
-
-            <!-- Oil Video - Integrated storytelling -->
-            <div class="group ha-card rounded-3xl overflow-hidden border border-gray-100 shadow-xl bg-white">
-                <div class="aspect-video overflow-hidden bg-black">
-                    <video autoplay muted loop playsinline class="w-full h-full object-cover">
-                        <source src="assets/mango_oil_pour.mp4" type="video/mp4">
-                    </video>
-                </div>
-                <div class="p-4 sm:p-6 md:p-8 text-center md:text-left">
-                    <div class="uppercase tracking-[2px] text-xs text-[#C5A26F] mb-1">FRAGRANCE OIL</div>
-                    <h3 class="text-2xl sm:text-3xl font-semibold tracking-tight text-[#111]">The Mesmerizing Pour</h3>
-                    <p class="mt-2 text-gray-600 text-sm sm:text-base max-w-full md:max-w-[28ch] mx-auto md:mx-0">Light as air. Infused with intention. See the luminous oil cascade — designed for effortless layering and all-day radiance.</p>
-                </div>
-                <div class="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs sm:text-sm px-1 gap-y-1">
-                    <div class="text-gray-500">Mango Dream • 2oz Full Body Fragrance Oil</div>
-                    <a href="shop.html" class="text-[#C5A26F] hover:underline font-medium flex items-center gap-1">Shop this ritual <span class="text-xs">→</span></a>
                 </div>
             </div>
         </div>
