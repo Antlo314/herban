@@ -563,7 +563,17 @@
                                     <span class="text-[9px] text-gray-400 font-bold uppercase">Target: hero_male</span>
                                 </div>
                                 <div class="flex gap-x-4">
-                                    <img id="prev-hero_male" src="https://images.unsplash.com/photo-1507038772120-7fff76f8773e?q=80&w=200&auto=format&fit=crop" class="w-20 h-20 object-cover rounded-xl border bg-white flex-shrink-0" onerror="this.src='assets/herban.jpg'">
+                                    <!-- Click & Drag Drop Zone for hero_male -->
+                                    <div id="drop-hero_male" class="relative group cursor-pointer w-20 h-20 flex-shrink-0 border-2 border-dashed border-gray-200 hover:border-[#C5A26F] rounded-xl flex items-center justify-center transition-all bg-white" 
+                                         ondragover="handleDragOver(event, 'hero_male')" 
+                                         ondragleave="handleDragLeave(event, 'hero_male')" 
+                                         ondrop="handleDrop(event, 'hero_male')">
+                                        <img id="prev-hero_male" src="https://images.unsplash.com/photo-1507038772120-7fff76f8773e?q=80&w=200&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover rounded-xl border-0 bg-white" onerror="this.src='assets/herban.jpg'">
+                                        <div class="absolute inset-0 bg-black/40 text-white text-[8px] uppercase font-bold flex flex-col items-center justify-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <i class="fa-solid fa-cloud-arrow-up text-[10px] mb-0.5"></i> Drop/Upload
+                                        </div>
+                                        <input type="file" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" onchange="handleFileSelect(event, 'hero_male')">
+                                    </div>
                                     <div class="flex-1 space-y-2">
                                         <textarea id="prompt-hero_male" rows="2" placeholder="AI Image prompt..." class="w-full bg-white border border-gray-200 rounded-xl p-2 text-xs focus:outline-none focus:border-[#C5A26F]"></textarea>
                                         <div class="flex gap-x-2">
@@ -587,7 +597,17 @@
                                     <span class="text-[9px] text-gray-400 font-bold uppercase">Target: hero_female</span>
                                 </div>
                                 <div class="flex gap-x-4">
-                                    <img id="prev-hero_female" src="https://images.unsplash.com/photo-1618284554746-71e1b439eb5b?q=80&w=200&auto=format&fit=crop" class="w-20 h-20 object-cover rounded-xl border bg-white flex-shrink-0" onerror="this.src='assets/herban.jpg'">
+                                    <!-- Click & Drag Drop Zone for hero_female -->
+                                    <div id="drop-hero_female" class="relative group cursor-pointer w-20 h-20 flex-shrink-0 border-2 border-dashed border-gray-200 hover:border-[#C5A26F] rounded-xl flex items-center justify-center transition-all bg-white" 
+                                         ondragover="handleDragOver(event, 'hero_female')" 
+                                         ondragleave="handleDragLeave(event, 'hero_female')" 
+                                         ondrop="handleDrop(event, 'hero_female')">
+                                        <img id="prev-hero_female" src="https://images.unsplash.com/photo-1618284554746-71e1b439eb5b?q=80&w=200&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover rounded-xl border-0 bg-white" onerror="this.src='assets/herban.jpg'">
+                                        <div class="absolute inset-0 bg-black/40 text-white text-[8px] uppercase font-bold flex flex-col items-center justify-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <i class="fa-solid fa-cloud-arrow-up text-[10px] mb-0.5"></i> Drop/Upload
+                                        </div>
+                                        <input type="file" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" onchange="handleFileSelect(event, 'hero_female')">
+                                    </div>
                                     <div class="flex-1 space-y-2">
                                         <textarea id="prompt-hero_female" rows="2" placeholder="AI Image prompt..." class="w-full bg-white border border-gray-200 rounded-xl p-2 text-xs focus:outline-none focus:border-[#C5A26F]"></textarea>
                                         <div class="flex gap-x-2">
@@ -611,7 +631,17 @@
                                     <span class="text-[9px] text-gray-400 font-bold uppercase">Target: quiz_bg</span>
                                 </div>
                                 <div class="flex gap-x-4">
-                                    <img id="prev-quiz_bg" src="assets/herban.jpg" class="w-20 h-20 object-cover rounded-xl border bg-white flex-shrink-0" onerror="this.src='assets/herban.jpg'">
+                                    <!-- Click & Drag Drop Zone for quiz_bg -->
+                                    <div id="drop-quiz_bg" class="relative group cursor-pointer w-20 h-20 flex-shrink-0 border-2 border-dashed border-gray-200 hover:border-[#C5A26F] rounded-xl flex items-center justify-center transition-all bg-white" 
+                                         ondragover="handleDragOver(event, 'quiz_bg')" 
+                                         ondragleave="handleDragLeave(event, 'quiz_bg')" 
+                                         ondrop="handleDrop(event, 'quiz_bg')">
+                                        <img id="prev-quiz_bg" src="assets/herban.jpg" class="absolute inset-0 w-full h-full object-cover rounded-xl border-0 bg-white" onerror="this.src='assets/herban.jpg'">
+                                        <div class="absolute inset-0 bg-black/40 text-white text-[8px] uppercase font-bold flex flex-col items-center justify-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <i class="fa-solid fa-cloud-arrow-up text-[10px] mb-0.5"></i> Drop/Upload
+                                        </div>
+                                        <input type="file" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" onchange="handleFileSelect(event, 'quiz_bg')">
+                                    </div>
                                     <div class="flex-1 space-y-2">
                                         <textarea id="prompt-quiz_bg" rows="2" placeholder="AI Image prompt..." class="w-full bg-white border border-gray-200 rounded-xl p-2 text-xs focus:outline-none focus:border-[#C5A26F]"></textarea>
                                         <div class="flex gap-x-2">
@@ -635,7 +665,17 @@
                                     <span class="text-[9px] text-gray-400 font-bold uppercase">Target: journal_feat</span>
                                 </div>
                                 <div class="flex gap-x-4">
-                                    <img id="prev-journal_feat" src="assets/herban3.jpg" class="w-20 h-20 object-cover rounded-xl border bg-white flex-shrink-0" onerror="this.src='assets/herban.jpg'">
+                                    <!-- Click & Drag Drop Zone for journal_feat -->
+                                    <div id="drop-journal_feat" class="relative group cursor-pointer w-20 h-20 flex-shrink-0 border-2 border-dashed border-gray-200 hover:border-[#C5A26F] rounded-xl flex items-center justify-center transition-all bg-white" 
+                                         ondragover="handleDragOver(event, 'journal_feat')" 
+                                         ondragleave="handleDragLeave(event, 'journal_feat')" 
+                                         ondrop="handleDrop(event, 'journal_feat')">
+                                        <img id="prev-journal_feat" src="assets/herban3.jpg" class="absolute inset-0 w-full h-full object-cover rounded-xl border-0 bg-white" onerror="this.src='assets/herban.jpg'">
+                                        <div class="absolute inset-0 bg-black/40 text-white text-[8px] uppercase font-bold flex flex-col items-center justify-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <i class="fa-solid fa-cloud-arrow-up text-[10px] mb-0.5"></i> Drop/Upload
+                                        </div>
+                                        <input type="file" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" onchange="handleFileSelect(event, 'journal_feat')">
+                                    </div>
                                     <div class="flex-1 space-y-2">
                                         <textarea id="prompt-journal_feat" rows="2" placeholder="AI Image prompt..." class="w-full bg-white border border-gray-200 rounded-xl p-2 text-xs focus:outline-none focus:border-[#C5A26F]"></textarea>
                                         <div class="flex gap-x-2">
@@ -780,9 +820,24 @@
                         <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-1">Size (e.g. 4 oz, 50 ml)</label>
                         <input type="text" id="prod-size" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#C5A26F]" required>
                     </div>
-                    <div>
-                        <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-1">Image Asset File Path</label>
-                        <input type="text" id="prod-image" placeholder="assets/filename.jpg" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#C5A26F]" required>
+                    <div class="space-y-2">
+                        <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500">Product Image Asset</label>
+                        <div class="flex gap-x-3 items-center">
+                            <!-- Click & Drag Drop Zone for Product Image -->
+                            <div id="drop-prod_image" class="relative group cursor-pointer w-14 h-14 flex-shrink-0 border-2 border-dashed border-gray-200 hover:border-[#C5A26F] rounded-xl flex items-center justify-center transition-all bg-white" 
+                                 ondragover="handleDragOver(event, 'prod_image')" 
+                                 ondragleave="handleDragLeave(event, 'prod_image')" 
+                                 ondrop="handleDrop(event, 'prod_image')">
+                                <img id="prev-prod_image" src="assets/herban.jpg" class="absolute inset-0 w-full h-full object-cover rounded-xl border-0 bg-gray-50" onerror="this.src='assets/herban.jpg'">
+                                <div class="absolute inset-0 bg-black/40 text-white text-[8px] uppercase font-bold flex flex-col items-center justify-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <i class="fa-solid fa-cloud-arrow-up text-[10px] mb-0.5"></i> Drop/Upload
+                                </div>
+                                <input type="file" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" onchange="handleFileSelect(event, 'prod_image')">
+                            </div>
+                            <div class="flex-1">
+                                <input type="text" id="prod-image" placeholder="assets/filename.jpg" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-[#C5A26F]" required>
+                            </div>
+                        </div>
                     </div>
                     <div>
                         <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-1">Badge Flag label</label>
@@ -1210,6 +1265,7 @@
             document.getElementById('prod-price').value = '';
             document.getElementById('prod-size').value = '';
             document.getElementById('prod-image').value = '';
+            document.getElementById('prev-prod_image').src = 'assets/herban.jpg';
             document.getElementById('prod-badge').value = '';
             document.getElementById('prod-desc').value = '';
             document.getElementById('prod-scents').value = '';
@@ -1232,6 +1288,7 @@
             document.getElementById('prod-price').value = p.price;
             document.getElementById('prod-size').value = p.size;
             document.getElementById('prod-image').value = p.image;
+            document.getElementById('prev-prod_image').src = p.image || 'assets/herban.jpg';
             document.getElementById('prod-badge').value = p.badge || '';
             document.getElementById('prod-desc').value = p.description;
             document.getElementById('prod-scents').value = p.scents ? p.scents.join(', ') : '';
@@ -1736,6 +1793,135 @@
                 alert('Connection to server failed. Verify API Key settings.');
             }
         }
+
+        // --- DRAG AND DROP & CLICK TO UPLOAD ENGINE ---
+
+        // Visual hover states for drag/drop
+        function handleDragOver(e, target) {
+            e.preventDefault();
+            e.stopPropagation();
+            const el = document.getElementById(`drop-${target}`);
+            if (el) {
+                el.classList.remove('border-gray-200');
+                el.classList.add('border-[#C5A26F]', 'bg-[#C5A26F]/5');
+            }
+        }
+
+        function handleDragLeave(e, target) {
+            e.preventDefault();
+            e.stopPropagation();
+            const el = document.getElementById(`drop-${target}`);
+            if (el) {
+                el.classList.remove('border-[#C5A26F]', 'bg-[#C5A26F]/5');
+                el.classList.add('border-gray-200');
+            }
+        }
+
+        async function handleDrop(e, target) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const el = document.getElementById(`drop-${target}`);
+            if (el) {
+                el.classList.remove('border-[#C5A26F]', 'bg-[#C5A26F]/5');
+                el.classList.add('border-gray-200');
+            }
+
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                const file = e.dataTransfer.files[0];
+                await uploadFile(file, target);
+            }
+        }
+
+        async function handleFileSelect(e, target) {
+            if (e.target.files && e.target.files.length > 0) {
+                const file = e.target.files[0];
+                await uploadFile(file, target);
+            }
+        }
+
+        async function uploadFile(file, target) {
+            if (!file.type.startsWith('image/')) {
+                alert('Only image files are allowed.');
+                return;
+            }
+
+            const el = document.getElementById(`drop-${target}`);
+            if (el) el.style.opacity = '0.5';
+
+            const reader = new FileReader();
+            reader.onload = async function(event) {
+                const base64Data = event.target.result;
+                
+                try {
+                    const res = await fetch('/api/upload', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${adminToken}`
+                        },
+                        body: JSON.stringify({
+                            filename: file.name,
+                            base64Data: base64Data
+                        })
+                    });
+
+                    if (el) el.style.opacity = '1';
+
+                    if (res.ok) {
+                        const data = await res.json();
+                        // Cache bust URL
+                        const cbUrl = data.url + '?t=' + Date.now();
+                        
+                        // Update preview element
+                        const prevEl = document.getElementById(`prev-${target}`);
+                        if (prevEl) prevEl.src = cbUrl;
+                        
+                        // Update text inputs
+                        if (target === 'prod_image') {
+                            document.getElementById('prod-image').value = data.url;
+                        } else {
+                            document.getElementById(`url-${target}`).value = data.url;
+                        }
+                        
+                        alert('Image uploaded and applied successfully!');
+                    } else {
+                        const err = await res.json();
+                        alert(`Upload failed: ${err.error || 'Server error'}`);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    if (el) el.style.opacity = '1';
+                    alert('Upload connection failed. Verify server is running.');
+                }
+            };
+            
+            reader.onerror = function() {
+                if (el) el.style.opacity = '1';
+                alert('Failed to read local file.');
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+        // Live input preview listeners
+        window.addEventListener('DOMContentLoaded', () => {
+            const syncInput = (inputId, imgId) => {
+                const input = document.getElementById(inputId);
+                const img = document.getElementById(imgId);
+                if (input && img) {
+                    input.addEventListener('input', () => {
+                        img.src = input.value || 'assets/herban.jpg';
+                    });
+                }
+            };
+            
+            syncInput('url-hero_male', 'prev-hero_male');
+            syncInput('url-hero_female', 'prev-hero_female');
+            syncInput('url-quiz_bg', 'prev-quiz_bg');
+            syncInput('url-journal_feat', 'prev-journal_feat');
+            syncInput('prod-image', 'prev-prod_image');
+        });
     </script>
 </body>
 </html>

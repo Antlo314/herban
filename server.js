@@ -10,7 +10,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // Serve static frontend files
 app.use(express.static(path.join(__dirname, './')));
@@ -338,6 +339,43 @@ app.post('/api/generate-image', checkAuth, async (req, res) => {
     } catch (error) {
         console.error('Image Generation Error:', error);
         res.status(500).json({ error: error.message || 'Error generating image' });
+    }
+});
+
+// SECURE FILE UPLOAD ENDPOINT
+app.post('/api/upload', checkAuth, (req, res) => {
+    const { filename, base64Data } = req.body;
+    if (!filename || !base64Data) {
+        return res.status(400).json({ error: 'Filename and base64Data are required' });
+    }
+
+    try {
+        // Sanitize filename to prevent directory traversal
+        const cleanName = path.basename(filename).replace(/[^a-zA-Z0-9.-]/g, '_');
+        const ext = path.extname(cleanName);
+        const nameWithoutExt = path.basename(cleanName, ext);
+        const finalFilename = `upload_${nameWithoutExt}_${Date.now()}${ext}`;
+        
+        const targetPath = path.join(__dirname, 'assets', finalFilename);
+        
+        // Extract base64 image data
+        const matches = base64Data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+        if (!matches || matches.length !== 3) {
+            return res.status(400).json({ error: 'Invalid base64 data format' });
+        }
+        
+        const buffer = Buffer.from(matches[2], 'base64');
+        
+        fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+        fs.writeFileSync(targetPath, buffer);
+        
+        res.json({
+            success: true,
+            url: `assets/${finalFilename}`
+        });
+    } catch (err) {
+        console.error('File Upload Error:', err);
+        res.status(500).json({ error: err.message || 'Failed to save uploaded file' });
     }
 });
 
