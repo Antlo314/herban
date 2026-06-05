@@ -13,10 +13,10 @@
       "journal_feat": ""
     },
     "imagePrompts": {
-      "hero_male": "High-end luxury editorial portrait of a handsome melanated man in his late 20s with glowing, clear, hydrated skin, smiling gently, modern clean bathroom background, warm soft lighting.",
-      "hero_female": "High-end luxury editorial portrait of a gorgeous melanated woman in her late 20s with radiant, moisturized skin, applying cream to her face, soft warm natural lighting, beige aesthetic.",
-      "quiz_bg": "Organic skincare ingredients texture, rich mango butter chunks, unrefined white shea block, liquid gold argan oil drops, clean minimalist studio lighting.",
-      "journal_feat": "Premium skincare jars and dropper bottles arranged elegantly on a travertine marble tray, soft morning sunlight, luxury organic spa aesthetic."
+      "hero_male": "A cinematic, close-up portrait of a handsome melanated man with glowing, hydrated skin, gently applying a rich facial oil. Bathed in moody, sensual twilight lighting with deep indigo and violet undertones. Soft shadows, high-end luxury skincare aesthetic, ethereal mist, photorealistic, 8k resolution.",
+      "hero_female": "An elegant, high-fashion portrait of a beautiful melanated woman with luminous, dewy skin, holding an exquisite dark glass dropper bottle. Soft, sensual lighting with a mystical purple and deep blue color grading. Shimmering water reflections on her skin, luxury spa atmosphere, hyper-detailed, 8k.",
+      "quiz_bg": "A minimalist, abstract background texture of swirling dark orchid oil droplets and crushed lavender seeds in water, shot from above. Mystical deep blue and violet backlighting, soft focus, luxury beauty editorial style, clean and serene.",
+      "journal_feat": "A luxury lifestyle flat-lay of dark violet glass skincare jars and bottles arranged on a polished black obsidian tray. Surrounded by delicate amethyst crystals and dried night-blooming jasmine flowers under soft, moody purple-tinted moonlight. High-end editorial photography."
     }
   },
   "hero": {
@@ -45,7 +45,7 @@
     "mensCollection": true,
     "carrierOils": true,
     "rawIngredients": true,
-    "scentQuiz": true,
+    "scentQuiz": false,
     "benefits": true
   },
   "chatbot": {

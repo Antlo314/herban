@@ -440,12 +440,21 @@
                 </div>
 
                 <!-- AI Theme Prompt Generator -->
-                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+                <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm space-y-4">
                     <h2 class="text-lg font-bold text-gray-800 flex items-center gap-x-2">
                         <i class="fa-solid fa-wand-magic-sparkles text-[#C5A26F]"></i> Generate Cohesive Theme Vibe
                     </h2>
-                    <p class="text-xs text-gray-500">Enter a design prompt describing your brand's mood, colours, or fragrance theme. The AI will design a matching color palette and write tailored image prompts for all slots below.</p>
-                    <div class="flex flex-col md:flex-row gap-3">
+                    <div class="text-xs text-gray-500 space-y-2 leading-relaxed">
+                        <p>Enter a descriptive mood or sensory vibe for your brand (e.g. <em>"A cozy vanilla orchid campfire night, warm and sweet, natural wood highlights"</em> or <em>"A refreshing eucalyptus mint spa ritual, clean silver and sage"</em>). The AI will dynamically design the entire storefront look and feel:</p>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li><strong>Color Palette:</strong> Designs matching Primary, Accent, Background, and Text colors.</li>
+                            <li><strong>Typography Pairing:</strong> Selects a font system (e.g. Playfair + Inter, Lora + Outfit, or clean Outfit) that fits the aesthetic.</li>
+                            <li><strong>AI Image Prompts:</strong> Creates customized high-end prompts for all 4 image slots (Hero Male, Hero Female, Quiz BG, and Journal Featured Image).</li>
+                            <li><strong>Themed Copywriting:</strong> Writes matching hero copy (Badge, Title, Subtitle, Description, CTA Buttons) and announcement banner/footer text to make the brand's voice match the visuals!</li>
+                        </ul>
+                        <p class="text-[10px] text-[#C5A26F] font-semibold flex items-center gap-x-1.5 pt-1"><i class="fa-solid fa-lightbulb"></i> Tip: Vibe generation updates inputs across both the "AI Theme &amp; Images" and "Brand Settings" tabs. Review and tweak them, then click Save on either tab to apply.</p>
+                    </div>
+                    <div class="flex flex-col md:flex-row gap-3 pt-2">
                         <textarea id="theme-vibe-prompt" rows="2" placeholder="e.g. A sensual rose petal and dark charcoal clay theme, warm and luxurious" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-[#C5A26F]"></textarea>
                         <button type="button" onclick="generateAIThemePalette()" class="bg-[#111111] hover:bg-[#C5A26F] text-white px-6 py-3 rounded-xl text-xs uppercase tracking-widest font-semibold transition-all shrink-0 flex items-center justify-center gap-x-2">
                             <span id="theme-gen-btn-text">Generate Vibe</span>
@@ -645,7 +654,10 @@
                         </div>
                     </div>
 
-                    <div class="pt-4 flex justify-end">
+                    <div class="pt-4 flex justify-end gap-x-3">
+                        <button type="button" onclick="resetToStorefrontDefaults()" class="bg-gray-100 hover:bg-red-50 hover:text-red-600 text-gray-700 px-6 py-3.5 rounded-xl text-xs uppercase tracking-widest font-semibold transition-all">
+                            Reset to Defaults
+                        </button>
                         <button type="submit" class="bg-[#111111] hover:bg-[#C5A26F] text-white px-8 py-3.5 rounded-xl text-xs uppercase tracking-widest font-semibold transition-all">
                             Save &amp; Apply Theme
                         </button>
@@ -719,7 +731,10 @@
                         </div>
                     </div>
 
-                    <div class="pt-4 flex justify-end">
+                    <div class="pt-4 flex justify-end gap-x-3">
+                        <button type="button" onclick="resetToStorefrontDefaults()" class="bg-gray-100 hover:bg-red-50 hover:text-red-600 text-gray-700 px-6 py-3.5 rounded-xl text-xs uppercase tracking-widest font-semibold transition-all">
+                            Reset to Defaults
+                        </button>
                         <button type="submit" class="bg-[#111111] hover:bg-[#C5A26F] text-white px-8 py-3.5 rounded-xl text-xs uppercase tracking-widest font-semibold transition-all">
                             Save Brand Settings
                         </button>
@@ -1511,7 +1526,7 @@
             }
         }
 
-        // AI generator for theme color and prompts
+        // AI generator for theme color, fonts, image prompts, and cohesive copywriting copy
         async function generateAIThemePalette() {
             const vibeText = document.getElementById('theme-vibe-prompt').value.trim();
             if (!vibeText) {
@@ -1527,8 +1542,8 @@
             
             const activeModel = storefrontConfig.chatbot.model || 'gemini';
             
-            const prompt = `Design a cohesive brand theme for: ${vibeText}`;
-            const systemPrompt = `You are a luxury branding designer. Based on the user's vibe description, design a cohesive web theme. Output a JSON object ONLY, with NO markdown formatting, containing these fields exactly:\n{\n  "name": "Theme Name",\n  "primaryColor": "#HEX",\n  "accentColor": "#HEX",\n  "backgroundColor": "#HEX",\n  "textColor": "#HEX",\n  "fontPairing": "playfair-inter",\n  "imagePrompts": {\n    "hero_male": "Detailed prompt for generating a landscape/portrait image of a melanated man using skin care products...",\n    "hero_female": "Detailed prompt for generating a landscape/portrait image of a melanated woman using skin care products...",\n    "quiz_bg": "Detailed prompt for generating a clean background texture image of organic ingredients like oils or seeds...",\n    "journal_feat": "Detailed prompt for generating a luxury lifestyle image of skincare jars on an elegant tray..."\n  }\n}\nEnsure it is valid JSON. Do not include markdown code block syntax (like \`\`\`json).`;
+            const prompt = `Design a cohesive brand theme and copywriting for: ${vibeText}`;
+            const systemPrompt = `You are a luxury branding designer and premium copywriter. Based on the user's vibe description, design a cohesive web theme. Output a JSON object ONLY, with NO markdown formatting, containing these fields exactly:\n{\n  "name": "Theme Name",\n  "primaryColor": "#HEX",\n  "accentColor": "#HEX",\n  "backgroundColor": "#HEX",\n  "textColor": "#HEX",\n  "fontPairing": "playfair-inter",\n  "copywriting": {\n    "heroBadge": "Cohesive short uppercase badge text for the hero top (e.g. THE NEW ERA OF SKINCARE or themed)",\n    "heroTitle": "Cohesive title for the hero section (HTML supported, use <br> for line breaks)",\n    "heroSubtitle": "Cohesive subtitle tag line",\n    "heroDescription": "Cohesive main description paragraph describing the brand mood and products",\n    "heroHighlight": "Short cohesive highlight tag line",\n    "heroPrimaryBtnText": "SHOP THE COLLECTION or themed variant",\n    "heroSecondaryBtnText": "FIND YOUR SHADE or themed variant",\n    "bannerText": "Matching announcement banner text (e.g. FREE shipping over $65 or themed offer)",\n    "footerDescription": "Short brand statement for the footer"\n  },\n  "imagePrompts": {\n    "hero_male": "Detailed prompt for generating a landscape/portrait image of a melanated man using skin care products...",\n    "hero_female": "Detailed prompt for generating a landscape/portrait image of a melanated woman using skin care products...",\n    "quiz_bg": "Detailed prompt for generating a clean background texture image of organic ingredients like oils or seeds...",\n    "journal_feat": "Detailed prompt for generating a luxury lifestyle image of skincare jars on an elegant tray..."\n  }\n}\nEnsure it is valid JSON. Do not include markdown code block syntax (like \`\`\`json).`;
 
             try {
                 const res = await fetch('/api/chat', {
@@ -1574,8 +1589,38 @@
                         document.getElementById('prompt-quiz_bg').value = parsedTheme.imagePrompts.quiz_bg || '';
                         document.getElementById('prompt-journal_feat').value = parsedTheme.imagePrompts.journal_feat || '';
                     }
+
+                    // Populate copywriting copy
+                    if (parsedTheme.copywriting) {
+                        if (!storefrontConfig.hero) storefrontConfig.hero = {};
+                        if (!storefrontConfig.footer) storefrontConfig.footer = {};
+                        if (!storefrontConfig.banner) storefrontConfig.banner = {};
+                        
+                        storefrontConfig.hero.badge = parsedTheme.copywriting.heroBadge || 'THE NEW ERA OF SKINCARE';
+                        storefrontConfig.hero.title = parsedTheme.copywriting.heroTitle || 'HERBAN<br>ALCHEMY';
+                        storefrontConfig.hero.subtitle = parsedTheme.copywriting.heroSubtitle || 'THE GLAZE. THE GLOW.';
+                        storefrontConfig.hero.description = parsedTheme.copywriting.heroDescription || '';
+                        storefrontConfig.hero.highlightText = parsedTheme.copywriting.heroHighlight || '';
+                        storefrontConfig.hero.primaryBtnText = parsedTheme.copywriting.heroPrimaryBtnText || 'SHOP THE COLLECTION';
+                        storefrontConfig.hero.secondaryBtnText = parsedTheme.copywriting.heroSecondaryBtnText || 'FIND YOUR SHADE';
+                        storefrontConfig.footer.description = parsedTheme.copywriting.footerDescription || '';
+                        storefrontConfig.banner.text = parsedTheme.copywriting.bannerText || '';
+
+                        // Update inputs on Brand settings tab
+                        document.getElementById('brand-hero-badge').value = storefrontConfig.hero.badge;
+                        document.getElementById('brand-hero-title').value = storefrontConfig.hero.title;
+                        document.getElementById('brand-hero-subtitle').value = storefrontConfig.hero.subtitle;
+                        document.getElementById('brand-hero-description').value = storefrontConfig.hero.description;
+                        document.getElementById('brand-hero-highlight').value = storefrontConfig.hero.highlightText;
+                        document.getElementById('brand-hero-btn-primary').value = storefrontConfig.hero.primaryBtnText;
+                        document.getElementById('brand-hero-btn-secondary').value = storefrontConfig.hero.secondaryBtnText;
+                        document.getElementById('brand-footer-desc').value = storefrontConfig.footer.description;
+                        
+                        // Update inputs on Banner settings tab
+                        document.getElementById('banner-text').value = storefrontConfig.banner.text;
+                    }
                     
-                    alert("AI Theme designed successfully! Pre-populated color codes and image prompts for you. Hit 'Generate AI' on any image slot to fetch the assets, then click Save at the bottom.");
+                    alert("AI Vibe designed successfully! Pre-populated color codes, typography, image prompts, and matching brand copy text for you. Hit 'Generate AI' on any image slot to fetch the assets, then click Save at the bottom.");
                 } else {
                     const err = await res.json();
                     alert(`AI Theme Generation failed: ${err.error || 'Server error'}`);
@@ -1585,6 +1630,69 @@
                 btnText.textContent = 'Generate Vibe';
                 spin.classList.add('hidden');
                 alert('AI proxy connection failed. Ensure AI key is correct and server is running.');
+            }
+        }
+
+        // Reset to original brand defaults
+        async function resetToStorefrontDefaults() {
+            if (!confirm('Are you sure you want to restore the storefront to the original brand defaults? This will overwrite your current color theme, copywriting, and image configurations.')) {
+                return;
+            }
+            
+            storefrontConfig.theme = {
+                name: "Luxury Gold & Ivory",
+                primaryColor: "#111111",
+                accentColor: "#C5A26F",
+                backgroundColor: "#FAF7F2",
+                textColor: "#111111",
+                fontPairing: "playfair-inter",
+                images: {
+                    hero_male: "",
+                    hero_female: "",
+                    quiz_bg: "",
+                    journal_feat: ""
+                },
+                imagePrompts: {
+                    hero_male: "High-end luxury editorial portrait of a handsome melanated man in his late 20s with glowing, clear, hydrated skin, smiling gently, modern clean bathroom background, warm soft lighting.",
+                    hero_female: "High-end luxury editorial portrait of a gorgeous melanated woman in her late 20s with radiant, moisturized skin, applying cream to her face, soft warm natural lighting, beige aesthetic.",
+                    quiz_bg: "Organic skincare ingredients texture, rich mango butter chunks, unrefined white shea block, liquid gold argan oil drops, clean minimalist studio lighting.",
+                    journal_feat: "Premium skincare jars and dropper bottles arranged elegantly on a travertine marble tray, soft morning sunlight, luxury organic spa aesthetic."
+                }
+            };
+            
+            storefrontConfig.hero = {
+                badge: "THE NEW ERA OF SKINCARE",
+                title: "HERBAN<br>ALCHEMY",
+                subtitle: "THE GLAZE. THE GLOW.",
+                description: "Luxurious body care for melanated skin. Handcrafted formulas packed with pure, unrefined botanicals.",
+                highlightText: "Vibrant. Nourishing. Unforgettably Luminous.",
+                primaryBtnText: "SHOP THE COLLECTION",
+                secondaryBtnText: "FIND YOUR SHADE"
+            };
+            
+            storefrontConfig.footer = {
+                description: "Luxury body care for melanated skin.",
+                contactEmail: "glow@herbanalchemy.com",
+                instagramLink: "https://www.instagram.com/herban_alchemynaturalskincare",
+                copyright: "© 2026 Herban Alchemy. All rights reserved."
+            };
+            
+            storefrontConfig.banner = {
+                enabled: true,
+                text: "FREE shipping on orders over $65",
+                link: "shipping-returns.html",
+                bgColor: "#111111",
+                textColor: "#ffffff"
+            };
+            
+            const res = await saveConfig();
+            if (res) {
+                populateBannerTab();
+                populateThemeTab();
+                populateBrandTab();
+                populateDashboardStats();
+                
+                alert('Storefront has been successfully reset back to original default settings!');
             }
         }
 
