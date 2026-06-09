@@ -258,9 +258,9 @@ app.post('/api/generate-image', checkAuth, async (req, res) => {
         return res.status(400).json({ error: 'Prompt, target, and engine are required' });
     }
 
-    const validTargets = ['hero', 'quiz_bg', 'journal_feat'];
-    if (!validTargets.includes(target)) {
-        return res.status(400).json({ error: 'Invalid image target specified' });
+    const isValidTarget = typeof target === 'string' && /^[a-zA-Z0-9_-]{1,100}$/.test(target);
+    if (!isValidTarget) {
+        return res.status(400).json({ error: 'Invalid target identifier. Must be alphanumeric with underscores/hyphens only.' });
     }
 
     const secrets = readJSON(SECRETS_PATH);

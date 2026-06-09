@@ -82,6 +82,9 @@
                 <button onclick="switchTab('products')" class="tab-btn w-full flex items-center gap-x-3 px-4 py-3 rounded-xl text-left text-xs uppercase tracking-wider font-semibold text-gray-600 hover:bg-[#FAF7F2] transition-all" data-tab="products">
                     <i class="fa-solid fa-box text-sm"></i> Product Database
                 </button>
+                <button onclick="switchTab('studio')" class="tab-btn w-full flex items-center gap-x-3 px-4 py-3 rounded-xl text-left text-xs uppercase tracking-wider font-semibold text-gray-600 hover:bg-[#FAF7F2] transition-all" data-tab="studio">
+                    <i class="fa-solid fa-wand-magic-sparkles text-[#C5A26F] text-sm animate-pulse"></i> AI Photo Studio
+                </button>
                 <button onclick="switchTab('chatbot')" class="tab-btn w-full flex items-center gap-x-3 px-4 py-3 rounded-xl text-left text-xs uppercase tracking-wider font-semibold text-gray-600 hover:bg-[#FAF7F2] transition-all" data-tab="chatbot">
                     <i class="fa-solid fa-robot text-sm"></i> AI Chatbot Setup
                 </button>
@@ -334,6 +337,322 @@
                                 <!-- Rendered dynamically -->
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: AI Photo Studio -->
+            <section id="tab-studio" class="tab-content hidden space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h1 class="text-3xl font-black tracking-tight mb-1 serif-title text-gray-800">AI Product Photo Studio</h1>
+                        <p class="text-xs text-gray-500 uppercase tracking-widest">Upload raw snapshots, isolate your product, generate luxury placements, and publish directly to your store catalog.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <!-- Left Columns: Setup & Cutout & Prompting -->
+                    <div class="lg:col-span-4 space-y-6">
+                        <!-- Step 1: Upload and Cutout -->
+                        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs uppercase tracking-widest font-black text-[#C5A26F]">1. Product Source</span>
+                                <button type="button" id="btn-edit-mask" onclick="openMaskEditor()" class="hidden text-xs bg-gray-100 hover:bg-[#C5A26F] hover:text-white text-gray-700 px-3 py-1.5 rounded-lg font-bold transition-all">
+                                    <i class="fa-solid fa-scissors"></i> Refine Cutout
+                                </button>
+                            </div>
+                            
+                            <!-- Dropzone -->
+                            <div id="studio-dropzone" 
+                                 class="border-2 border-dashed border-gray-200 hover:border-[#C5A26F] bg-gray-50/50 hover:bg-[#C5A26F]/5 rounded-2xl p-6 text-center cursor-pointer transition-all relative flex flex-col items-center justify-center min-h-[140px]"
+                                 onclick="document.getElementById('studio-file-input').click()"
+                                 ondragover="handleDragOverStudio(event)"
+                                 ondragleave="handleDragLeaveStudio(event)"
+                                 ondrop="handleDropStudio(event)">
+                                <input type="file" id="studio-file-input" class="hidden" accept="image/*" onchange="handleStudioFileSelect(event)">
+                                <i class="fa-solid fa-cloud-arrow-up text-2xl text-gray-400 mb-2"></i>
+                                <span class="text-xs font-bold text-gray-600 block">Drag product photo here</span>
+                                <span class="text-[10px] text-gray-400 block mt-1">or click to browse local files</span>
+                            </div>
+                            
+                            <!-- Product Image Status / Thumbnail -->
+                            <div id="studio-uploaded-status" class="hidden flex items-center gap-x-4 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                <img id="studio-raw-thumb" class="h-14 w-14 object-cover rounded-lg bg-white border" src="" alt="Thumbnail">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-xs font-bold text-gray-700 truncate" id="studio-filename-lbl">product.png</div>
+                                    <div class="text-[9px] text-green-600 font-bold" id="studio-mask-status-lbl"><i class="fa-solid fa-check-circle"></i> Isolated</div>
+                                </div>
+                                <button type="button" onclick="clearStudioSource()" class="text-gray-400 hover:text-red-500 p-2"><i class="fa-solid fa-trash-can"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Background Generator -->
+                        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+                            <span class="text-xs uppercase tracking-widest font-black text-[#C5A26F] block">2. Scene Settings</span>
+                            
+                            <!-- Preset Buttons Grid -->
+                            <label class="block text-[10px] uppercase tracking-wider font-bold text-gray-400 mb-1">Scenic Preset Styles</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button type="button" onclick="applyStudioPreset('tropical')" class="preset-btn p-3 rounded-xl border border-gray-100 text-left hover:border-[#C5A26F] transition-all flex flex-col justify-between h-16 group">
+                                    <span class="text-[10px] font-bold text-gray-700 group-hover:text-[#C5A26F]">Tropical Flatlay</span>
+                                    <span class="text-[8px] text-gray-400 line-clamp-1">Vibrant mangoes, cocus</span>
+                                </button>
+                                <button type="button" onclick="applyStudioPreset('vanity')" class="preset-btn p-3 rounded-xl border border-gray-100 text-left hover:border-[#C5A26F] transition-all flex flex-col justify-between h-16 group">
+                                    <span class="text-[10px] font-bold text-gray-700 group-hover:text-[#C5A26F]">Marble Vanity</span>
+                                    <span class="text-[8px] text-gray-400 line-clamp-1">Luxury travertine bathroom</span>
+                                </button>
+                                <button type="button" onclick="applyStudioPreset('beach')" class="preset-btn p-3 rounded-xl border border-gray-100 text-left hover:border-[#C5A26F] transition-all flex flex-col justify-between h-16 group">
+                                    <span class="text-[10px] font-bold text-gray-700 group-hover:text-[#C5A26F]">Sandy Beach</span>
+                                    <span class="text-[8px] text-gray-400 line-clamp-1">Soft golden shore sunlight</span>
+                                </button>
+                                <button type="button" onclick="applyStudioPreset('pedestal')" class="preset-btn p-3 rounded-xl border border-gray-100 text-left hover:border-[#C5A26F] transition-all flex flex-col justify-between h-16 group">
+                                    <span class="text-[10px] font-bold text-gray-700 group-hover:text-[#C5A26F]">Minimalist Stand</span>
+                                    <span class="text-[8px] text-gray-400 line-clamp-1">Monochromatic studio stone</span>
+                                </button>
+                                <button type="button" onclick="applyStudioPreset('card_white')" class="preset-btn p-3 rounded-xl border border-gray-100 text-left hover:border-[#C5A26F] transition-all flex flex-col justify-between h-16 group">
+                                    <span class="text-[10px] font-bold text-gray-700 group-hover:text-[#C5A26F]">Solid White</span>
+                                    <span class="text-[8px] text-gray-400 line-clamp-1">Clean product white card</span>
+                                </button>
+                                <button type="button" onclick="applyStudioPreset('card_ivory')" class="preset-btn p-3 rounded-xl border border-gray-100 text-left hover:border-[#C5A26F] transition-all flex flex-col justify-between h-16 group">
+                                    <span class="text-[10px] font-bold text-gray-700 group-hover:text-[#C5A26F]">Brand Ivory</span>
+                                    <span class="text-[8px] text-gray-400 line-clamp-1">Signature off-white luxury</span>
+                                </button>
+                            </div>
+
+                            <!-- Custom Prompt Input -->
+                            <div class="pt-2">
+                                <label class="block text-[10px] uppercase tracking-wider font-bold text-gray-400 mb-1">AI Scene Generation Prompt</label>
+                                <textarea id="studio-bg-prompt" rows="3" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-xs focus:outline-none focus:border-[#C5A26F] placeholder-gray-400 resize-none" placeholder="Describe the luxury setting for your product placement..."></textarea>
+                            </div>
+
+                            <!-- Generate Button -->
+                            <button type="button" id="btn-generate-studio-bg" onclick="generateStudioBackground()" class="w-full bg-[#111111] hover:bg-[#C5A26F] text-white py-3 rounded-xl text-xs uppercase tracking-widest font-bold transition-all flex items-center justify-center gap-x-2">
+                                <i id="studio-gen-spinner" class="fa-solid fa-circle-notch fa-spin text-sm hidden"></i>
+                                <span id="studio-gen-btn-lbl">Generate Background</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Center Column: Live Compositing viewport -->
+                    <div class="lg:col-span-5 space-y-6">
+                        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center">
+                            <div class="w-full flex items-center justify-between mb-4 border-b border-gray-50 pb-3">
+                                <span class="text-xs uppercase tracking-widest font-black text-[#C5A26F]">Live Composite Viewport</span>
+                                
+                                <!-- Aspect Ratio selectors -->
+                                <div class="flex bg-gray-100 p-0.5 rounded-lg">
+                                    <button type="button" id="ratio-btn-1-1" onclick="setStudioAspectRatio('1:1')" class="ratio-btn px-2.5 py-1 text-[10px] font-bold rounded-md transition-all bg-white text-gray-800 shadow-sm" data-ratio="1:1">1:1 Square</button>
+                                    <button type="button" id="ratio-btn-4-5" onclick="setStudioAspectRatio('4:5')" class="ratio-btn px-2.5 py-1 text-[10px] font-bold rounded-md transition-all text-gray-500 hover:text-gray-800" data-ratio="4:5">4:5 Card</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Interactive Canvas Box -->
+                            <div class="relative bg-gray-100 border border-gray-200 rounded-2xl overflow-hidden shadow-inner flex items-center justify-center max-w-full" style="width: 400px; height: 400px;" id="studio-canvas-container">
+                                <!-- Guide Text (when empty) -->
+                                <div id="studio-canvas-placeholder" class="text-center p-6 space-y-2 select-none z-10 pointer-events-none">
+                                    <i class="fa-solid fa-wand-magic-sparkles text-4xl text-gray-300"></i>
+                                    <p class="text-xs font-bold text-gray-400">Your artwork will appear here</p>
+                                    <p class="text-[10px] text-gray-400">Upload a product and select/generate a background to start editing.</p>
+                                </div>
+
+                                <!-- The Interactive HTML5 Canvas -->
+                                <canvas id="studio-canvas" class="hidden absolute top-0 left-0 cursor-move" width="400" height="400"></canvas>
+                                
+                                <!-- Loading overlay -->
+                                <div id="studio-canvas-loading" class="absolute inset-0 bg-white/70 backdrop-blur-sm z-20 flex flex-col items-center justify-center gap-y-3 hidden">
+                                    <i class="fa-solid fa-circle-notch fa-spin text-3xl text-[#C5A26F]"></i>
+                                    <span class="text-xs font-bold text-gray-700" id="studio-canvas-loading-txt">Generating Scene...</span>
+                                </div>
+                            </div>
+
+                            <!-- Interactive Help text -->
+                            <div class="mt-4 text-center select-none text-[10px] text-gray-400 flex items-center gap-x-2">
+                                <i class="fa-solid fa-circle-info"></i>
+                                <span>Drag product layer to position. Scroll/pinch to scale. Double click to reset layer.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Compositing Adjustments, Shadows & Save actions -->
+                    <div class="lg:col-span-3 space-y-6">
+                        <!-- Step 3: Layer Tuning & Shadows -->
+                        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+                            <span class="text-xs uppercase tracking-widest font-black text-[#C5A26F] block">3. Composition Tuning</span>
+                            
+                            <!-- Tabs inside right panel: Layer filters, Shadow details, Reflection -->
+                            <div class="flex border-b border-gray-100">
+                                <button type="button" onclick="switchStudioSubtab('filters')" class="studio-subtab-btn flex-1 pb-2 text-[10px] uppercase tracking-wider font-bold border-b-2 border-[#C5A26F] text-[#C5A26F]" id="subtab-btn-filters">Filters</button>
+                                <button type="button" onclick="switchStudioSubtab('shadows')" class="studio-subtab-btn flex-1 pb-2 text-[10px] uppercase tracking-wider font-bold border-b-2 border-transparent text-gray-400 hover:text-gray-700" id="subtab-btn-shadows">Shadows</button>
+                                <button type="button" onclick="switchStudioSubtab('effects')" class="studio-subtab-btn flex-1 pb-2 text-[10px] uppercase tracking-wider font-bold border-b-2 border-transparent text-gray-400 hover:text-gray-700" id="subtab-btn-effects">Reflect</button>
+                            </div>
+
+                            <!-- Panel 3a: Filters (Brightness, Contrast, Temperature) -->
+                            <div id="studio-subtab-content-filters" class="studio-subtab-content space-y-3 pt-2">
+                                <div>
+                                    <div class="flex justify-between text-[10px] font-bold text-gray-500 mb-1">
+                                        <span>Product Brightness</span>
+                                        <span id="val-bright">100%</span>
+                                    </div>
+                                    <input type="range" id="slider-bright" min="50" max="150" value="100" class="w-full accent-[#C5A26F]" oninput="updateCompositeCanvas()">
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-[10px] font-bold text-gray-500 mb-1">
+                                        <span>Product Contrast</span>
+                                        <span id="val-contrast">100%</span>
+                                    </div>
+                                    <input type="range" id="slider-contrast" min="50" max="150" value="100" class="w-full accent-[#C5A26F]" oninput="updateCompositeCanvas()">
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-[10px] font-bold text-gray-500 mb-1">
+                                        <span>Product Saturation</span>
+                                        <span id="val-saturate">100%</span>
+                                    </div>
+                                    <input type="range" id="slider-saturate" min="0" max="200" value="100" class="w-full accent-[#C5A26F]" oninput="updateCompositeCanvas()">
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-[10px] font-bold text-gray-500 mb-1">
+                                        <span>Product Temperature</span>
+                                        <span id="val-temperature">0</span>
+                                    </div>
+                                    <input type="range" id="slider-temperature" min="-40" max="40" value="0" class="w-full accent-[#C5A26F]" oninput="updateCompositeCanvas()">
+                                </div>
+                                <div class="pt-2 border-t border-gray-50">
+                                    <div class="flex justify-between text-[10px] font-bold text-gray-500 mb-1">
+                                        <span>Background DOF Blur</span>
+                                        <span id="val-bgblur">0px</span>
+                                    </div>
+                                    <input type="range" id="slider-bgblur" min="0" max="15" value="0" class="w-full accent-[#C5A26F]" oninput="updateCompositeCanvas()">
+                                </div>
+                            </div>
+
+                            <!-- Panel 3b: Shadows (3D Floor shadow vs standard offset drop shadow) -->
+                            <div id="studio-subtab-content-shadows" class="studio-subtab-content space-y-3 pt-2 hidden">
+                                <!-- 3D Floor Shadow -->
+                                <div class="p-3 bg-gray-50 rounded-xl space-y-2.5">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[10px] font-extrabold text-gray-700">3D Floor / Base Shadow</span>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" id="check-floor-shadow" class="sr-only peer" checked onchange="updateCompositeCanvas()">
+                                            <div class="w-8 h-4 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#C5A26F]"></div>
+                                        </label>
+                                    </div>
+                                    <div class="space-y-2" id="floor-shadow-sliders">
+                                        <div>
+                                            <div class="flex justify-between text-[9px] font-bold text-gray-400">
+                                                <span>Shadow Size Scale</span>
+                                                <span id="val-fs-scale">1.0</span>
+                                            </div>
+                                            <input type="range" id="slider-fs-scale" min="20" max="200" value="100" class="w-full accent-[#C5A26F]" oninput="updateCompositeCanvas()">
+                                        </div>
+                                        <div>
+                                            <div class="flex justify-between text-[9px] font-bold text-gray-400">
+                                                <span>Shadow Blur</span>
+                                                <span id="val-fs-blur">10px</span>
+                                            </div>
+                                            <input type="range" id="slider-fs-blur" min="1" max="40" value="10" class="w-full accent-[#C5A26F]" oninput="updateCompositeCanvas()">
+                                        </div>
+                                        <div>
+                                            <div class="flex justify-between text-[9px] font-bold text-gray-400">
+                                                <span>Shadow Opacity</span>
+                                                <span id="val-fs-opacity">0.4</span>
+                                            </div>
+                                            <input type="range" id="slider-fs-opacity" min="0" max="100" value="40" class="w-full accent-[#C5A26F]" oninput="updateCompositeCanvas()">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Backdrop Drop Shadow -->
+                                <div class="p-3 bg-gray-50 rounded-xl space-y-2.5">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[10px] font-extrabold text-gray-700">Backdrop Wall Shadow</span>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" id="check-drop-shadow" class="sr-only peer" onchange="updateCompositeCanvas()">
+                                            <div class="w-8 h-4 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#C5A26F]"></div>
+                                        </label>
+                                    </div>
+                                    <div class="space-y-2 hidden" id="drop-shadow-sliders">
+                                        <div>
+                                            <div class="flex justify-between text-[9px] font-bold text-gray-400">
+                                                <span>Offset X / Y</span>
+                                                <span id="val-ds-offset">10, 10</span>
+                                            </div>
+                                            <div class="flex gap-x-2">
+                                                <input type="range" id="slider-ds-offset-x" min="-100" max="100" value="10" class="w-1/2 accent-[#C5A26F]" oninput="updateCompositeCanvas()">
+                                                <input type="range" id="slider-ds-offset-y" min="-100" max="100" value="10" class="w-1/2 accent-[#C5A26F]" oninput="updateCompositeCanvas()">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="flex justify-between text-[9px] font-bold text-gray-400">
+                                                <span>Shadow Blur</span>
+                                                <span id="val-ds-blur">15px</span>
+                                            </div>
+                                            <input type="range" id="slider-ds-blur" min="0" max="100" value="15" class="w-full accent-[#C5A26F]" oninput="updateCompositeCanvas()">
+                                        </div>
+                                        <div>
+                                            <div class="flex justify-between text-[9px] font-bold text-gray-400">
+                                                <span>Shadow Opacity</span>
+                                                <span id="val-ds-opacity">0.3</span>
+                                            </div>
+                                            <input type="range" id="slider-ds-opacity" min="0" max="100" value="30" class="w-full accent-[#C5A26F]" oninput="updateCompositeCanvas()">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Panel 3c: Reflection -->
+                            <div id="studio-subtab-content-effects" class="studio-subtab-content space-y-3 pt-2 hidden">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[10px] font-extrabold text-gray-700">Surface Wet Reflection</span>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="check-reflection" class="sr-only peer" onchange="updateCompositeCanvas()">
+                                        <div class="w-8 h-4 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#C5A26F]"></div>
+                                    </label>
+                                </div>
+                                <div class="space-y-2 hidden" id="reflection-sliders">
+                                    <div>
+                                        <div class="flex justify-between text-[9px] font-bold text-gray-400">
+                                            <span>Reflection Opacity</span>
+                                            <span id="val-ref-opacity">25%</span>
+                                        </div>
+                                        <input type="range" id="slider-ref-opacity" min="0" max="100" value="25" class="w-full accent-[#C5A26F]" oninput="updateCompositeCanvas()">
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between text-[9px] font-bold text-gray-400">
+                                            <span>Reflection Height</span>
+                                            <span id="val-ref-height">40%</span>
+                                        </div>
+                                        <input type="range" id="slider-ref-height" min="10" max="100" value="40" class="w-full accent-[#C5A26F]" oninput="updateCompositeCanvas()">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Publish Actions & Database link -->
+                        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+                            <span class="text-xs uppercase tracking-widest font-black text-[#C5A26F] block">4. Save &amp; Publish</span>
+                            
+                            <div>
+                                <label class="block text-[10px] uppercase tracking-wider font-bold text-gray-400 mb-1">Target Product</label>
+                                <select id="studio-product-select" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-xs font-semibold focus:outline-none focus:border-[#C5A26F]">
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+
+                            <div class="space-y-2">
+                                <button type="button" onclick="applyStudioCompositionToProduct()" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl text-xs uppercase tracking-widest font-bold transition-all flex items-center justify-center gap-x-2 shadow-sm shadow-green-600/10">
+                                    <i class="fa-solid fa-circle-check"></i> Apply to Product
+                                </button>
+                                
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button type="button" onclick="downloadStudioImage('jpg')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-xl text-[10px] uppercase tracking-wider font-bold transition-all">
+                                        <i class="fa-solid fa-download"></i> JPG Photo
+                                    </button>
+                                    <button type="button" onclick="downloadStudioImage('png')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-xl text-[10px] uppercase tracking-wider font-bold transition-all">
+                                        <i class="fa-solid fa-image"></i> Transparent
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -970,6 +1289,106 @@
         </div>
     </div>
 
+    <!-- MASK EDITOR MODAL -->
+    <div id="mask-editor-modal" class="fixed inset-0 bg-[#111]/45 backdrop-blur-sm z-[110] flex items-center justify-center p-6 hidden">
+        <div class="bg-white max-w-4xl w-full rounded-3xl shadow-2xl p-6 flex flex-col max-h-[90vh] space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b">
+                <h3 class="text-lg font-bold flex items-center gap-x-2 serif-title text-gray-800">
+                    <i class="fa-solid fa-scissors text-[#C5A26F]"></i> Product Isolation Studio
+                </h3>
+                <button type="button" onclick="closeMaskEditor()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-times text-lg"></i></button>
+            </div>
+
+            <!-- Modal Content Layout -->
+            <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-6 overflow-hidden min-h-0">
+                <!-- Toolbar Column -->
+                <div class="md:col-span-1 space-y-4 overflow-y-auto pr-2">
+                    <!-- Tool Selector -->
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-wider font-bold text-gray-400 mb-1.5">Extraction Method</label>
+                        <div class="space-y-2">
+                            <button type="button" id="tool-magic" onclick="setMaskTool('magic')" class="w-full flex items-center gap-x-2.5 px-3 py-2.5 rounded-xl text-left text-xs font-bold border-2 border-[#C5A26F] bg-[#C5A26F]/5 text-[#C5A26F] transition-all">
+                                <i class="fa-solid fa-wand-magic-sparkles text-sm"></i> Magic Eraser
+                            </button>
+                            <button type="button" id="tool-brush" onclick="setMaskTool('brush')" class="w-full flex items-center gap-x-2.5 px-3 py-2.5 rounded-xl text-left text-xs font-bold border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all">
+                                <i class="fa-solid fa-paintbrush text-sm"></i> Manual Brush
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Magic Eraser Settings -->
+                    <div id="mask-settings-magic" class="space-y-3 p-3 bg-gray-50 rounded-2xl">
+                        <span class="text-[10px] font-extrabold text-gray-600 block">Magic Eraser Settings</span>
+                        <p class="text-[9px] text-gray-400 leading-normal">Click any color in the viewport to erase it. Use tolerance to capture shades of the same color.</p>
+                        <div>
+                            <div class="flex justify-between text-[9px] font-bold text-gray-500 mb-1">
+                                <span>Chroma Tolerance</span>
+                                <span id="val-magic-tolerance">20</span>
+                            </div>
+                            <input type="range" id="slider-magic-tolerance" min="1" max="100" value="20" class="w-full accent-[#C5A26F]" oninput="updateMagicTolerance(this.value)">
+                        </div>
+                    </div>
+
+                    <!-- Manual Brush Settings -->
+                    <div id="mask-settings-brush" class="space-y-3 p-3 bg-gray-50 rounded-2xl hidden">
+                        <span class="text-[10px] font-extrabold text-gray-600 block">Manual Brush Settings</span>
+                        <div class="flex bg-gray-200 p-0.5 rounded-lg text-center text-[10px] font-bold">
+                            <button type="button" onclick="setBrushMode('erase')" class="brush-mode-btn flex-1 py-1 rounded bg-white text-gray-800 shadow-sm" id="btn-brush-erase">Erase</button>
+                            <button type="button" onclick="setBrushMode('restore')" class="brush-mode-btn flex-1 py-1 rounded text-gray-500 hover:text-gray-800" id="btn-brush-restore">Restore</button>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-[9px] font-bold text-gray-500 mb-1">
+                                <span>Brush Size</span>
+                                <span id="val-brush-size">30px</span>
+                            </div>
+                            <input type="range" id="slider-brush-size" min="2" max="150" value="30" class="w-full accent-[#C5A26F]" oninput="updateBrushSizeValue(this.value)">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-[9px] font-bold text-gray-500 mb-1">
+                                <span>Edge Softness</span>
+                                <span id="val-brush-feather">10px</span>
+                            </div>
+                            <input type="range" id="slider-brush-feather" min="0" max="50" value="10" class="w-full accent-[#C5A26F]" oninput="updateBrushFeatherValue(this.value)">
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="resetStudioMask()" class="w-full bg-red-50 hover:bg-red-100 text-red-600 font-bold py-2 rounded-xl text-xs transition-all flex items-center justify-center gap-x-1.5 border border-red-200/50">
+                        <i class="fa-solid fa-arrow-rotate-left"></i> Reset Mask
+                    </button>
+                </div>
+
+                <!-- Canvas Viewport Column -->
+                <div class="md:col-span-3 flex flex-col items-center justify-center bg-gray-50 border border-gray-150 rounded-2xl overflow-hidden relative p-4 min-h-[300px] md:min-h-0 select-none">
+                    <!-- Checkerboard transparent background style using CSS -->
+                    <style>
+                        .checkerboard-bg {
+                            background-color: #f3f4f6;
+                            background-image: linear-gradient(45deg, #e5e7eb 25%, transparent 25%), 
+                                              linear-gradient(-45deg, #e5e7eb 25%, transparent 25%), 
+                                              linear-gradient(45deg, transparent 75%, #e5e7eb 75%), 
+                                              linear-gradient(-45deg, transparent 75%, #e5e7eb 75%);
+                            background-size: 20px 20px;
+                            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+                        }
+                    </style>
+                    <div class="relative max-w-full max-h-full checkerboard-bg border border-gray-300 rounded shadow-md overflow-hidden" id="mask-canvas-container">
+                        <canvas id="mask-canvas" class="cursor-crosshair block max-w-full max-h-[60vh]"></canvas>
+                    </div>
+                    
+                    <div class="mt-2 text-center text-[10px] text-gray-400">
+                        <span id="mask-instructions">Select color by clicking inside the image area to erase.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="pt-3 border-t flex justify-end gap-x-3">
+                <button type="button" onclick="closeMaskEditor()" class="border px-5 py-2.5 rounded-xl text-xs uppercase tracking-widest font-semibold hover:bg-gray-50">Cancel</button>
+                <button type="button" onclick="saveMaskAndCutout()" class="bg-[#111111] hover:bg-[#C5A26F] text-white px-5 py-2.5 rounded-xl text-xs uppercase tracking-widest font-semibold">Apply Extract</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Javascript Actions -->
     <script>
         let storefrontConfig = null;
@@ -1035,6 +1454,7 @@
                 populateThemeTab();
                 populateBrandTab();
                 populateDashboardStats();
+                populateStudioTab();
 
                 // Load active keys status
                 loadSecretsStatus();
@@ -1970,6 +2390,934 @@
             };
 
             reader.readAsDataURL(file);
+        }
+
+        // ==========================================
+        // AI PHOTO STUDIO MODULE
+        // ==========================================
+        let studioRawImage = null;
+        let studioRawFilename = 'product.png';
+        let studioMaskCanvas = null;
+        let studioMaskCtx = null;
+        let studioCutoutImage = null;
+        let studioBgImage = null;
+        let studioBgColor = null;
+        let studioAspectRatio = '1:1';
+        let studioSubtab = 'filters';
+        
+        // Product layer transform state
+        let studioProductLayer = {
+            x: 200,
+            y: 200,
+            scale: 1.0,
+            rotation: 0,
+            width: 150,
+            height: 150,
+            isDragging: false,
+            dragStartX: 0,
+            dragStartY: 0
+        };
+
+        // Masking state
+        let maskTool = 'magic'; // 'magic' or 'brush'
+        let brushMode = 'erase'; // 'erase' or 'restore'
+        let brushSize = 30;
+        let brushFeather = 10;
+        let magicTolerance = 20;
+        let isMaskDrawing = false;
+        let lastMaskX = 0;
+        let lastMaskY = 0;
+        
+        // Keep a copy of the original mask backup for resetting
+        let studioOriginalMaskData = null;
+
+        // Initialize Studio dropdown and variables
+        function populateStudioTab() {
+            const select = document.getElementById('studio-product-select');
+            if (!select) return;
+            select.innerHTML = '';
+            
+            storefrontConfig.products.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.textContent = `${p.name} (${p.size || 'No Size'})`;
+                select.appendChild(opt);
+            });
+
+            // Initialize canvas listeners
+            initStudioCanvasEvents();
+        }
+
+        // Dropzone listeners
+        function handleDragOverStudio(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const el = document.getElementById('studio-dropzone');
+            if (el) el.classList.add('border-[#C5A26F]', 'bg-[#C5A26F]/5');
+        }
+
+        function handleDragLeaveStudio(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const el = document.getElementById('studio-dropzone');
+            if (el) el.classList.remove('border-[#C5A26F]', 'bg-[#C5A26F]/5');
+        }
+
+        async function handleDropStudio(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const el = document.getElementById('studio-dropzone');
+            if (el) el.classList.remove('border-[#C5A26F]', 'bg-[#C5A26F]/5');
+            
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                const file = e.dataTransfer.files[0];
+                loadStudioSourceImage(file);
+            }
+        }
+
+        function handleStudioFileSelect(e) {
+            if (e.target.files && e.target.files.length > 0) {
+                const file = e.target.files[0];
+                loadStudioSourceImage(file);
+            }
+        }
+
+        // Load the image into local studio state
+        function loadStudioSourceImage(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Please upload an image file.');
+                return;
+            }
+            
+            studioRawFilename = file.name;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    studioRawImage = img;
+                    
+                    // Create masking canvas
+                    studioMaskCanvas = document.createElement('canvas');
+                    studioMaskCanvas.width = img.width;
+                    studioMaskCanvas.height = img.height;
+                    studioMaskCtx = studioMaskCanvas.getContext('2d');
+                    // Draw original image into mask canvas to initialize (all opaque)
+                    studioMaskCtx.drawImage(img, 0, 0);
+                    
+                    // Save initial state
+                    studioOriginalMaskData = studioMaskCtx.getImageData(0, 0, img.width, img.height);
+                    
+                    // Show cutout button and status
+                    document.getElementById('btn-edit-mask').classList.remove('hidden');
+                    document.getElementById('studio-dropzone').classList.add('hidden');
+                    document.getElementById('studio-uploaded-status').classList.remove('hidden');
+                    document.getElementById('studio-raw-thumb').src = event.target.result;
+                    document.getElementById('studio-filename-lbl').textContent = file.name;
+                    
+                    // Center product layer on main canvas
+                    const canvas = document.getElementById('studio-canvas');
+                    studioProductLayer.x = canvas.width / 2;
+                    studioProductLayer.y = canvas.height / 2;
+                    
+                    // Fit image bounds scale
+                    const maxDim = Math.max(img.width, img.height);
+                    studioProductLayer.scale = (canvas.width * 0.6) / maxDim;
+                    studioProductLayer.width = img.width;
+                    studioProductLayer.height = img.height;
+                    
+                    // Default cutout image is just the raw image initially
+                    studioCutoutImage = img;
+                    
+                    // Hide placeholder and show canvas
+                    document.getElementById('studio-canvas-placeholder').classList.add('hidden');
+                    canvas.classList.remove('hidden');
+                    
+                    updateCompositeCanvas();
+                    
+                    // Automatically trigger mask editor to help user isolate product
+                    openMaskEditor();
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearStudioSource() {
+            studioRawImage = null;
+            studioCutoutImage = null;
+            studioMaskCanvas = null;
+            studioMaskCtx = null;
+            
+            document.getElementById('btn-edit-mask').classList.add('hidden');
+            document.getElementById('studio-dropzone').classList.remove('hidden');
+            document.getElementById('studio-uploaded-status').classList.add('hidden');
+            
+            const canvas = document.getElementById('studio-canvas');
+            canvas.classList.add('hidden');
+            document.getElementById('studio-canvas-placeholder').classList.remove('hidden');
+            
+            // Reset file input
+            document.getElementById('studio-file-input').value = '';
+        }
+
+        // MASK EDITOR ACTIONS
+        function openMaskEditor() {
+            if (!studioRawImage) return;
+            
+            const modal = document.getElementById('mask-editor-modal');
+            modal.classList.remove('hidden');
+            
+            // Set up editor canvas
+            const mCanvas = document.getElementById('mask-canvas');
+            const mCtx = mCanvas.getContext('2d');
+            
+            // We want to scale the canvas display to fit within the viewport comfortably
+            const container = document.getElementById('mask-canvas-container');
+            const maxW = Math.min(window.innerWidth * 0.6, 600);
+            const maxH = Math.min(window.innerHeight * 0.5, 450);
+            
+            const scale = Math.min(maxW / studioRawImage.width, maxH / studioRawImage.height, 1);
+            mCanvas.width = studioRawImage.width;
+            mCanvas.height = studioRawImage.height;
+            mCanvas.style.width = (studioRawImage.width * scale) + 'px';
+            mCanvas.style.height = (studioRawImage.height * scale) + 'px';
+            
+            // Draw current state from studioMaskCanvas
+            mCtx.clearRect(0, 0, mCanvas.width, mCanvas.height);
+            mCtx.drawImage(studioMaskCanvas, 0, 0);
+            
+            initMaskCanvasEvents();
+            setMaskTool(maskTool);
+        }
+
+        function closeMaskEditor() {
+            document.getElementById('mask-editor-modal').classList.add('hidden');
+        }
+
+        function setMaskTool(tool) {
+            maskTool = tool;
+            
+            document.getElementById('tool-magic').className = tool === 'magic' 
+                ? "w-full flex items-center gap-x-2.5 px-3 py-2.5 rounded-xl text-left text-xs font-bold border-2 border-[#C5A26F] bg-[#C5A26F]/5 text-[#C5A26F] transition-all"
+                : "w-full flex items-center gap-x-2.5 px-3 py-2.5 rounded-xl text-left text-xs font-bold border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all";
+                
+            document.getElementById('tool-brush').className = tool === 'brush'
+                ? "w-full flex items-center gap-x-2.5 px-3 py-2.5 rounded-xl text-left text-xs font-bold border-2 border-[#C5A26F] bg-[#C5A26F]/5 text-[#C5A26F] transition-all"
+                : "w-full flex items-center gap-x-2.5 px-3 py-2.5 rounded-xl text-left text-xs font-bold border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all";
+                
+            document.getElementById('mask-settings-magic').classList.toggle('hidden', tool !== 'magic');
+            document.getElementById('mask-settings-brush').classList.toggle('hidden', tool !== 'brush');
+            
+            const instEl = document.getElementById('mask-instructions');
+            if (tool === 'magic') {
+                instEl.textContent = "Magic Eraser: Click a background color in the photo viewport to automatically erase it.";
+            } else {
+                instEl.textContent = "Manual Brush: Paint over the photo to erase background (or restore parts of the product).";
+            }
+        }
+
+        function setBrushMode(mode) {
+            brushMode = mode;
+            document.getElementById('btn-brush-erase').className = mode === 'erase'
+                ? "brush-mode-btn flex-1 py-1 rounded bg-white text-gray-800 shadow-sm"
+                : "brush-mode-btn flex-1 py-1 rounded text-gray-500 hover:text-gray-800";
+            document.getElementById('btn-brush-restore').className = mode === 'restore'
+                ? "brush-mode-btn flex-1 py-1 rounded bg-white text-gray-800 shadow-sm"
+                : "brush-mode-btn flex-1 py-1 rounded text-gray-500 hover:text-gray-800";
+        }
+
+        function updateMagicTolerance(val) {
+            document.getElementById('val-magic-tolerance').textContent = val;
+            magicTolerance = parseInt(val);
+        }
+
+        // Set size slider
+        function updateBrushSizeValue(val) {
+            document.getElementById('val-brush-size').textContent = val + 'px';
+            brushSize = parseInt(val);
+        }
+
+        // Set feather slider
+        function updateBrushFeatherValue(val) {
+            document.getElementById('val-brush-feather').textContent = val + 'px';
+            brushFeather = parseInt(val);
+        }
+
+        function resetStudioMask() {
+            if (!confirm("Are you sure you want to restore the entire image?")) return;
+            const mCanvas = document.getElementById('mask-canvas');
+            const mCtx = mCanvas.getContext('2d');
+            mCtx.clearRect(0, 0, mCanvas.width, mCanvas.height);
+            mCtx.drawImage(studioRawImage, 0, 0);
+        }
+
+        // MASK CANVAS MOUSE/TOUCH INTERACTION
+        function initMaskCanvasEvents() {
+            const mCanvas = document.getElementById('mask-canvas');
+            mCanvas.onmousedown = startMaskingAction;
+            mCanvas.onmousemove = drawMaskingAction;
+            mCanvas.onmouseup = stopMaskingAction;
+            mCanvas.onmouseleave = stopMaskingAction;
+            
+            // Support touch screens
+            mCanvas.ontouchstart = (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const clientX = touch.clientX;
+                const clientY = touch.clientY;
+                startMaskingAction({ clientX, clientY, target: mCanvas });
+            };
+            mCanvas.ontouchmove = (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const clientX = touch.clientX;
+                const clientY = touch.clientY;
+                drawMaskingAction({ clientX, clientY, target: mCanvas });
+            };
+            mCanvas.ontouchend = stopMaskingAction;
+        }
+
+        function getCanvasMousePos(canvas, e) {
+            const rect = canvas.getBoundingClientRect();
+            // Scale mouse coordinates to match canvas coordinate system
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            return {
+                x: (e.clientX - rect.left) * scaleX,
+                y: (e.clientY - rect.top) * scaleY
+            };
+        }
+
+        function startMaskingAction(e) {
+            const mCanvas = document.getElementById('mask-canvas');
+            const pos = getCanvasMousePos(mCanvas, e);
+            
+            if (maskTool === 'magic') {
+                runMagicEraser(pos.x, pos.y);
+            } else {
+                isMaskDrawing = true;
+                lastMaskX = pos.x;
+                lastMaskY = pos.y;
+                drawBrushStroke(pos.x, pos.y, true);
+            }
+        }
+
+        function drawMaskingAction(e) {
+            if (maskTool !== 'brush' || !isMaskDrawing) return;
+            const mCanvas = document.getElementById('mask-canvas');
+            const pos = getCanvasMousePos(mCanvas, e);
+            drawBrushStroke(pos.x, pos.y, false);
+            lastMaskX = pos.x;
+            lastMaskY = pos.y;
+        }
+
+        function stopMaskingAction() {
+            isMaskDrawing = false;
+        }
+
+        // Magic Eraser algorithm: Flood/threshold color replacement
+        function runMagicEraser(startX, startY) {
+            const mCanvas = document.getElementById('mask-canvas');
+            const mCtx = mCanvas.getContext('2d');
+            const imgData = mCtx.getImageData(0, 0, mCanvas.width, mCanvas.height);
+            const data = imgData.data;
+            
+            // Get clicked color
+            const idx = (Math.floor(startY) * mCanvas.width + Math.floor(startX)) * 4;
+            const targetR = data[idx];
+            const targetG = data[idx+1];
+            const targetB = data[idx+2];
+            const targetA = data[idx+3];
+
+            // If we clicked an already fully transparent region, do nothing
+            if (targetA === 0) return;
+
+            // Run simple chroma thresholding across all pixels
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i+1];
+                const b = data[i+2];
+                const a = data[i+3];
+                
+                if (a > 0) {
+                    const diffR = r - targetR;
+                    const diffG = g - targetG;
+                    const diffB = b - targetB;
+                    // Euclidean distance in RGB color space
+                    const dist = Math.sqrt(diffR*diffR + diffG*diffG + diffB*diffB);
+                    
+                    if (dist <= magicTolerance) {
+                        data[i+3] = 0; // Erase it
+                    }
+                }
+            }
+            mCtx.putImageData(imgData, 0, 0);
+        }
+
+        // Draw brush stroke on mask canvas
+        function drawBrushStroke(x, y, isStart) {
+            const mCanvas = document.getElementById('mask-canvas');
+            const mCtx = mCanvas.getContext('2d');
+            
+            mCtx.save();
+            
+            // Standard brush parameters
+            mCtx.lineWidth = brushSize;
+            mCtx.lineCap = 'round';
+            mCtx.lineJoin = 'round';
+            
+            if (brushMode === 'erase') {
+                mCtx.globalCompositeOperation = 'destination-out';
+                mCtx.strokeStyle = 'rgba(0,0,0,1)';
+            } else {
+                mCtx.globalCompositeOperation = 'source-over';
+                // To restore, we extract pixels from original raw photo
+                // Create a temporary clip circle/line and paint raw image through it
+                mCtx.beginPath();
+                if (isStart) {
+                    mCtx.arc(x, y, brushSize / 2, 0, Math.PI * 2);
+                    mCtx.fill();
+                } else {
+                    mCtx.moveTo(lastMaskX, lastMaskY);
+                    mCtx.lineTo(x, y);
+                    mCtx.stroke();
+                }
+                
+                // Redraw original image inside restoring bounds
+                mCtx.globalCompositeOperation = 'source-atop';
+                mCtx.drawImage(studioRawImage, 0, 0);
+            }
+            
+            mCtx.restore();
+            
+            // Apply edge softening (feather) if configured
+            if (brushFeather > 0 && !isStart) {
+                // Feather is simulated by running a light blur filter on transparent boundaries, but for responsiveness we apply standard stroke
+            }
+        }
+
+        // Save masking output and create cutoutImg
+        function saveMaskAndCutout() {
+            const mCanvas = document.getElementById('mask-canvas');
+            
+            // Save current mask state to studioMaskCanvas
+            studioMaskCanvas.width = mCanvas.width;
+            studioMaskCanvas.height = mCanvas.height;
+            const smCtx = studioMaskCanvas.getContext('2d');
+            smCtx.clearRect(0, 0, mCanvas.width, mCanvas.height);
+            smCtx.drawImage(mCanvas, 0, 0);
+            
+            // Create a transparent cutout image
+            const cutout = new Image();
+            cutout.onload = function() {
+                studioCutoutImage = cutout;
+                
+                // Update Thumbnail preview in studio sidebar
+                document.getElementById('studio-raw-thumb').src = cutout.src;
+                
+                closeMaskEditor();
+                updateCompositeCanvas();
+            };
+            cutout.src = mCanvas.toDataURL('image/png');
+        }
+
+        // CURATED STUDIO PRESET LOADER
+        function applyStudioPreset(preset) {
+            // Remove active classes on presets
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.classList.remove('border-[#C5A26F]', 'bg-[#C5A26F]/5');
+                btn.classList.add('border-gray-100');
+            });
+            
+            // Highlight active preset button
+            const activeBtn = event.currentTarget;
+            if (activeBtn) {
+                activeBtn.classList.add('border-[#C5A26F]', 'bg-[#C5A26F]/5');
+                activeBtn.classList.remove('border-gray-100');
+            }
+            
+            const prompts = {
+                tropical: "A vibrant luxury beauty flatlay of organic skincare containers on a bright peach and pink background, styled with ripe sliced mango, fresh coconut chunks, hibiscus flowers, and deep palm leaf shadows, high-end editorial product photography.",
+                vanity: "Close-up shot of a modern organic skincare jar resting on a luxury travertine marble vanity in a sun-drenched bathroom, surrounded by fresh eucalyptus stems and soft morning light casting long shadows, premium spa brand aesthetic.",
+                beach: "Skincare product jar resting on golden beach sand during a warm sunset, soft sea foam washing up in the blurred background, shimmering sun reflections on water, tropical summer vibe.",
+                pedestal: "Monochromatic luxury studio setup with a minimal sandstone pedestal, organic tropical leaf shadows on a warm beige background, clean architectural layout, soft light, editorial branding."
+            };
+            
+            const promptInput = document.getElementById('studio-bg-prompt');
+            
+            if (preset === 'card_white') {
+                studioBgColor = '#FFFFFF';
+                studioBgImage = null;
+                promptInput.value = '';
+                updateCompositeCanvas();
+            } else if (preset === 'card_ivory') {
+                studioBgColor = '#FAF7F2'; // brand ivory color
+                studioBgImage = null;
+                promptInput.value = '';
+                updateCompositeCanvas();
+            } else {
+                studioBgColor = null;
+                promptInput.value = prompts[preset] || '';
+            }
+        }
+
+        // GENERATE SCENE WITH AI PROXY
+        async function generateStudioBackground() {
+            const prompt = document.getElementById('studio-bg-prompt').value.trim();
+            if (!prompt) {
+                alert('Please describe a scene or choose a preset style.');
+                return;
+            }
+            
+            const btn = document.getElementById('btn-generate-studio-bg');
+            const btnLbl = document.getElementById('studio-gen-btn-lbl');
+            const spin = document.getElementById('studio-gen-spinner');
+            const overlay = document.getElementById('studio-canvas-loading');
+            const overlayTxt = document.getElementById('studio-canvas-loading-txt');
+            
+            btn.disabled = true;
+            btnLbl.textContent = 'Generating...';
+            spin.classList.remove('hidden');
+            overlay.classList.remove('hidden');
+            overlayTxt.textContent = 'AI is painting your background scene...';
+            
+            const activeModel = storefrontConfig.chatbot.model || 'gemini';
+            const uniqueTarget = `studio_bg_${Date.now()}`;
+            
+            try {
+                const res = await fetch('/api/generate-image', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ prompt, target: uniqueTarget, engine: activeModel })
+                });
+                
+                btn.disabled = false;
+                btnLbl.textContent = 'Generate Background';
+                spin.classList.add('hidden');
+                overlay.classList.add('hidden');
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    const bgImg = new Image();
+                    bgImg.onload = function() {
+                        studioBgImage = bgImg;
+                        studioBgColor = null;
+                        updateCompositeCanvas();
+                        alert('Background generated successfully!');
+                    };
+                    bgImg.src = data.imageUrl;
+                } else {
+                    const err = await res.json();
+                    alert(`Failed to generate background: ${err.error || 'Server error'}`);
+                }
+            } catch (err) {
+                console.error(err);
+                btn.disabled = false;
+                btnLbl.textContent = 'Generate Background';
+                spin.classList.add('hidden');
+                overlay.classList.add('hidden');
+                alert('Server request failed. Verify API Keys and connection.');
+            }
+        }
+
+        // VIEWPORT ASPECT RATIO SETTER
+        function setStudioAspectRatio(ratio) {
+            studioAspectRatio = ratio;
+            
+            // Highlight ratio buttons
+            const btn11 = document.getElementById('ratio-btn-1-1');
+            const btn45 = document.getElementById('ratio-btn-4-5');
+            
+            btn11.className = ratio === '1:1' 
+                ? "ratio-btn px-2.5 py-1 text-[10px] font-bold rounded-md transition-all bg-white text-gray-800 shadow-sm"
+                : "ratio-btn px-2.5 py-1 text-[10px] font-bold rounded-md transition-all text-gray-500 hover:text-gray-800";
+            btn45.className = ratio === '4:5'
+                ? "ratio-btn px-2.5 py-1 text-[10px] font-bold rounded-md transition-all bg-white text-gray-800 shadow-sm"
+                : "ratio-btn px-2.5 py-1 text-[10px] font-bold rounded-md transition-all text-gray-500 hover:text-gray-800";
+                
+            // Update container sizing
+            const container = document.getElementById('studio-canvas-container');
+            const canvas = document.getElementById('studio-canvas');
+            
+            if (ratio === '1:1') {
+                container.style.width = '400px';
+                container.style.height = '400px';
+                canvas.width = 400;
+                canvas.height = 400;
+            } else {
+                container.style.width = '320px';
+                container.style.height = '400px';
+                canvas.width = 320;
+                canvas.height = 400;
+            }
+            
+            // Readjust layer bounds if necessary
+            if (studioProductLayer.x > canvas.width) studioProductLayer.x = canvas.width / 2;
+            if (studioProductLayer.y > canvas.height) studioProductLayer.y = canvas.height / 2;
+            
+            updateCompositeCanvas();
+        }
+
+        // STUDIO ADJUSTMENT SUBTABS
+        function switchStudioSubtab(subtab) {
+            studioSubtab = subtab;
+            
+            // Toggle active styles on subtab headers
+            document.querySelectorAll('.studio-subtab-btn').forEach(btn => {
+                btn.classList.remove('border-[#C5A26F]', 'text-[#C5A26F]');
+                btn.classList.add('border-transparent', 'text-gray-400');
+            });
+            document.getElementById(`subtab-btn-${subtab}`).classList.add('border-[#C5A26F]', 'text-[#C5A26F]');
+            document.getElementById(`subtab-btn-${subtab}`).classList.remove('border-transparent', 'text-gray-400');
+            
+            // Show subtab contents
+            document.querySelectorAll('.studio-subtab-content').forEach(c => c.classList.add('hidden'));
+            document.getElementById(`studio-subtab-content-${subtab}`).classList.remove('hidden');
+            
+            // Toggle visibility of sliders based on enabling checkboxes
+            document.getElementById('floor-shadow-sliders').classList.toggle('hidden', !document.getElementById('check-floor-shadow').checked);
+            document.getElementById('drop-shadow-sliders').classList.toggle('hidden', !document.getElementById('check-drop-shadow').checked);
+            document.getElementById('reflection-sliders').classList.toggle('hidden', !document.getElementById('check-reflection').checked);
+        }
+
+        // CANVAS INTERACTION EVENTS (DRAG, ROTATE, SCALE)
+        function initStudioCanvasEvents() {
+            const canvas = document.getElementById('studio-canvas');
+            
+            canvas.onmousedown = function(e) {
+                if (!studioCutoutImage) return;
+                const pos = getCanvasMousePos(canvas, e);
+                
+                // Allow dragging from anywhere if product exists
+                studioProductLayer.isDragging = true;
+                studioProductLayer.dragStartX = pos.x - studioProductLayer.x;
+                studioProductLayer.dragStartY = pos.y - studioProductLayer.y;
+            };
+            
+            canvas.onmousemove = function(e) {
+                if (!studioProductLayer.isDragging) return;
+                const pos = getCanvasMousePos(canvas, e);
+                studioProductLayer.x = pos.x - studioProductLayer.dragStartX;
+                studioProductLayer.y = pos.y - studioProductLayer.dragStartY;
+                updateCompositeCanvas();
+            };
+            
+            window.addEventListener('mouseup', () => {
+                studioProductLayer.isDragging = false;
+            });
+            
+            canvas.onwheel = function(e) {
+                if (!studioCutoutImage) return;
+                e.preventDefault();
+                
+                // Zoom increment
+                const factor = e.deltaY < 0 ? 1.05 : 0.95;
+                studioProductLayer.scale = Math.min(Math.max(studioProductLayer.scale * factor, 0.05), 5.0);
+                updateCompositeCanvas();
+            };
+            
+            canvas.ondblclick = function() {
+                if (!studioCutoutImage) return;
+                // Reset to center
+                studioProductLayer.x = canvas.width / 2;
+                studioProductLayer.y = canvas.height / 2;
+                const maxDim = Math.max(studioProductLayer.width, studioProductLayer.height);
+                studioProductLayer.scale = (canvas.width * 0.6) / maxDim;
+                studioProductLayer.rotation = 0;
+                updateCompositeCanvas();
+            };
+        }
+
+        // CORE COMPOSITING ENGINE
+        function updateCompositeCanvas() {
+            const canvas = document.getElementById('studio-canvas');
+            if (!canvas || !studioCutoutImage) return;
+            const ctx = canvas.getContext('2d');
+            
+            // Clear entire canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 1. DRAW BACKGROUND
+            ctx.save();
+            if (studioBgColor) {
+                ctx.fillStyle = studioBgColor;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            } else if (studioBgImage) {
+                // Apply background blur if any (Depth-of-field)
+                const bgBlur = parseInt(document.getElementById('slider-bgblur').value);
+                document.getElementById('val-bgblur').textContent = bgBlur + 'px';
+                if (bgBlur > 0) {
+                    ctx.filter = `blur(${bgBlur}px)`;
+                }
+                
+                // Draw aspect-covered background
+                const bgScale = Math.max(canvas.width / studioBgImage.width, canvas.height / studioBgImage.height);
+                const bgW = studioBgImage.width * bgScale;
+                const bgH = studioBgImage.height * bgScale;
+                const bgX = (canvas.width - bgW) / 2;
+                const bgY = (canvas.height - bgH) / 2;
+                ctx.drawImage(studioBgImage, bgX, bgY, bgW, bgH);
+            } else {
+                // Fallback transparent/checkerboard
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+            ctx.restore();
+            
+            // Width and height of product layer to render
+            const renderW = studioProductLayer.width * studioProductLayer.scale;
+            const renderH = studioProductLayer.height * studioProductLayer.scale;
+            
+            // 2. DRAW 3D FLOOR SHADOW (Natural base resting look)
+            const enableFloorShadow = document.getElementById('check-floor-shadow').checked;
+            document.getElementById('floor-shadow-sliders').classList.toggle('hidden', !enableFloorShadow);
+            
+            if (enableFloorShadow) {
+                const fsScaleVal = parseInt(document.getElementById('slider-fs-scale').value) / 100;
+                const fsBlurVal = parseInt(document.getElementById('slider-fs-blur').value);
+                const fsOpacityVal = parseInt(document.getElementById('slider-fs-opacity').value) / 100;
+                
+                document.getElementById('val-fs-scale').textContent = fsScaleVal.toFixed(1);
+                document.getElementById('val-fs-blur').textContent = fsBlurVal + 'px';
+                document.getElementById('val-fs-opacity').textContent = fsOpacityVal.toFixed(2);
+                
+                ctx.save();
+                // Position floor shadow at the base of the product
+                const shX = studioProductLayer.x;
+                const shY = studioProductLayer.y + (renderH / 2) * 0.95;
+                const shRadiusX = (renderW / 2) * 0.7 * fsScaleVal;
+                const shRadiusY = (renderH / 2) * 0.12 * fsScaleVal;
+                
+                ctx.translate(shX, shY);
+                if (fsBlurVal > 0) {
+                    ctx.filter = `blur(${fsBlurVal}px)`;
+                }
+                
+                // Draw soft gradient ellipse shadow
+                let grad = ctx.createRadialGradient(0, 0, 0, 0, 0, shRadiusX);
+                grad.addColorStop(0, `rgba(0,0,0,${fsOpacityVal})`);
+                grad.addColorStop(0.5, `rgba(0,0,0,${fsOpacityVal * 0.6})`);
+                grad.addColorStop(1, 'rgba(0,0,0,0)');
+                
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, shRadiusX, shRadiusY, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            // 3. DRAW REFLECTION (Water / Wet Table top effect)
+            const enableReflection = document.getElementById('check-reflection').checked;
+            document.getElementById('reflection-sliders').classList.toggle('hidden', !enableReflection);
+            
+            if (enableReflection) {
+                const refOpacity = parseInt(document.getElementById('slider-ref-opacity').value) / 100;
+                const refHeight = parseInt(document.getElementById('slider-ref-height').value);
+                
+                document.getElementById('val-ref-opacity').textContent = Math.round(refOpacity * 100) + '%';
+                document.getElementById('val-ref-height').textContent = refHeight + '%';
+                
+                ctx.save();
+                // We create a temporary canvas to draw the reflection, apply fade gradient, and draw it back
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = canvas.width;
+                tempCanvas.height = canvas.height;
+                const tCtx = tempCanvas.getContext('2d');
+                
+                // Draw flipped product
+                tCtx.save();
+                tCtx.translate(studioProductLayer.x, studioProductLayer.y + renderH / 2);
+                tCtx.scale(1, -1);
+                tCtx.drawImage(studioCutoutImage, -renderW / 2, -renderH / 2, renderW, renderH);
+                tCtx.restore();
+                
+                // Apply gradient mask on temp canvas to fade reflection downward
+                tCtx.save();
+                tCtx.globalCompositeOperation = 'destination-in';
+                const gradYStart = studioProductLayer.y + renderH / 2;
+                const gradYEnd = gradYStart + renderH * (refHeight / 100);
+                let grad = tCtx.createLinearGradient(0, gradYStart, 0, gradYEnd);
+                grad.addColorStop(0, `rgba(0,0,0,${refOpacity})`);
+                grad.addColorStop(1, 'rgba(0,0,0,0)');
+                tCtx.fillStyle = grad;
+                tCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+                tCtx.restore();
+                
+                // Render reflection layer onto composite
+                ctx.drawImage(tempCanvas, 0, 0);
+                ctx.restore();
+            }
+
+            // 4. DRAW WALL DROP SHADOW
+            const enableDropShadow = document.getElementById('check-drop-shadow').checked;
+            document.getElementById('drop-shadow-sliders').classList.toggle('hidden', !enableDropShadow);
+            
+            let dsOffset = '';
+            if (enableDropShadow) {
+                const dsX = parseInt(document.getElementById('slider-ds-offset-x').value);
+                const dsY = parseInt(document.getElementById('slider-ds-offset-y').value);
+                const dsBlur = parseInt(document.getElementById('slider-ds-blur').value);
+                const dsOpacity = parseInt(document.getElementById('slider-ds-opacity').value) / 100;
+                dsOffset = `${dsX}, ${dsY}`;
+                
+                ctx.save();
+                ctx.shadowColor = `rgba(0, 0, 0, ${dsOpacity})`;
+                ctx.shadowBlur = dsBlur;
+                ctx.shadowOffsetX = dsX;
+                ctx.shadowOffsetY = dsY;
+            } else {
+                ctx.save();
+            }
+
+            // 5. DRAW PRODUCT LAYER (WITH LIGHTING FILTERS AND TEMPERATURE TINT)
+            const bright = document.getElementById('slider-bright').value;
+            const contrast = document.getElementById('slider-contrast').value;
+            const saturate = document.getElementById('slider-saturate').value;
+            const temp = parseInt(document.getElementById('slider-temperature').value);
+            
+            document.getElementById('val-bright').textContent = bright + '%';
+            document.getElementById('val-contrast').textContent = contrast + '%';
+            document.getElementById('val-saturate').textContent = saturate + '%';
+            document.getElementById('val-temperature').textContent = temp > 0 ? '+' + temp : temp;
+            
+            // Set canvas context filter
+            ctx.filter = `brightness(${bright}%) contrast(${contrast}%) saturate(${saturate}%)`;
+            
+            ctx.translate(studioProductLayer.x, studioProductLayer.y);
+            ctx.rotate(studioProductLayer.rotation);
+            
+            // Draw standard product cutout
+            ctx.drawImage(studioCutoutImage, -renderW / 2, -renderH / 2, renderW, renderH);
+            
+            // Apply temperature tint
+            if (temp !== 0) {
+                // Render a tint overlay on top of the product boundaries using source-atop composite operation
+                ctx.globalCompositeOperation = 'source-atop';
+                ctx.fillStyle = temp > 0 ? 'rgb(255, 159, 0)' : 'rgb(0, 127, 255)';
+                ctx.globalAlpha = (Math.abs(temp) / 100) * 0.4; // Cap opacity at 40% max
+                ctx.fillRect(-renderW / 2, -renderH / 2, renderW, renderH);
+            }
+            
+            ctx.restore(); // Restores shadow config and translates
+            if (enableDropShadow) {
+                document.getElementById('val-ds-offset').textContent = dsOffset;
+            }
+        }
+
+        // DOWNLOAD CURRENT COMPOSITION FILE
+        function downloadStudioImage(format) {
+            const canvas = document.getElementById('studio-canvas');
+            if (!canvas || !studioCutoutImage) {
+                alert('No artwork to download. Please set up your product composition first.');
+                return;
+            }
+            
+            let dataUrl = '';
+            let extension = 'png';
+            
+            if (format === 'jpg') {
+                dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+                extension = 'jpg';
+            } else {
+                // To export transparent product ONLY (cutout), we compile the cutout canvas directly
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = canvas.width;
+                tempCanvas.height = canvas.height;
+                const tCtx = tempCanvas.getContext('2d');
+                
+                // Draw floor shadow, reflections, and product cutout on transparent canvas
+                const renderW = studioProductLayer.width * studioProductLayer.scale;
+                const renderH = studioProductLayer.height * studioProductLayer.scale;
+                
+                tCtx.save();
+                tCtx.translate(studioProductLayer.x, studioProductLayer.y);
+                tCtx.rotate(studioProductLayer.rotation);
+                
+                const bright = document.getElementById('slider-bright').value;
+                const contrast = document.getElementById('slider-contrast').value;
+                const saturate = document.getElementById('slider-saturate').value;
+                tCtx.filter = `brightness(${bright}%) contrast(${contrast}%) saturate(${saturate}%)`;
+                
+                tCtx.drawImage(studioCutoutImage, -renderW / 2, -renderH / 2, renderW, renderH);
+                tCtx.restore();
+                
+                dataUrl = tempCanvas.toDataURL('image/png');
+                extension = 'png';
+            }
+            
+            const link = document.createElement('a');
+            link.download = `herban_studio_${Date.now()}.${extension}`;
+            link.href = dataUrl;
+            link.click();
+        }
+
+        // PUBLISH GENERATED ARTWORK TO PRODUCT DATABASE
+        async function applyStudioCompositionToProduct() {
+            const canvas = document.getElementById('studio-canvas');
+            if (!canvas || !studioCutoutImage) {
+                alert('No artwork to apply. Please upload a product snapshot and design your composite first.');
+                return;
+            }
+            
+            const prodId = parseInt(document.getElementById('studio-product-select').value);
+            const p = storefrontConfig.products.find(prod => prod.id === prodId);
+            if (!p) {
+                alert('Selected product could not be found.');
+                return;
+            }
+            
+            const confirmMsg = `Are you sure you want to apply this composite design to product: "${p.name}"? This will save the image locally to server assets and update the website instantly.`;
+            if (!confirm(confirmMsg)) return;
+            
+            const overlay = document.getElementById('studio-canvas-loading');
+            const overlayTxt = document.getElementById('studio-canvas-loading-txt');
+            overlay.classList.remove('hidden');
+            overlayTxt.textContent = 'Saving composition and updating store catalog...';
+            
+            const base64Data = canvas.toDataURL('image/jpeg', 0.9);
+            const safeName = p.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+            const filename = `studio_product_${safeName}.jpg`;
+            
+            try {
+                // 1. Upload file
+                const res = await fetch('/api/upload', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ filename, base64Data })
+                });
+                
+                overlay.classList.add('hidden');
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    
+                    // 2. Update product image field
+                    p.image = data.url;
+                    
+                    // 3. Save config
+                    const configSuccess = await saveConfig();
+                    if (configSuccess) {
+                        populateProductsTab();
+                        populateDashboardStats();
+                        alert(`Perfect! The composite image has been saved to ${data.url} and applied to "${p.name}" successfully!`);
+                    } else {
+                        alert('Image uploaded but saving website configuration file failed.');
+                    }
+                } else {
+                    const err = await res.json();
+                    alert(`Failed to save composite: ${err.error || 'Server error'}`);
+                }
+            } catch (err) {
+                console.error(err);
+                overlay.classList.add('hidden');
+                alert('Connection to server failed. Verify API configuration.');
+            }
         }
 
         // Live input preview listeners
