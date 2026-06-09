@@ -1786,7 +1786,11 @@
                     loadSecretsStatus();
                 } else {
                     const data = await res.json();
-                    alert('Error saving Stripe Secret Key: ' + data.error);
+                    let msg = 'Error saving Stripe Secret Key: ' + data.error;
+                    if (window.location.hostname.includes('vercel') || data.error.includes('Failed to save')) {
+                        msg += '\n\nTip: On Vercel, the filesystem is read-only. Please add STRIPE_SECRET_KEY as an Environment Variable in your Vercel Dashboard, then redeploy.';
+                    }
+                    alert(msg);
                 }
             } catch (err) {
                 console.error(err);
@@ -1827,7 +1831,11 @@
                     loadSecretsStatus();
                 } else {
                     const data = await res.json();
-                    alert('Error saving secrets: ' + data.error);
+                    let msg = 'Error saving secrets: ' + data.error;
+                    if (window.location.hostname.includes('vercel') || data.error.includes('Failed to save')) {
+                        msg += '\n\nTip: On Vercel, the filesystem is read-only. Please add GEMINI_API_KEY, OPENAI_API_KEY, etc., as Environment Variables in your Vercel Dashboard, then redeploy.';
+                    }
+                    alert(msg);
                 }
             } catch (err) {
                 console.error(err);
@@ -1851,7 +1859,11 @@
                     return true;
                 } else {
                     const data = await res.json();
-                    alert('Failed to save config: ' + data.error);
+                    let msg = 'Failed to save config: ' + data.error;
+                    if (window.location.hostname.includes('vercel') || data.error.includes('Failed to write')) {
+                        msg += '\n\nTip: On Vercel, the filesystem is read-only. Please make your config changes locally in data/config.json, commit them, and push to Git to redeploy.';
+                    }
+                    alert(msg);
                     return false;
                 }
             } catch (err) {
