@@ -3,6 +3,7 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const dotenv = require('dotenv');
+const Stripe = require('stripe');
 
 dotenv.config();
 
@@ -87,17 +88,20 @@ app.get('/api/secrets', checkAuth, (req, res) => {
     const secrets = readJSON(SECRETS_PATH);
     const geminiApiKey = process.env.GEMINI_API_KEY || secrets.geminiApiKey;
     const openaiApiKey = process.env.OPENAI_API_KEY || secrets.openaiApiKey;
+    const stripeSecretKey = process.env.STRIPE_SECRET_KEY || secrets.stripeSecretKey;
     // Exclude actual password for safety, return mask details
     res.json({
         geminiApiKey: geminiApiKey ? '••••••••••••••••' : '',
         openaiApiKey: openaiApiKey ? '••••••••••••••••' : '',
+        stripeSecretKey: stripeSecretKey ? '••••••••••••••••' : '',
         hasGemini: !!geminiApiKey,
-        hasOpenai: !!openaiApiKey
+        hasOpenai: !!openaiApiKey,
+        hasStripe: !!stripeSecretKey
     });
 });
 
 app.post('/api/secrets', checkAuth, (req, res) => {
-    const { geminiApiKey, openaiApiKey, adminPassword } = req.body;
+    const { geminiApiKey, openaiApiKey, stripeSecretKey, adminPassword } = req.body;
     const secrets = readJSON(SECRETS_PATH);
 
     if (geminiApiKey !== undefined && geminiApiKey !== '••••••••••••••••') {
@@ -105,6 +109,9 @@ app.post('/api/secrets', checkAuth, (req, res) => {
     }
     if (openaiApiKey !== undefined && openaiApiKey !== '••••••••••••••••') {
         secrets.openaiApiKey = openaiApiKey;
+    }
+    if (stripeSecretKey !== undefined && stripeSecretKey !== '••••••••••••••••') {
+        secrets.stripeSecretKey = stripeSecretKey;
     }
     if (adminPassword && adminPassword.trim() !== '') {
         secrets.adminPassword = adminPassword;
@@ -388,6 +395,105 @@ app.post('/api/upload', checkAuth, (req, res) => {
     } catch (err) {
         console.error('File Upload Error:', err);
         res.status(500).json({ error: err.message || 'Failed to save uploaded file' });
+    }
+});
+
+// CREATE STRIPE CHECKOUT SESSION ENDPOINT (Public)
+app.post('/api/create-checkout-session', async (req, res) => {
+    const { items } = req.body;
+    if (!items || !Array.isArray(items) || items.length === 0) {
+        return res.status(400).json({ error: 'Cart items are required' });
+    }
+
+    try {
+        const config = readJSON(CONFIG_PATH);
+        const secrets = readJSON(SECRETS_PATH);
+
+        const stripeEnabled = config.stripe && config.stripe.enabled;
+        const stripeSecretKey = process.env.STRIPE_SECRET_KEY || secrets.stripeSecretKey;
+
+        if (!stripeEnabled || !stripeSecretKey) {
+            return res.status(400).json({ error: 'Stripe payments are not configured or disabled' });
+        }
+
+        const stripe = new Stripe(stripeSecretKey);
+
+        const currency = config.stripe.currency || 'usd';
+        const shippingFlatRate = parseFloat(config.stripe.shippingFlatRate || 5.99);
+        const freeShippingThreshold = parseFloat(config.stripe.freeShippingThreshold || 65);
+
+        // Sum total amount for shipping calculations
+        const totalAmount = items.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+        // Format cart items to Stripe Line Items
+        const line_items = items.map(item => {
+            const line = {
+                price_data: {
+                    currency: currency,
+                    product_data: {
+                        name: item.scent ? `${item.name} (${item.scent})` : item.name,
+                    },
+                    unit_amount: Math.round(item.price * 100), // Stripe expects unit price in cents
+                },
+                quantity: item.qty
+            };
+
+            // Safely append absolute image URL if present
+            if (item.image) {
+                try {
+                    // Try to resolve absolute image URL for Stripe display
+                    const host = req.get('host');
+                    const protocol = req.protocol;
+                    const imageUrl = new URL(item.image, `${protocol}://${host}`).href;
+                    line.price_data.product_data.images = [imageUrl];
+                } catch (e) {
+                    // Ignore image URL formatting errors
+                }
+            }
+
+            return line;
+        });
+
+        // Set up shipping options dynamically in Stripe Checkout
+        const shipping_options = [];
+        if (shippingFlatRate > 0) {
+            const isFree = totalAmount >= freeShippingThreshold;
+            shipping_options.push({
+                shipping_rate_data: {
+                    type: 'fixed_amount',
+                    fixed_amount: {
+                        amount: isFree ? 0 : Math.round(shippingFlatRate * 100),
+                        currency: currency
+                    },
+                    display_name: isFree ? 'Free Shipping (Over $' + freeShippingThreshold + ')' : 'Standard Shipping',
+                    delivery_estimate: {
+                        minimum: { unit: 'business_day', value: 3 },
+                        maximum: { unit: 'business_day', value: 5 }
+                    }
+                }
+            });
+        }
+
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items,
+            mode: 'payment',
+            success_url: `${req.protocol}://${req.get('host')}/success.html?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${req.protocol}://${req.get('host')}/index.html?cart_open=true`,
+            shipping_address_collection: {
+                allowed_countries: ['US', 'CA', 'GB']
+            },
+            shipping_options: shipping_options.length > 0 ? shipping_options : undefined
+        });
+
+        res.json({
+            success: true,
+            url: session.url
+        });
+
+    } catch (err) {
+        console.error('Stripe Checkout Error:', err);
+        res.status(500).json({ error: err.message || 'Error generating payment checkout session' });
     }
 });
 

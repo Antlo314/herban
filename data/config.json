@@ -48,6 +48,13 @@
     "bgColor": "#111111",
     "textColor": "#ffffff"
   },
+  "stripe": {
+    "enabled": false,
+    "publicKey": "",
+    "currency": "usd",
+    "shippingFlatRate": 5.99,
+    "freeShippingThreshold": 65
+  },
   "placements": {
     "mensCollection": true,
     "carrierOils": true,

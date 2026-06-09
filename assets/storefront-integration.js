@@ -55,6 +55,7 @@
         if (currentConfig.chatbot.enabled) {
             injectChatbotWidget();
         }
+        setupCheckoutOverride();
     }
 
     // Scan the DOM heuristically to synchronize pricing from config.json with static HTML cards
@@ -659,6 +660,81 @@
                 }
             });
         }
+    }
+
+    // Intercept checkout to route to Stripe Checkout dynamically
+    function setupCheckoutOverride() {
+        window.checkout = async function () {
+            // Read latest cart from localStorage
+            let cart = [];
+            try {
+                cart = JSON.parse(localStorage.getItem('herbanCart') || '[]');
+            } catch (e) {
+                console.error('Failed to parse cart:', e);
+            }
+
+            if (cart.length === 0) {
+                alert('Your cart is empty. Add some luxury skincare products before checking out!');
+                return;
+            }
+
+            const stripeEnabled = currentConfig.stripe && currentConfig.stripe.enabled;
+            if (!stripeEnabled) {
+                // Fallback to the demo alert
+                const total = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+                alert(`Thank you! This is a demo checkout.\n\nYour order total would be $${total}.\n\nIn a real build we would integrate Stripe / Shopify checkout here.`);
+                
+                // Clear cart (as the demo version did)
+                localStorage.setItem('herbanCart', '[]');
+                if (typeof updateCartCount === 'function') updateCartCount();
+                if (typeof hideCart === 'function') hideCart();
+                return;
+            }
+
+            // Find checkout button to set loading state
+            const btn = document.querySelector('#cart-drawer button[onclick="checkout()"]') || 
+                        document.querySelector('button[onclick="checkout()"]');
+            
+            let originalText = 'CHECKOUT';
+            if (btn) {
+                originalText = btn.textContent.trim();
+                btn.disabled = true;
+                btn.style.opacity = '0.6';
+                btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin mr-2"></i> SECURELY REDIRECTING...`;
+            }
+
+            try {
+                // Call create checkout session endpoint
+                const res = await fetch('/api/create-checkout-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ items: cart })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.success && data.url) {
+                        // Redirect to Stripe Checkout
+                        window.location.href = data.url;
+                    } else {
+                        throw new Error('Invalid checkout session url');
+                    }
+                } else {
+                    const err = await res.json();
+                    throw new Error(err.error || 'Checkout request failed');
+                }
+            } catch (err) {
+                console.error('[Herban Checkout] Stripe Checkout Redirect Error:', err);
+                alert(`Checkout failed: ${err.message || 'Server error'}. Please try again.`);
+                
+                // Restore button state
+                if (btn) {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    btn.textContent = originalText;
+                }
+            }
+        };
     }
 
     // Auto start on page load

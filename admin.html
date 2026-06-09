@@ -85,6 +85,9 @@
                 <button onclick="switchTab('studio')" class="tab-btn w-full flex items-center gap-x-3 px-4 py-3 rounded-xl text-left text-xs uppercase tracking-wider font-semibold text-gray-600 hover:bg-[#FAF7F2] transition-all" data-tab="studio">
                     <i class="fa-solid fa-wand-magic-sparkles text-[#C5A26F] text-sm animate-pulse"></i> AI Photo Studio
                 </button>
+                <button onclick="switchTab('payments')" class="tab-btn w-full flex items-center gap-x-3 px-4 py-3 rounded-xl text-left text-xs uppercase tracking-wider font-semibold text-gray-600 hover:bg-[#FAF7F2] transition-all" data-tab="payments">
+                    <i class="fa-solid fa-credit-card text-sm"></i> Stripe Integration
+                </button>
                 <button onclick="switchTab('chatbot')" class="tab-btn w-full flex items-center gap-x-3 px-4 py-3 rounded-xl text-left text-xs uppercase tracking-wider font-semibold text-gray-600 hover:bg-[#FAF7F2] transition-all" data-tab="chatbot">
                     <i class="fa-solid fa-robot text-sm"></i> AI Chatbot Setup
                 </button>
@@ -761,6 +764,105 @@
 
                             <button type="submit" class="w-full bg-[#111111] hover:bg-[#C5A26F] text-white py-3 rounded-xl text-xs uppercase tracking-widest font-semibold transition-all">
                                 Update Secrets &amp; Key
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: Stripe Integration -->
+            <section id="tab-payments" class="tab-content hidden space-y-6">
+                <div>
+                    <h1 class="text-3xl font-black tracking-tight mb-1">Stripe Checkout Integration</h1>
+                    <p class="text-xs text-gray-500 uppercase tracking-widest">Manage your payment gateway settings, dynamic shipping thresholds, and checkout credentials securely.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Left: Configuration & Shipping -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <form onsubmit="savePaymentsConfig(event)" class="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+                            <div class="flex items-center justify-between pb-4 border-b">
+                                <span class="text-xs uppercase tracking-widest font-bold text-gray-500">Enable Stripe Payments</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="stripe-enabled" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#C5A26F]"></div>
+                                </label>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-2">Stripe Publishable Key</label>
+                                    <input type="text" id="stripe-public-key" placeholder="pk_test_..." class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#C5A26F]">
+                                </div>
+                                <div>
+                                    <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-2">Currency Selection</label>
+                                    <select id="stripe-currency" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#C5A26F]">
+                                        <option value="usd">USD ($) - United States Dollar</option>
+                                        <option value="cad">CAD ($) - Canadian Dollar</option>
+                                        <option value="eur">EUR (€) - Euro</option>
+                                        <option value="gbp">GBP (£) - Great British Pound</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-2 flex items-center gap-x-1">
+                                        <span>Standard Flat Rate Shipping</span>
+                                        <span class="relative group cursor-help">
+                                            <i class="fa-solid fa-circle-info text-gray-300 hover:text-[#C5A26F] text-[10px]"></i>
+                                            <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block w-56 p-2 bg-[#111] text-white text-[9px] font-normal rounded-lg shadow-xl z-50 normal-case leading-relaxed text-center">
+                                                This fee applies for shipping when the cart total does not reach the free shipping threshold. Set to 0 to disable flat rate shipping.
+                                                <span class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-[#111]"></span>
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <div class="relative">
+                                        <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 font-medium">$</span>
+                                        <input type="number" step="0.01" id="stripe-shipping-flat" class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-8 pr-4 py-3 focus:outline-none focus:border-[#C5A26F]" required>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-2 flex items-center gap-x-1">
+                                        <span>Free Shipping Threshold</span>
+                                        <span class="relative group cursor-help">
+                                            <i class="fa-solid fa-circle-info text-gray-300 hover:text-[#C5A26F] text-[10px]"></i>
+                                            <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block w-56 p-2 bg-[#111] text-white text-[9px] font-normal rounded-lg shadow-xl z-50 normal-case leading-relaxed text-center">
+                                                Cart orders with totals at or exceeding this value will automatically receive free shipping.
+                                                <span class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-[#111]"></span>
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <div class="relative">
+                                        <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 font-medium">$</span>
+                                        <input type="number" step="0.01" id="stripe-shipping-threshold" class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-8 pr-4 py-3 focus:outline-none focus:border-[#C5A26F]" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pt-4 flex justify-end">
+                                <button type="submit" class="bg-[#111111] hover:bg-[#C5A26F] text-white px-8 py-3.5 rounded-xl text-xs uppercase tracking-widest font-semibold transition-all">
+                                    Save Payment Settings
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Right: Secrets & Keys -->
+                    <div class="space-y-6">
+                        <form onsubmit="saveStripeSecret(event)" class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+                            <div class="flex items-center justify-between pb-2 border-b">
+                                <h3 class="text-xs uppercase tracking-widest font-bold text-gray-500">Stripe Secret Key</h3>
+                                <span class="text-gray-300 text-base"><i class="fa-solid fa-lock"></i></span>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-1">Stripe Secret Key (sk_test_...)</label>
+                                    <input type="password" id="secret-stripe-secret" placeholder="Unconfigured" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#C5A26F]">
+                                    <span class="text-[9px] text-gray-400 mt-1 block">Your secret key is saved securely on the server and is never exposed in client storefront scripts.</span>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="w-full bg-[#111111] hover:bg-[#C5A26F] text-white py-3 rounded-xl text-xs uppercase tracking-widest font-semibold transition-all">
+                                Update Secret Key
                             </button>
                         </form>
                     </div>
@@ -1451,6 +1553,7 @@
                 populatePlacementsTab();
                 populateProductsTab();
                 populateChatbotTab();
+                populatePaymentsTab();
                 populateThemeTab();
                 populateBrandTab();
                 populateDashboardStats();
@@ -1472,11 +1575,12 @@
                     const secrets = await res.json();
                     const statusEl = document.getElementById('stat-keys-status');
                     
-                    if (secrets.hasGemini || secrets.hasOpenai) {
+                    if (secrets.hasGemini || secrets.hasOpenai || secrets.hasStripe) {
                         statusEl.textContent = 'Configured';
                         statusEl.className = 'text-sm font-bold text-green-600';
                         if (secrets.hasGemini) document.getElementById('secret-gemini').placeholder = '•••••••••••••••• (Configured)';
                         if (secrets.hasOpenai) document.getElementById('secret-openai').placeholder = '•••••••••••••••• (Configured)';
+                        if (secrets.hasStripe) document.getElementById('secret-stripe-secret').placeholder = '•••••••••••••••• (Configured)';
                     } else {
                         statusEl.textContent = 'Unconfigured';
                         statusEl.className = 'text-sm font-bold text-yellow-600';
@@ -1619,6 +1723,74 @@
             if (res) {
                 alert('AI Chatbot settings updated successfully!');
                 populateDashboardStats();
+            }
+        }
+
+        // STRIPE INTEGRATION SETUP
+        function populatePaymentsTab() {
+            if (!storefrontConfig.stripe) {
+                storefrontConfig.stripe = {
+                    enabled: false,
+                    publicKey: '',
+                    currency: 'usd',
+                    shippingFlatRate: 5.99,
+                    freeShippingThreshold: 65
+                };
+            }
+            const st = storefrontConfig.stripe;
+            document.getElementById('stripe-enabled').checked = st.enabled;
+            document.getElementById('stripe-public-key').value = st.publicKey || '';
+            document.getElementById('stripe-currency').value = st.currency || 'usd';
+            document.getElementById('stripe-shipping-flat').value = st.shippingFlatRate !== undefined ? st.shippingFlatRate : 5.99;
+            document.getElementById('stripe-shipping-threshold').value = st.freeShippingThreshold !== undefined ? st.freeShippingThreshold : 65;
+        }
+
+        async function savePaymentsConfig(e) {
+            e.preventDefault();
+            if (!storefrontConfig.stripe) storefrontConfig.stripe = {};
+            
+            storefrontConfig.stripe.enabled = document.getElementById('stripe-enabled').checked;
+            storefrontConfig.stripe.publicKey = document.getElementById('stripe-public-key').value.trim();
+            storefrontConfig.stripe.currency = document.getElementById('stripe-currency').value;
+            storefrontConfig.stripe.shippingFlatRate = parseFloat(document.getElementById('stripe-shipping-flat').value || 0);
+            storefrontConfig.stripe.freeShippingThreshold = parseFloat(document.getElementById('stripe-shipping-threshold').value || 0);
+
+            const res = await saveConfig();
+            if (res) {
+                alert('Stripe configuration saved successfully!');
+                populateDashboardStats();
+            }
+        }
+
+        async function saveStripeSecret(e) {
+            e.preventDefault();
+            const stripeSecret = document.getElementById('secret-stripe-secret').value.trim();
+            if (!stripeSecret) {
+                alert('Please enter a secret key value.');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/secrets', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ stripeSecretKey: stripeSecret })
+                });
+                
+                if (res.ok) {
+                    alert('Stripe Secret Key saved securely on backend!');
+                    document.getElementById('secret-stripe-secret').value = '';
+                    loadSecretsStatus();
+                } else {
+                    const data = await res.json();
+                    alert('Error saving Stripe Secret Key: ' + data.error);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Server request failed.');
             }
         }
 

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You for Your Order • Herban Alchemy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600&display=swap');
+        
+        :root {
+            --gold: #C5A26F;
+            --primary: #111111;
+            --bg: #FAF7F2;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--primary);
+        }
+        
+        .heading-serif {
+            font-family: 'Playfair Display', Georgia, serif;
+        }
+
+        .gold-glow {
+            box-shadow: 0 0 25px rgba(197, 162, 111, 0.2);
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 1.2s ease-out forwards;
+        }
+
+        .animate-draw-check {
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: drawCheck 0.8s 0.3s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes drawCheck {
+            to { stroke-dashoffset: 0; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-white rounded-3xl border border-gray-100 shadow-2xl p-8 md:p-12 text-center animate-fade-in relative overflow-hidden gold-glow">
+        <!-- Luxury Accent Lines -->
+        <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#111111] via-[#C5A26F] to-[#111111]"></div>
+        
+        <!-- Animated Check Ring -->
+        <div class="flex justify-center mb-8">
+            <div class="w-24 h-24 rounded-full bg-[#FAF7F2] border border-[#C5A26F]/20 flex items-center justify-center relative">
+                <!-- Sparkle decorations -->
+                <i class="fa-solid fa-star absolute top-2 right-2 text-[#C5A26F] text-xs animate-ping" style="animation-duration: 3s;"></i>
+                <i class="fa-solid fa-star absolute bottom-3 left-2 text-[#C5A26F] text-[10px] animate-pulse"></i>
+                
+                <svg class="w-12 h-12 text-[#C5A26F]" fill="none" stroke="currentColor" stroke-width="3.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path class="animate-draw-check" stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"></path>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Order Header -->
+        <h1 class="heading-serif text-3xl font-bold tracking-tight text-[#111] mb-3">Order Confirmed</h1>
+        <p class="text-xs uppercase tracking-widest font-semibold text-[#C5A26F] mb-6">Thank you for your purchase</p>
+        
+        <!-- Brand Message -->
+        <div class="space-y-4 mb-8 text-sm text-gray-600 leading-relaxed max-w-sm mx-auto">
+            <p class="font-medium text-gray-800">Your skin is about to glow!</p>
+            <p>We've received your order details and are preparing your fresh, handcrafted botanical products. A confirmation email with tracking updates will be sent shortly.</p>
+        </div>
+
+        <!-- Action Button -->
+        <div class="space-y-3">
+            <a href="index.html" class="block w-full bg-[#111111] hover:bg-[#C5A26F] text-white py-4 rounded-xl text-xs uppercase tracking-widest font-semibold transition-all duration-300 shadow-md">
+                Continue Shopping
+            </a>
+            <p class="text-[10px] text-gray-400">Need help? Email us at <a href="mailto:glow@herbanalchemy.com" class="underline hover:text-[#C5A26F]">glow@herbanalchemy.com</a></p>
+        </div>
+    </div>
+
+    <!-- Script to Clear Cart -->
+    <script>
+        // Clear cart immediately on successful checkout confirmation page load
+        try {
+            localStorage.setItem('herbanCart', '[]');
+            console.log('[Herban Storefront] Cart cleared successfully after successful checkout.');
+        } catch (e) {
+            console.error('Failed to clear cart:', e);
+        }
+    </script>
+</body>
+</html>
