@@ -574,7 +574,7 @@
             });
 
             document.querySelectorAll('footer p, footer div').forEach(el => {
-                if (el.textContent.includes('©') && el.textContent.includes('Herban Alchemy')) {
+                if (el.textContent.includes('©') && el.textContent.includes('Herban Alchemy') && el.children.length === 0) {
                     el.textContent = footer.copyright;
                 }
             });
