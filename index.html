@@ -934,26 +934,32 @@
                     <a href="https://www.instagram.com/herban_alchemynaturalskincare" target="_blank" class="hover:text-[#C5A26F]"><i class="fa-brands fa-instagram"></i></a>
                 </div>
                 <div class="text-[10px] text-gray-400 mt-5">© Herban Alchemy 2026. All rights reserved.</div>
+                <div class="text-[10px] text-gray-400 mt-1.5 flex items-center gap-x-1 font-medium tracking-wide">
+                    Powered by 
+                    <a href="https://lumenlabsatl.com" target="_blank" class="hover:text-[#C5A26F] text-gray-600 transition-colors font-bold underline decoration-[#C5A26F]/40 underline-offset-2 flex items-center gap-x-0.5">
+                        Lumen Labs ATL 🧴
+                    </a>
+                </div>
             </div>
         </div>
     </footer>
 
     <!-- Simple Cart Drawer -->
     <!-- Launch popup: email + shop (dismissible) -->
-    <div id="launch-modal" class="hidden fixed inset-0 z-[110] modal-overlay items-center justify-center p-4 md:p-6" role="dialog" aria-labelledby="launch-modal-title" aria-modal="true">
+    <div id="launch-modal" class="hidden fixed inset-0 z-[110] modal-overlay items-center justify-center p-4 md:p-6" role="dialog" aria-labelledby="launch-modal-title" aria-modal="true" data-variant="atlanta">
         <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="dismissLaunchModal()"></div>
         <div class="modal-panel relative w-full max-w-lg bg-white text-[#111] rounded-3xl shadow-2xl overflow-hidden">
             <button type="button" onclick="dismissLaunchModal()" class="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-black/5 hover:bg-black/10 text-2xl leading-none" aria-label="Close">&times;</button>
-            <div class="bg-[#111] text-white px-8 pt-10 pb-8 text-center">
-                <div class="text-[10px] tracking-[0.3em] text-[#C5A26F] font-semibold mb-3">LIMITED EDITION DROP</div>
+            <div id="launch-modal-header" class="bg-[#111] text-white px-8 pt-10 pb-8 text-center">
+                <div id="launch-modal-badge" class="text-[10px] tracking-[0.3em] text-[#C5A26F] font-semibold mb-3">LIMITED EDITION DROP</div>
                 <h2 id="launch-modal-title" class="heading-serif text-3xl md:text-4xl mb-2">The Atlanta Collection</h2>
-                <p class="text-white/80 text-sm md:text-base font-light">Three new glazes. One iconic city. Be first to shop &amp; glow.</p>
+                <p id="launch-modal-desc" class="text-white/80 text-sm md:text-base font-light">Three new glazes. One iconic city. Be first to shop &amp; glow.</p>
             </div>
             <div class="p-8">
                 <form id="launch-email-form" onsubmit="submitLaunchEmail(event)" class="space-y-4">
                     <label for="launch-email" class="block text-xs font-semibold tracking-widest text-gray-500 uppercase">Email for drop alerts</label>
                     <input type="email" id="launch-email" required placeholder="you@email.com" class="w-full border border-gray-200 rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:border-[#C5A26F]">
-                    <button type="submit" class="w-full bg-[#111] hover:bg-[#C5A26F] text-white font-semibold py-4 rounded-2xl tracking-wider text-sm transition-colors">
+                    <button id="launch-modal-submit-btn" type="submit" class="w-full bg-[#111] hover:bg-[#C5A26F] text-white font-semibold py-4 rounded-2xl tracking-wider text-sm transition-colors">
                         NOTIFY ME &amp; GET EARLY ACCESS
                     </button>
                 </form>
@@ -961,7 +967,7 @@
                     <i class="fa-solid fa-check-circle text-[#C5A26F] mr-1"></i> You're on the list. We'll email you when the drop restocks.
                 </div>
                 <div class="flex flex-col gap-3 mt-6">
-                    <button type="button" onclick="shopFromLaunchModal()" class="w-full border-2 border-[#111] text-[#111] hover:bg-[#111] hover:text-white font-semibold py-3.5 rounded-2xl text-sm tracking-wider transition-colors">
+                    <button id="launch-modal-cta-btn" type="button" onclick="shopFromLaunchModal()" class="w-full border-2 border-[#111] text-[#111] hover:bg-[#111] hover:text-white font-semibold py-3.5 rounded-2xl text-sm tracking-wider transition-colors">
                         SHOP THE ATLANTA COLLECTION
                     </button>
                     <button type="button" onclick="dismissLaunchModal()" class="text-xs text-gray-400 hover:text-[#111] tracking-wider">
@@ -1159,9 +1165,82 @@
             addToCart(name, 'men', price, '', img);
         }
 
+        // 3 Popup variations for rotation
+        const popupVariants = [
+            {
+                id: "atlanta",
+                badge: "LIMITED EDITION DROP",
+                title: "The Atlanta Collection",
+                description: "Three new glazes. One iconic city. Be first to shop & glow.",
+                buttonText: "NOTIFY ME & GET EARLY ACCESS",
+                ctaText: "SHOP THE ATLANTA COLLECTION",
+                headerClass: "bg-[#111] text-white border-b border-[#C5A26F]/20",
+                badgeClass: "text-[#C5A26F]",
+                submitBtnClass: "bg-[#111] hover:bg-[#C5A26F] text-white border border-transparent",
+                ctaBtnClass: "border-2 border-[#111] text-[#111] hover:bg-[#111] hover:text-white"
+            },
+            {
+                id: "masterclass",
+                badge: "FREE RITUAL GUIDE",
+                title: "Melanin Skincare Routine",
+                description: "Get our proprietary 5-step ritual for intense hydration & ashiness protection. Sent to your inbox.",
+                buttonText: "DOWNLOAD FREE GLOW GUIDE",
+                ctaText: "EXPLORE THE RITUAL FORMULAS",
+                headerClass: "bg-[#FAF7F2] text-[#111] border-b border-[#C5A26F]/30",
+                badgeClass: "text-[#C5A26F]",
+                submitBtnClass: "bg-[#C5A26F] hover:bg-[#111] text-white border border-transparent",
+                ctaBtnClass: "border-2 border-[#C5A26F] text-[#C5A26F] hover:bg-[#C5A26F] hover:text-white"
+            },
+            {
+                id: "discount",
+                badge: "EXCLUSIVE WELCOME",
+                title: "Get 15% Off Your First Order",
+                description: "Join the Herban Inner Circle. Unlock skincare tips, VIP launches, and 15% off your first luxury ritual.",
+                buttonText: "CLAIM MY 15% DISCOUNT",
+                ctaText: "SHOP NEW ARRIVALS",
+                headerClass: "bg-[#1D352F] text-white border-b border-[#C5A26F]/20", // Deep luxury forest green
+                badgeClass: "text-[#C5A26F]",
+                submitBtnClass: "bg-[#C5A26F] hover:bg-white hover:text-[#111] text-white border border-transparent",
+                ctaBtnClass: "border-2 border-[#1D352F] text-[#1D352F] hover:bg-[#1D352F] hover:text-white"
+            }
+        ];
+
         // Launch modal
         function showLaunchModal() {
             const modal = document.getElementById('launch-modal');
+            
+            // Rotate popup on fresh load
+            let popupIdx = parseInt(localStorage.getItem('herbanPopupIndex') || '0', 10);
+            const activeVariant = popupVariants[popupIdx % popupVariants.length];
+            localStorage.setItem('herbanPopupIndex', (popupIdx + 1).toString());
+            
+            // Set active variant ID
+            modal.setAttribute('data-variant', activeVariant.id);
+            
+            // Populate content
+            const header = document.getElementById('launch-modal-header');
+            const badge = document.getElementById('launch-modal-badge');
+            const title = document.getElementById('launch-modal-title');
+            const desc = document.getElementById('launch-modal-desc');
+            const submitBtn = document.getElementById('launch-modal-submit-btn');
+            const ctaBtn = document.getElementById('launch-modal-cta-btn');
+            
+            if (header) header.className = `px-8 pt-10 pb-8 text-center ${activeVariant.headerClass}`;
+            if (badge) {
+                badge.className = `text-[10px] tracking-[0.3em] font-semibold mb-3 ${activeVariant.badgeClass}`;
+                badge.textContent = activeVariant.badge;
+            }
+            if (title) title.textContent = activeVariant.title;
+            if (desc) desc.textContent = activeVariant.description;
+            if (submitBtn) {
+                submitBtn.className = `w-full font-semibold py-4 rounded-2xl tracking-wider text-sm transition-colors ${activeVariant.submitBtnClass}`;
+                submitBtn.textContent = activeVariant.buttonText;
+            }
+            if (ctaBtn) {
+                ctaBtn.className = `w-full font-semibold py-3.5 rounded-2xl text-sm tracking-wider transition-colors ${activeVariant.ctaBtnClass}`;
+                ctaBtn.textContent = activeVariant.ctaText;
+            }
+            
             modal.classList.remove('hidden');
             modal.classList.add('flex');
             document.body.style.overflow = 'hidden';
@@ -1176,15 +1255,44 @@
         }
 
         function shopFromLaunchModal() {
+            const variantId = document.getElementById('launch-modal').getAttribute('data-variant') || 'atlanta';
             dismissLaunchModal();
-            document.getElementById('atlanta-collection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            if (variantId === 'atlanta') {
+                document.getElementById('atlanta-collection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else if (variantId === 'masterclass') {
+                document.getElementById('every-shade')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                window.location.href = 'shop.html';
+            }
         }
 
-        function submitLaunchEmail(e) {
+        async function submitLaunchEmail(e) {
             e.preventDefault();
             const input = document.getElementById('launch-email');
             const email = (input?.value || '').trim().toLowerCase();
             if (!email) return;
+
+            // Get current active popup variant
+            const variantId = document.getElementById('launch-modal').getAttribute('data-variant') || 'default';
+            const variantTitle = document.getElementById('launch-modal-title').textContent || 'The Atlanta Collection';
+
+            try {
+                const res = await fetch('/api/leads', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: email,
+                        variantId: variantId,
+                        variantTitle: variantTitle
+                    })
+                });
+                if (!res.ok) {
+                    console.error('Failed to submit email to server');
+                }
+            } catch (err) {
+                console.error('Error sending lead to server:', err);
+            }
 
             const list = JSON.parse(localStorage.getItem('herbanEmailList') || '[]');
             if (!list.includes(email)) list.push(email);

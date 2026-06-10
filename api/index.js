@@ -23,6 +23,7 @@ app.use(express.static(path.join(process.cwd(), './')));
 
 const CONFIG_PATH = path.join(process.cwd(), 'data', 'config.json');
 const SECRETS_PATH = path.join(process.cwd(), 'data', 'secrets.json');
+const LEADS_PATH = path.join(process.cwd(), 'data', 'leads.json');
 
 // Helper to read JSON
 function readJSON(filePath, defaultData = {}) {
@@ -138,6 +139,74 @@ app.post('/api/login', (req, res) => {
         res.json({ success: true, token: adminPassword });
     } else {
         res.status(401).json({ error: 'Invalid password' });
+    }
+});
+
+// GET LEADS (Protected)
+app.get('/api/leads', checkAuth, (req, res) => {
+    const leadsData = readJSON(LEADS_PATH, { leads: [] });
+    res.json(leadsData);
+});
+
+// POST LEAD (Public)
+app.post('/api/leads', (req, res) => {
+    const { email, variantId, variantTitle } = req.body;
+    if (!email || !email.includes('@')) {
+        return res.status(400).json({ error: 'A valid email is required' });
+    }
+
+    const leadsData = readJSON(LEADS_PATH, { leads: [] });
+    
+    // Check if email already exists
+    const exists = leadsData.leads.some(l => l.email === email.trim().toLowerCase());
+    if (!exists) {
+        leadsData.leads.push({
+            id: Date.now().toString() + '_' + Math.random().toString(36).substr(2, 5),
+            email: email.trim().toLowerCase(),
+            variantId: variantId || 'default',
+            variantTitle: variantTitle || 'The Atlanta Collection',
+            timestamp: new Date().toISOString(),
+            status: 'Subscribed'
+        });
+        const success = writeJSON(LEADS_PATH, leadsData);
+        if (!success) {
+            return res.status(500).json({ error: 'Failed to save lead' });
+        }
+    }
+    
+    res.json({ success: true });
+});
+
+// DELETE LEAD (Protected)
+app.delete('/api/leads', checkAuth, (req, res) => {
+    const { id, clearAll } = req.query;
+    
+    if (clearAll === 'true') {
+        const success = writeJSON(LEADS_PATH, { leads: [] });
+        if (success) {
+            return res.json({ success: true, message: 'All leads cleared' });
+        } else {
+            return res.status(500).json({ error: 'Failed to clear leads' });
+        }
+    }
+
+    if (!id) {
+        return res.status(400).json({ error: 'Lead ID is required' });
+    }
+
+    const leadsData = readJSON(LEADS_PATH, { leads: [] });
+    const originalLength = leadsData.leads.length;
+    leadsData.leads = leadsData.leads.filter(l => l.id !== id);
+    
+    if (leadsData.leads.length === originalLength) {
+        return res.status(404).json({ error: 'Lead not found' });
+    }
+
+    const success = writeJSON(LEADS_PATH, leadsData);
+    if (success) {
+        res.json({ success: true, message: 'Lead deleted successfully' });
+    } else {
+        res.status(500).json({ error: 'Failed to delete lead' });
     }
 });
 
@@ -429,6 +498,13 @@ app.post('/api/create-checkout-session', async (req, res) => {
         // Sum total amount for shipping calculations
         const totalAmount = items.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
+        // Resolve absolute URL helper
+        const getAbsoluteUrl = (pathStr) => {
+            const host = req.get('host');
+            const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+            return `${protocol}://${host}${pathStr}`;
+        };
+
         // Format cart items to Stripe Line Items
         const line_items = items.map(item => {
             const line = {
@@ -445,11 +521,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
             // Safely append absolute image URL if present
             if (item.image) {
                 try {
-                    // Try to resolve absolute image URL for Stripe display
-                    const host = req.get('host');
-                    const protocol = req.protocol;
-                    const imageUrl = new URL(item.image, `${protocol}://${host}`).href;
-                    line.price_data.product_data.images = [imageUrl];
+                    line.price_data.product_data.images = [getAbsoluteUrl('/' + item.image.replace(/^\/+/, ''))];
                 } catch (e) {
                     // Ignore image URL formatting errors
                 }
@@ -482,8 +554,8 @@ app.post('/api/create-checkout-session', async (req, res) => {
             payment_method_types: ['card'],
             line_items,
             mode: 'payment',
-            success_url: `${req.protocol}://${req.get('host')}/success.html?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${req.protocol}://${req.get('host')}/index.html?cart_open=true`,
+            success_url: getAbsoluteUrl('/success.html?session_id={CHECKOUT_SESSION_ID}'),
+            cancel_url: getAbsoluteUrl('/index.html?cart_open=true'),
             shipping_address_collection: {
                 allowed_countries: ['US', 'CA', 'GB']
             },
