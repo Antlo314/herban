@@ -3,6 +3,7 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const dotenv = require('dotenv');
+const os = require('os');
 const Stripe = require('stripe');
 
 dotenv.config();
@@ -21,12 +22,30 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 // Serve static frontend files
 app.use(express.static(path.join(process.cwd(), './')));
 
-const CONFIG_PATH = path.join(process.cwd(), 'data', 'config.json');
-const SECRETS_PATH = path.join(process.cwd(), 'data', 'secrets.json');
-const LEADS_PATH = path.join(process.cwd(), 'data', 'leads.json');
+const CONFIG_PATH = path.join(__dirname, '..', 'data', 'config.json');
+const SECRETS_PATH = path.join(__dirname, '..', 'data', 'secrets.json');
+const LEADS_PATH = path.join(__dirname, '..', 'data', 'leads.json');
 
-// Helper to read JSON
+const TMP_CONFIG_PATH = path.join(os.tmpdir(), 'herban_config.json');
+const TMP_SECRETS_PATH = path.join(os.tmpdir(), 'herban_secrets.json');
+const TMP_LEADS_PATH = path.join(os.tmpdir(), 'herban_leads.json');
+
+// Helper to read JSON with /tmp fallback support
 function readJSON(filePath, defaultData = {}) {
+    let tmpPath;
+    if (filePath === CONFIG_PATH) tmpPath = TMP_CONFIG_PATH;
+    if (filePath === SECRETS_PATH) tmpPath = TMP_SECRETS_PATH;
+    if (filePath === LEADS_PATH) tmpPath = TMP_LEADS_PATH;
+
+    if (tmpPath && fs.existsSync(tmpPath)) {
+        try {
+            const raw = fs.readFileSync(tmpPath, 'utf8');
+            return JSON.parse(raw);
+        } catch (err) {
+            console.error(`Error reading temp file ${tmpPath}:`, err);
+        }
+    }
+
     try {
         if (!fs.existsSync(filePath)) {
             // Ensure dir exists
@@ -42,16 +61,97 @@ function readJSON(filePath, defaultData = {}) {
     }
 }
 
-// Helper to write JSON
+// Helper to write JSON with /tmp fallback support
 function writeJSON(filePath, data) {
     try {
         fs.mkdirSync(path.dirname(filePath), { recursive: true });
         fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
         return true;
     } catch (err) {
-        console.error(`Error writing ${filePath}:`, err);
+        console.error(`Error writing ${filePath}, attempting temp fallback:`, err);
+        try {
+            let tmpPath;
+            if (filePath === CONFIG_PATH) tmpPath = TMP_CONFIG_PATH;
+            if (filePath === SECRETS_PATH) tmpPath = TMP_SECRETS_PATH;
+            if (filePath === LEADS_PATH) tmpPath = TMP_LEADS_PATH;
+
+            if (tmpPath) {
+                fs.mkdirSync(path.dirname(tmpPath), { recursive: true });
+                fs.writeFileSync(tmpPath, JSON.stringify(data, null, 2), 'utf8');
+                console.log(`Successfully wrote to temp fallback ${tmpPath}`);
+                return true;
+            }
+        } catch (tmpErr) {
+            console.error(`Error writing to temp fallback:`, tmpErr);
+        }
         return false;
     }
+}
+
+// Helper to merge config with environment variables dynamically
+function getMergedConfig() {
+    const config = readJSON(CONFIG_PATH);
+    
+    if (!config.stripe) {
+        config.stripe = {
+            enabled: false,
+            publicKey: '',
+            currency: 'usd',
+            shippingFlatRate: 5.99,
+            freeShippingThreshold: 65
+        };
+    }
+    if (!config.chatbot) {
+        config.chatbot = {
+            enabled: true,
+            name: "Aura",
+            greeting: "Hi there! I'm Aura, your Herban Alchemy skincare guide.",
+            systemPrompt: "",
+            model: "gemini"
+        };
+    }
+
+    // Merge Stripe overrides
+    if (process.env.STRIPE_ENABLED !== undefined) {
+        config.stripe.enabled = process.env.STRIPE_ENABLED === 'true';
+    } else if (process.env.STRIPE_SECRET_KEY || process.env.STRIPE_PUBLISHABLE_KEY) {
+        config.stripe.enabled = true;
+    }
+    
+    if (process.env.STRIPE_PUBLISHABLE_KEY) {
+        config.stripe.publicKey = process.env.STRIPE_PUBLISHABLE_KEY;
+    } else if (process.env.STRIPE_PUBLIC_KEY) {
+        config.stripe.publicKey = process.env.STRIPE_PUBLIC_KEY;
+    }
+    
+    if (process.env.STRIPE_CURRENCY) {
+        config.stripe.currency = process.env.STRIPE_CURRENCY;
+    }
+    if (process.env.STRIPE_SHIPPING_FLAT_RATE) {
+        config.stripe.shippingFlatRate = parseFloat(process.env.STRIPE_SHIPPING_FLAT_RATE);
+    }
+    if (process.env.STRIPE_FREE_SHIPPING_THRESHOLD) {
+        config.stripe.freeShippingThreshold = parseFloat(process.env.STRIPE_FREE_SHIPPING_THRESHOLD);
+    }
+
+    // Merge Chatbot overrides
+    if (process.env.CHATBOT_ENABLED !== undefined) {
+        config.chatbot.enabled = process.env.CHATBOT_ENABLED === 'true';
+    }
+    if (process.env.CHATBOT_NAME) {
+        config.chatbot.name = process.env.CHATBOT_NAME;
+    }
+    if (process.env.CHATBOT_GREETING) {
+        config.chatbot.greeting = process.env.CHATBOT_GREETING;
+    }
+    if (process.env.CHATBOT_MODEL) {
+        config.chatbot.model = process.env.CHATBOT_MODEL;
+    }
+    if (process.env.CHATBOT_SYSTEM_PROMPT) {
+        config.chatbot.systemPrompt = process.env.CHATBOT_SYSTEM_PROMPT;
+    }
+
+    return config;
 }
 
 // Auth Middleware
@@ -71,7 +171,7 @@ function checkAuth(req, res, next) {
 
 // PUBLIC CONFIG
 app.get('/api/config', (req, res) => {
-    const config = readJSON(CONFIG_PATH);
+    const config = getMergedConfig();
     res.json(config);
 });
 
@@ -217,7 +317,7 @@ app.post('/api/chat', async (req, res) => {
         return res.status(400).json({ error: 'Message is required' });
     }
 
-    const config = readJSON(CONFIG_PATH);
+    const config = getMergedConfig();
     const secrets = readJSON(SECRETS_PATH);
     const chatbot = config.chatbot || { enabled: true, model: 'gemini', systemPrompt: '' };
     const isThemeGen = req.body.isThemeGen || false;
@@ -256,7 +356,7 @@ app.post('/api/chat', async (req, res) => {
                 parts: [{ text: message }]
             });
 
-            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`;
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`;
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -479,7 +579,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
     }
 
     try {
-        const config = readJSON(CONFIG_PATH);
+        const config = getMergedConfig();
         const secrets = readJSON(SECRETS_PATH);
 
         const stripeEnabled = config.stripe && config.stripe.enabled;

@@ -36,8 +36,30 @@
             const res = await fetch('/api/config');
             if (res.ok) {
                 const data = await res.json();
-                currentConfig = data;
-                window.currentConfig = data; // Expose globally for cart/product lookups
+                
+                // Safe deep merge to prevent TypeError crashes with empty objects/properties
+                currentConfig = {
+                    ...currentConfig,
+                    ...data,
+                    banner: { ...currentConfig.banner, ...(data.banner || {}) },
+                    placements: { ...currentConfig.placements, ...(data.placements || {}) },
+                    chatbot: { ...currentConfig.chatbot, ...(data.chatbot || {}) },
+                    stripe: { ...currentConfig.stripe, ...(data.stripe || {}) }
+                };
+                if (data.theme) {
+                    currentConfig.theme = { ...(currentConfig.theme || {}), ...data.theme };
+                }
+                if (data.hero) {
+                    currentConfig.hero = { ...(currentConfig.hero || {}), ...data.hero };
+                }
+                if (data.footer) {
+                    currentConfig.footer = { ...(currentConfig.footer || {}), ...data.footer };
+                }
+                if (data.products) {
+                    currentConfig.products = data.products;
+                }
+                
+                window.currentConfig = currentConfig; // Expose globally for cart/product lookups
                 console.log('[Herban Engine] Dynamic configuration loaded successfully.');
             }
         } catch (err) {
@@ -52,10 +74,20 @@
         applyThemeStyles();
         applyThemeImages();
         applyBrandSettings();
-        if (currentConfig.chatbot.enabled) {
+        if (currentConfig.chatbot && currentConfig.chatbot.enabled) {
             injectChatbotWidget();
         }
         setupCheckoutOverride();
+
+        // Auto open cart if url parameter cart_open=true is present
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('cart_open') === 'true' && typeof showCart === 'function') {
+                showCart();
+            }
+        } catch (e) {
+            console.warn('[Herban Engine] Failed to auto-open cart:', e);
+        }
     }
 
     // Scan the DOM heuristically to synchronize pricing from config.json with static HTML cards
