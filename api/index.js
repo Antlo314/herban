@@ -126,9 +126,9 @@ function getMergedConfig() {
     }
     
     if (process.env.STRIPE_PUBLISHABLE_KEY) {
-        config.stripe.publicKey = process.env.STRIPE_PUBLISHABLE_KEY;
+        config.stripe.publicKey = process.env.STRIPE_PUBLISHABLE_KEY.trim();
     } else if (process.env.STRIPE_PUBLIC_KEY) {
-        config.stripe.publicKey = process.env.STRIPE_PUBLIC_KEY;
+        config.stripe.publicKey = process.env.STRIPE_PUBLIC_KEY.trim();
     }
     
     if (process.env.STRIPE_CURRENCY) {
@@ -217,16 +217,16 @@ app.post('/api/secrets', checkAuth, (req, res) => {
     const secrets = readJSON(SECRETS_PATH);
 
     if (geminiApiKey !== undefined && geminiApiKey !== '••••••••••••••••') {
-        secrets.geminiApiKey = geminiApiKey;
+        secrets.geminiApiKey = typeof geminiApiKey === 'string' ? geminiApiKey.trim() : geminiApiKey;
     }
     if (openaiApiKey !== undefined && openaiApiKey !== '••••••••••••••••') {
-        secrets.openaiApiKey = openaiApiKey;
+        secrets.openaiApiKey = typeof openaiApiKey === 'string' ? openaiApiKey.trim() : openaiApiKey;
     }
     if (stripeSecretKey !== undefined && stripeSecretKey !== '••••••••••••••••') {
-        secrets.stripeSecretKey = stripeSecretKey;
+        secrets.stripeSecretKey = typeof stripeSecretKey === 'string' ? stripeSecretKey.trim() : stripeSecretKey;
     }
     if (adminPassword && adminPassword.trim() !== '') {
-        secrets.adminPassword = adminPassword;
+        secrets.adminPassword = typeof adminPassword === 'string' ? adminPassword.trim() : adminPassword;
     }
 
     const success = writeJSON(SECRETS_PATH, secrets);
@@ -779,13 +779,20 @@ app.post('/api/create-checkout-session', async (req, res) => {
         const secrets = readJSON(SECRETS_PATH);
 
         const stripeEnabled = config.stripe && config.stripe.enabled;
-        const stripeSecretKey = process.env.STRIPE_SECRET_KEY || secrets.stripeSecretKey;
+        const rawSecretKey = process.env.STRIPE_SECRET_KEY || secrets.stripeSecretKey;
+        const stripeSecretKey = typeof rawSecretKey === 'string' ? rawSecretKey.trim() : '';
 
         if (!stripeEnabled || !stripeSecretKey) {
             return res.status(400).json({ error: 'Stripe payments are not configured or disabled' });
         }
 
-        const stripe = new Stripe(stripeSecretKey);
+        // Initialize Stripe client with the Fetch HTTP client for compatibility with serverless environments (like Vercel)
+        // and add timeout/retry controls for network resilience.
+        const stripe = new Stripe(stripeSecretKey, {
+            httpClient: Stripe.createFetchHttpClient(),
+            maxNetworkRetries: 3,
+            timeout: 10000
+        });
 
         const currency = config.stripe.currency || 'usd';
         const shippingFlatRate = parseFloat(config.stripe.shippingFlatRate || 5.99);

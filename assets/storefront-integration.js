@@ -742,19 +742,8 @@
 
             const stripeEnabled = currentConfig.stripe && currentConfig.stripe.enabled;
             if (!stripeEnabled) {
-                // Fallback to the demo alert
-                const total = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
-                alert(`Thank you! This is a demo checkout.\n\nYour order total would be $${total}.\n\nIn a real build we would integrate Stripe / Shopify checkout here.`);
-                
-                // Clear cart (as the demo version did)
-                localStorage.setItem('herbanCart', '[]');
-                if (typeof updateCartCount === 'function') updateCartCount();
-                if (typeof hideCart === 'function') hideCart();
-                
-                // Redirect to account dashboard after demo checkout to show their new order
-                if (customerToken) {
-                    window.location.href = 'account.html';
-                }
+                // Redirect directly to the 'Thank You' (success.html) page for the demo checkout
+                window.location.href = 'success.html';
                 return;
             }
 
