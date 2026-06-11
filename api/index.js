@@ -371,10 +371,21 @@ app.get('/api/customer/profile', checkCustomerAuth, (req, res) => {
 
 // CUSTOMER UPDATE PROFILE
 app.post('/api/customer/update', checkCustomerAuth, (req, res) => {
-    const { name, phone, address } = req.body;
+    const { name, email, phone, address } = req.body;
     const customer = req.customer;
     
     if (name) customer.name = name.trim();
+    if (email) {
+        const cleanEmail = email.trim().toLowerCase();
+        if (cleanEmail !== customer.email) {
+            // Check if email already exists
+            const exists = req.customersData.customers.some(c => c.email === cleanEmail);
+            if (exists) {
+                return res.status(400).json({ error: 'An account with this email already exists' });
+            }
+            customer.email = cleanEmail;
+        }
+    }
     if (phone !== undefined) customer.phone = phone.trim();
     if (address) {
         customer.address = {
@@ -758,7 +769,7 @@ app.post('/api/upload', checkAuth, (req, res) => {
 
 // CREATE STRIPE CHECKOUT SESSION ENDPOINT (Public)
 app.post('/api/create-checkout-session', async (req, res) => {
-    const { items } = req.body;
+    const { items, email } = req.body;
     if (!items || !Array.isArray(items) || items.length === 0) {
         return res.status(400).json({ error: 'Cart items are required' });
     }
@@ -843,6 +854,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
             payment_method_types: ['card'],
             line_items,
             mode: 'payment',
+            customer_email: email || undefined,
             success_url: getAbsoluteUrl('/success.html?session_id={CHECKOUT_SESSION_ID}'),
             cancel_url: getAbsoluteUrl('/index.html?cart_open=true'),
             shipping_address_collection: {

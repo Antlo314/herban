@@ -775,7 +775,10 @@
                 const res = await fetch('/api/create-checkout-session', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ items: cart })
+                    body: JSON.stringify({ 
+                        items: cart,
+                        email: localStorage.getItem('herbanCustomerEmail') || ''
+                    })
                 });
 
                 if (res.ok) {

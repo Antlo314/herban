@@ -361,6 +361,10 @@
                                 <input type="text" id="edit-name" class="auth-input" required autocomplete="name">
                             </div>
                             <div>
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Email Address</label>
+                                <input type="email" id="edit-email" class="auth-input" required autocomplete="email">
+                            </div>
+                            <div>
                                 <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Phone</label>
                                 <input type="tel" id="edit-phone" class="auth-input" autocomplete="tel">
                             </div>
@@ -623,6 +627,7 @@
                     });
                     if (res.ok) {
                         const data = await res.json();
+                        localStorage.setItem('herbanCustomerEmail', data.customer.email);
                         currentCustomer = data.customer;
                         renderDashboard();
                         return;
@@ -692,6 +697,7 @@
                 const data = await res.json();
                 if (res.ok && data.success) {
                     localStorage.setItem('herbanCustomerToken', data.token);
+                    localStorage.setItem('herbanCustomerEmail', data.customer.email);
                     currentCustomer = data.customer;
                     renderDashboard();
                 } else {
@@ -725,6 +731,7 @@
                 const data = await res.json();
                 if (res.ok && data.success) {
                     localStorage.setItem('herbanCustomerToken', data.token);
+                    localStorage.setItem('herbanCustomerEmail', data.customer.email);
                     currentCustomer = data.customer;
                     renderDashboard();
                 } else {
@@ -762,6 +769,7 @@
 
             // Populate edit inputs
             document.getElementById('edit-name').value = currentCustomer.name;
+            document.getElementById('edit-email').value = currentCustomer.email;
             document.getElementById('edit-phone').value = currentCustomer.phone || '';
             document.getElementById('edit-street').value = addr.street || '';
             document.getElementById('edit-city').value = addr.city || '';
@@ -867,6 +875,7 @@
 
             const token = localStorage.getItem('herbanCustomerToken');
             const name = document.getElementById('edit-name').value;
+            const email = document.getElementById('edit-email').value;
             const phone = document.getElementById('edit-phone').value;
             const street = document.getElementById('edit-street').value;
             const city = document.getElementById('edit-city').value;
@@ -882,6 +891,7 @@
                     },
                     body: JSON.stringify({
                         name,
+                        email,
                         phone,
                         address: { street, city, state, zip }
                     })
@@ -913,6 +923,7 @@
         // Log out customer session
         function handleCustomerLogout() {
             localStorage.removeItem('herbanCustomerToken');
+            localStorage.removeItem('herbanCustomerEmail');
             currentCustomer = null;
             window.location.reload();
         }
