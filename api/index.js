@@ -168,8 +168,8 @@ function checkAuth(req, res, next) {
         return res.status(401).json({ error: 'Unauthorized: Missing token' });
     }
     const token = authHeader.split(' ')[1];
-    const secrets = readJSON(SECRETS_PATH, { adminPassword: 'admin' });
-    const adminPassword = process.env.ADMIN_PASSWORD || secrets.adminPassword || 'admin';
+    const secrets = readJSON(SECRETS_PATH, { adminPassword: 'kiara26!' });
+    const adminPassword = process.env.ADMIN_PASSWORD || secrets.adminPassword || 'kiara26!';
     if (token !== adminPassword) {
         return res.status(403).json({ error: 'Forbidden: Invalid password' });
     }
@@ -240,8 +240,8 @@ app.post('/api/secrets', checkAuth, (req, res) => {
 // LOGIN
 app.post('/api/login', (req, res) => {
     const { password } = req.body;
-    const secrets = readJSON(SECRETS_PATH, { adminPassword: 'admin' });
-    const adminPassword = process.env.ADMIN_PASSWORD || secrets.adminPassword || 'admin';
+    const secrets = readJSON(SECRETS_PATH, { adminPassword: 'kiara26!' });
+    const adminPassword = process.env.ADMIN_PASSWORD || secrets.adminPassword || 'kiara26!';
     if (password === adminPassword) {
         res.json({ success: true, token: adminPassword });
     } else {
