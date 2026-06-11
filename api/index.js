@@ -5,11 +5,14 @@ const path = require('path');
 const dotenv = require('dotenv');
 const os = require('os');
 const Stripe = require('stripe');
+const crypto = require('crypto');
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+app.enable('trust proxy');
 
 app.use(cors());
 app.use((req, res, next) => {
@@ -25,10 +28,12 @@ app.use(express.static(path.join(process.cwd(), './')));
 const CONFIG_PATH = path.join(__dirname, '..', 'data', 'config.json');
 const SECRETS_PATH = path.join(__dirname, '..', 'data', 'secrets.json');
 const LEADS_PATH = path.join(__dirname, '..', 'data', 'leads.json');
+const CUSTOMERS_PATH = path.join(__dirname, '..', 'data', 'customers.json');
 
 const TMP_CONFIG_PATH = path.join(os.tmpdir(), 'herban_config.json');
 const TMP_SECRETS_PATH = path.join(os.tmpdir(), 'herban_secrets.json');
 const TMP_LEADS_PATH = path.join(os.tmpdir(), 'herban_leads.json');
+const TMP_CUSTOMERS_PATH = path.join(os.tmpdir(), 'herban_customers.json');
 
 // Helper to read JSON with /tmp fallback support
 function readJSON(filePath, defaultData = {}) {
@@ -36,6 +41,7 @@ function readJSON(filePath, defaultData = {}) {
     if (filePath === CONFIG_PATH) tmpPath = TMP_CONFIG_PATH;
     if (filePath === SECRETS_PATH) tmpPath = TMP_SECRETS_PATH;
     if (filePath === LEADS_PATH) tmpPath = TMP_LEADS_PATH;
+    if (filePath === CUSTOMERS_PATH) tmpPath = TMP_CUSTOMERS_PATH;
 
     if (tmpPath && fs.existsSync(tmpPath)) {
         try {
@@ -74,6 +80,7 @@ function writeJSON(filePath, data) {
             if (filePath === CONFIG_PATH) tmpPath = TMP_CONFIG_PATH;
             if (filePath === SECRETS_PATH) tmpPath = TMP_SECRETS_PATH;
             if (filePath === LEADS_PATH) tmpPath = TMP_LEADS_PATH;
+            if (filePath === CUSTOMERS_PATH) tmpPath = TMP_CUSTOMERS_PATH;
 
             if (tmpPath) {
                 fs.mkdirSync(path.dirname(tmpPath), { recursive: true });
@@ -240,6 +247,184 @@ app.post('/api/login', (req, res) => {
     } else {
         res.status(401).json({ error: 'Invalid password' });
     }
+});
+
+// ==========================================
+// CUSTOMER AUTHENTICATION & MANAGEMENT
+// ==========================================
+
+// CUSTOMER AUTH HELPERS
+function hashPassword(password) {
+    return crypto.createHash('sha256').update(password).digest('hex');
+}
+
+function checkCustomerAuth(req, res, next) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Unauthorized: Missing token' });
+    }
+    const token = authHeader.split(' ')[1];
+    const customersData = readJSON(CUSTOMERS_PATH, { customers: [] });
+    const customer = customersData.customers.find(c => c.sessionToken === token);
+    if (!customer) {
+        return res.status(403).json({ error: 'Forbidden: Invalid token' });
+    }
+    req.customer = customer;
+    req.customersData = customersData;
+    next();
+}
+
+// CUSTOMER REGISTER
+app.post('/api/customer/register', (req, res) => {
+    const { name, email, password, phone, address } = req.body;
+    if (!name || !email || !password) {
+        return res.status(400).json({ error: 'Name, email, and password are required' });
+    }
+    const customersData = readJSON(CUSTOMERS_PATH, { customers: [] });
+    const cleanEmail = email.trim().toLowerCase();
+    if (customersData.customers.some(c => c.email === cleanEmail)) {
+        return res.status(400).json({ error: 'An account with this email already exists' });
+    }
+
+    const customerId = 'cust_' + Math.random().toString(36).substr(2, 9);
+    const token = crypto.randomBytes(16).toString('hex');
+
+    // Seed with 2 realistic mock past orders
+    const mockOrders = [
+        {
+            orderId: 'HA-' + Math.floor(100000 + Math.random() * 900000),
+            date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+            total: 76.00,
+            status: 'Delivered',
+            items: [
+                { id: 1, name: 'Sweet Auburn Butter Glaze', qty: 2, price: 38.00, image: 'assets/atlanta-collection/sweet-auburn-le-card.jpg' }
+            ]
+        },
+        {
+            orderId: 'HA-' + Math.floor(100000 + Math.random() * 900000),
+            date: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
+            total: 34.00,
+            status: 'Delivered',
+            items: [
+                { id: 4, name: 'Raw White Shea Butter', qty: 1, price: 34.00, image: 'assets/raw-white-shea-le-card.jpg' }
+            ]
+        }
+    ];
+
+    const newCustomer = {
+        id: customerId,
+        name: name.trim(),
+        email: cleanEmail,
+        passwordHash: hashPassword(password),
+        phone: phone ? phone.trim() : '',
+        address: address || { street: '', city: '', state: '', zip: '' },
+        orders: mockOrders,
+        sessionToken: token,
+        createdAt: new Date().toISOString()
+    };
+
+    customersData.customers.push(newCustomer);
+    const success = writeJSON(CUSTOMERS_PATH, customersData);
+    if (!success) {
+        return res.status(500).json({ error: 'Failed to register customer' });
+    }
+
+    const { passwordHash, ...safeCustomer } = newCustomer;
+    res.json({ success: true, token, customer: safeCustomer });
+});
+
+// CUSTOMER LOGIN
+app.post('/api/customer/login', (req, res) => {
+    const { email, password } = req.body;
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Email and password are required' });
+    }
+    const customersData = readJSON(CUSTOMERS_PATH, { customers: [] });
+    const cleanEmail = email.trim().toLowerCase();
+    const customer = customersData.customers.find(c => c.email === cleanEmail);
+    if (!customer) {
+        return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    const passwordHash = hashPassword(password);
+    if (customer.passwordHash !== passwordHash) {
+        return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    const token = crypto.randomBytes(16).toString('hex');
+    customer.sessionToken = token;
+    
+    const success = writeJSON(CUSTOMERS_PATH, customersData);
+    if (!success) {
+        return res.status(500).json({ error: 'Failed to create session' });
+    }
+
+    const { passwordHash: _, ...safeCustomer } = customer;
+    res.json({ success: true, token, customer: safeCustomer });
+});
+
+// CUSTOMER GET PROFILE
+app.get('/api/customer/profile', checkCustomerAuth, (req, res) => {
+    const { passwordHash, ...safeCustomer } = req.customer;
+    res.json({ success: true, customer: safeCustomer });
+});
+
+// CUSTOMER UPDATE PROFILE
+app.post('/api/customer/update', checkCustomerAuth, (req, res) => {
+    const { name, phone, address } = req.body;
+    const customer = req.customer;
+    
+    if (name) customer.name = name.trim();
+    if (phone !== undefined) customer.phone = phone.trim();
+    if (address) {
+        customer.address = {
+            street: address.street ? address.street.trim() : '',
+            city: address.city ? address.city.trim() : '',
+            state: address.state ? address.state.trim() : '',
+            zip: address.zip ? address.zip.trim() : ''
+        };
+    }
+
+    const success = writeJSON(CUSTOMERS_PATH, req.customersData);
+    if (!success) {
+        return res.status(500).json({ error: 'Failed to update profile' });
+    }
+
+    const { passwordHash: _, ...safeCustomer } = customer;
+    res.json({ success: true, customer: safeCustomer });
+});
+
+// CUSTOMER CREATE ORDER
+app.post('/api/customer/orders', checkCustomerAuth, (req, res) => {
+    const { items, total } = req.body;
+    if (!items || !Array.isArray(items) || items.length === 0) {
+        return res.status(400).json({ error: 'Order items are required' });
+    }
+
+    const customer = req.customer;
+    const newOrder = {
+        orderId: 'HA-' + Math.floor(100000 + Math.random() * 900000),
+        date: new Date().toISOString(),
+        total: parseFloat(total) || items.reduce((sum, item) => sum + (item.price * item.qty), 0),
+        status: 'Processing',
+        items: items.map(item => ({
+            id: item.id || null,
+            name: item.name,
+            qty: item.qty,
+            price: item.price,
+            image: item.image || 'assets/carrier_oil_base.png'
+        }))
+    };
+
+    if (!customer.orders) customer.orders = [];
+    customer.orders.unshift(newOrder);
+
+    const success = writeJSON(CUSTOMERS_PATH, req.customersData);
+    if (!success) {
+        return res.status(500).json({ error: 'Failed to save order' });
+    }
+
+    res.json({ success: true, order: newOrder });
 });
 
 // GET LEADS (Protected)
@@ -618,10 +803,14 @@ app.post('/api/create-checkout-session', async (req, res) => {
                 quantity: item.qty
             };
 
-            // Safely append absolute image URL if present
+            // Safely append absolute image URL if present and is a public URL
             if (item.image) {
                 try {
-                    line.price_data.product_data.images = [getAbsoluteUrl('/' + item.image.replace(/^\/+/, ''))];
+                    const imgUrl = getAbsoluteUrl('/' + item.image.replace(/^\/+/, ''));
+                    // Stripe requires publicly accessible image URLs and throws an error for localhost/loopbacks
+                    if (!imgUrl.includes('localhost') && !imgUrl.includes('127.0.0.1') && !imgUrl.includes('[::1]')) {
+                        line.price_data.product_data.images = [imgUrl];
+                    }
                 } catch (e) {
                     // Ignore image URL formatting errors
                 }

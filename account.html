@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en" class="w-full max-w-[100vw] overflow-x-hidden">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Customer Account • Herban Alchemy</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="assets/card-layout.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600&display=swap');
+        
+        :root {
+            --gold: #C5A26F;
+            --primary: #111111;
+            --bg: #FAF7F2;
+        }
+        
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--primary);
+        }
+        
+        .heading-serif {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-weight: 700;
+        }
+
+        .herban-logo {
+            font-weight: 900;
+            letter-spacing: -0.05em;
+        }
+
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 1.5px;
+            bottom: -2px;
+            left: 0;
+            background-color: #111111;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover:after {
+            width: 100%;
+        }
+
+        .gold-accent {
+            color: #C5A26F;
+        }
+
+        .ha-card {
+            background-color: #ffffff;
+            border: 1px solid rgba(197, 162, 111, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .ha-card:hover {
+            border-color: rgba(197, 162, 111, 0.45);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Form styling */
+        .auth-input {
+            width: 100%;
+            background-color: #fcfcfc;
+            border: 1px solid #e5e7eb;
+            border-radius: 1rem;
+            padding: 0.875rem 1.25rem;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+
+        .auth-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(197, 162, 111, 0.15);
+        }
+
+        .tab-btn {
+            position: relative;
+            padding-bottom: 0.75rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            letter-spacing: 0.05em;
+            color: #9ca3af;
+            transition: color 0.3s ease;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 2px;
+            background-color: var(--gold);
+        }
+
+        /* Order status badges */
+        .status-badge {
+            font-size: 0.625rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 0.25rem 0.625rem;
+            border-radius: 9999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .status-delivered {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: rgb(16, 185, 129);
+        }
+
+        .status-processing {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: rgb(245, 158, 11);
+        }
+
+        .status-shipped {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: rgb(59, 130, 246);
+        }
+    </style>
+</head>
+<body class="w-full max-w-[100vw] overflow-x-hidden">
+
+    <!-- Top Bar -->
+    <div class="bg-[#111111] text-white text-xs py-2 px-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-x-4">
+                <span class="hidden md:inline">FREE shipping on orders over $65</span>
+            </div>
+            <div class="flex items-center gap-x-4 text-[10px]">
+                <a href="#" class="hover:underline">TRACK ORDER</a>
+                <span>|</span>
+                <a href="#" class="hover:underline">CHAT WITH US</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-gray-100 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex items-center justify-between px-6 py-5">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="index.html" class="flex items-center gap-x-3">
+                        <img src="assets/herban.jpg" alt="Herban Alchemy Logo" class="h-9 w-9 object-contain rounded-full border border-gray-200" onerror="this.style.display='none'">
+                        <div>
+                            <div class="herban-logo text-2xl tracking-tighter font-black">HERBAN</div>
+                            <div class="text-[9px] text-[#C5A26F] -mt-1.5 font-medium tracking-[2px]">ALCHEMY</div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Desktop Nav -->
+                <div class="hidden md:flex items-center gap-x-8 text-sm font-medium">
+                    <a href="index.html" class="nav-link">Home</a>
+                    <a href="shop.html" class="nav-link">Shop</a>
+                    <a href="shop.html#men" class="nav-link text-[#C5A26F] font-semibold">For Him</a>
+                    <a href="ingredients.html" class="nav-link">Ingredients</a>
+                    <a href="about.html" class="nav-link">About</a>
+                    <a href="journal.html" class="nav-link">Journal</a>
+                </div>
+
+                <div class="flex items-center gap-x-3">
+                    <!-- Account Icon (active) -->
+                    <button onclick="window.location.href='account.html'" class="p-2 bg-gray-100 rounded-full transition-colors">
+                        <i class="fa-solid fa-user text-xl text-[#C5A26F]"></i>
+                    </button>
+
+                    <!-- Instagram -->
+                    <a href="https://www.instagram.com/herban_alchemynaturalskincare" target="_blank" class="p-2 hover:bg-gray-100 rounded-full transition-colors text-xl">
+                        <i class="fa-brands fa-instagram"></i>
+                    </a>
+
+                    <!-- Cart -->
+                    <button onclick="showCart()" class="flex items-center gap-x-1.5 px-4 py-2 hover:bg-gray-100 rounded-full transition-colors relative">
+                        <i class="fa-solid fa-shopping-bag text-xl"></i>
+                        <span id="cart-count" class="absolute -top-1 -right-1 bg-[#FF2E63] text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">0</span>
+                        <span class="hidden md:inline text-sm font-medium">Cart</span>
+                    </button>
+
+                    <!-- Mobile Menu Button -->
+                    <button onclick="toggleMobileMenu()" class="md:hidden p-2">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white border-b">
+        <div class="px-6 py-4 space-y-2 text-sm">
+            <a href="index.html" class="block py-2 hover:text-[#C5A26F]">Home</a>
+            <a href="shop.html" class="block py-2 hover:text-[#C5A26F]">Shop</a>
+            <a href="shop.html#men" class="block py-2 text-[#C5A26F] font-semibold">For Him</a>
+            <a href="about.html" class="block py-2 hover:text-[#C5A26F]">About</a>
+            <a href="ingredients.html" class="block py-2 hover:text-[#C5A26F]">Ingredients</a>
+            <div class="pt-2 border-t flex items-center gap-4">
+                <a href="https://www.instagram.com/herban_alchemynaturalskincare" target="_blank" class="text-xl"><i class="fa-brands fa-instagram"></i></a>
+                <button onclick="showCart(); toggleMobileMenu();" class="text-sm">Cart</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tagline strip -->
+    <div class="border-b border-white/10 bg-[#0a0a0a] py-2.5 text-center">
+        <span class="text-[9px] tracking-[0.35em] text-[#C5A26F] font-semibold">HEALED · HYDRATED · LUMINOUS</span>
+        <span class="text-[9px] tracking-[0.35em] text-white/35 mx-3">·</span>
+        <span class="text-[9px] tracking-[0.35em] text-white/40">FOR MELANIN-RICH SKIN</span>
+    </div>
+
+    <!-- MAIN PORTAL CONTAINER -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-12 md:py-16">
+        
+        <!-- ========================================== -->
+        <!-- UNAUTHENTICATED SCREEN: LOGIN / REGISTER -->
+        <!-- ========================================== -->
+        <section id="auth-section" class="max-w-md mx-auto bg-white rounded-3xl border border-gray-100 shadow-2xl p-8 transition-opacity duration-300">
+            <!-- Brand Intro -->
+            <div class="text-center mb-8">
+                <div class="inline-block bg-[#C5A26F]/10 text-[#C5A26F] text-[10px] tracking-widest uppercase font-bold px-4 py-1.5 rounded-full mb-3">
+                    Customer Portal
+                </div>
+                <h1 class="heading-serif text-3xl mb-1">Herban Alchemy</h1>
+                <p class="text-xs text-gray-500 uppercase tracking-widest">Sign in to your luxury skincare dashboard</p>
+            </div>
+
+            <!-- Tab Selectors -->
+            <div class="flex border-b border-gray-100 mb-8">
+                <button onclick="switchAuthTab('login')" id="tab-login" class="tab-btn active flex-1 text-center">LOG IN</button>
+                <button onclick="switchAuthTab('register')" id="tab-register" class="tab-btn flex-1 text-center">CREATE ACCOUNT</button>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <form id="login-form" onsubmit="handleCustomerLogin(event)" class="space-y-5">
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Email Address</label>
+                    <input type="email" id="login-email" placeholder="name@example.com" class="auth-input" required autocomplete="email">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Password</label>
+                    <input type="password" id="login-password" placeholder="••••••••" class="auth-input" required autocomplete="current-password">
+                </div>
+                <div id="login-error-container" class="text-xs text-red-500 font-semibold hidden bg-red-50 p-3.5 rounded-xl border border-red-100"></div>
+                <button type="submit" class="w-full bg-[#111111] hover:bg-[#C5A26F] text-white font-bold py-4 rounded-2xl text-xs uppercase tracking-widest transition-all duration-300 shadow-md transform hover:scale-[1.01]">
+                    Log In
+                </button>
+            </form>
+
+            <!-- REGISTRATION FORM -->
+            <form id="register-form" onsubmit="handleCustomerRegister(event)" class="space-y-5 hidden">
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Full Name</label>
+                    <input type="text" id="reg-name" placeholder="Aaliyah Davis" class="auth-input" required autocomplete="name">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Email Address</label>
+                    <input type="email" id="reg-email" placeholder="aaliyah@example.com" class="auth-input" required autocomplete="email">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Password</label>
+                    <input type="password" id="reg-password" placeholder="Min. 6 characters" class="auth-input" required minlength="6" autocomplete="new-password">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Phone Number (Optional)</label>
+                    <input type="tel" id="reg-phone" placeholder="404-555-0199" class="auth-input" autocomplete="tel">
+                </div>
+                
+                <div class="border-t border-gray-100 pt-4 mt-2">
+                    <span class="block text-[10px] font-black text-[#C5A26F] uppercase tracking-widest mb-3">Shipping Address</span>
+                    <div class="space-y-3">
+                        <input type="text" id="reg-street" placeholder="Street Address" class="auth-input" autocomplete="street-address">
+                        <div class="grid grid-cols-3 gap-2">
+                            <input type="text" id="reg-city" placeholder="City" class="auth-input col-span-1" autocomplete="address-level2">
+                            <input type="text" id="reg-state" placeholder="State" class="auth-input col-span-1" autocomplete="address-level1">
+                            <input type="text" id="reg-zip" placeholder="ZIP" class="auth-input col-span-1" autocomplete="postal-code">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="reg-error-container" class="text-xs text-red-500 font-semibold hidden bg-red-50 p-3.5 rounded-xl border border-red-100"></div>
+                <button type="submit" class="w-full bg-[#111111] hover:bg-[#C5A26F] text-white font-bold py-4 rounded-2xl text-xs uppercase tracking-widest transition-all duration-300 shadow-md transform hover:scale-[1.01]">
+                    Create Account & Log In
+                </button>
+            </form>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- AUTHENTICATED SCREEN: ACCOUNT DASHBOARD -->
+        <!-- ========================================== -->
+        <section id="dashboard-section" class="hidden transition-opacity duration-300 space-y-8">
+            <!-- Dashboard Welcome Banner -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-200 pb-6">
+                <div>
+                    <h1 class="heading-serif text-3xl md:text-4xl mb-1 text-gray-800">Welcome, <span id="dash-greeting-name" class="text-[#C5A26F]">Guest</span></h1>
+                    <p class="text-xs text-gray-500 uppercase tracking-widest">Manage your profile, track shipments, and view past luxury selections.</p>
+                </div>
+                <button onclick="handleCustomerLogout()" class="inline-flex items-center gap-x-2 bg-[#111111] text-white hover:bg-[#C5A26F] px-5 py-3 rounded-xl text-xs uppercase tracking-widest font-semibold transition-all">
+                    <i class="fa-solid fa-right-from-bracket"></i> Log Out
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- COLUMN 1: Profile Details Card -->
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="bg-white rounded-3xl border border-gray-100 p-6 md:p-8 shadow-md">
+                        <div class="flex justify-between items-center pb-4 border-b border-gray-50 mb-6">
+                            <span class="text-xs uppercase tracking-widest font-bold text-[#C5A26F]">Profile & Shipping</span>
+                            <button onclick="toggleEditProfile()" id="btn-edit-profile" class="text-xs text-[#111111] hover:text-[#C5A26F] font-bold flex items-center gap-1 transition-colors">
+                                <i class="fa-solid fa-pen-to-square"></i> Edit
+                            </button>
+                        </div>
+
+                        <!-- Read-only View -->
+                        <div id="profile-view-mode" class="space-y-4 text-sm">
+                            <div>
+                                <span class="block text-[10px] text-gray-400 uppercase tracking-wider font-bold mb-0.5">Name</span>
+                                <p id="profile-name" class="font-medium text-gray-800">-</p>
+                            </div>
+                            <div>
+                                <span class="block text-[10px] text-gray-400 uppercase tracking-wider font-bold mb-0.5">Email</span>
+                                <p id="profile-email" class="font-medium text-gray-800">-</p>
+                            </div>
+                            <div>
+                                <span class="block text-[10px] text-gray-400 uppercase tracking-wider font-bold mb-0.5">Phone</span>
+                                <p id="profile-phone" class="font-medium text-gray-800">-</p>
+                            </div>
+                            <div>
+                                <span class="block text-[10px] text-gray-400 uppercase tracking-wider font-bold mb-0.5">Shipping Address</span>
+                                <div id="profile-address" class="font-medium text-gray-800 leading-relaxed">
+                                    -
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Editing Form View -->
+                        <form id="profile-edit-mode" onsubmit="handleProfileUpdate(event)" class="space-y-4 hidden">
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Name</label>
+                                <input type="text" id="edit-name" class="auth-input" required autocomplete="name">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Phone</label>
+                                <input type="tel" id="edit-phone" class="auth-input" autocomplete="tel">
+                            </div>
+                            <div class="border-t border-gray-50 pt-4 mt-2">
+                                <span class="block text-[10px] font-black text-[#C5A26F] uppercase tracking-widest mb-3">Shipping Address</span>
+                                <div class="space-y-3">
+                                    <input type="text" id="edit-street" placeholder="Street Address" class="auth-input" autocomplete="street-address">
+                                    <div class="grid grid-cols-3 gap-2">
+                                        <input type="text" id="edit-city" placeholder="City" class="auth-input col-span-1" autocomplete="address-level2">
+                                        <input type="text" id="edit-state" placeholder="State" class="auth-input col-span-1" autocomplete="address-level1">
+                                        <input type="text" id="edit-zip" placeholder="ZIP" class="auth-input col-span-1" autocomplete="postal-code">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="edit-profile-error" class="text-xs text-red-500 font-semibold hidden bg-red-50 p-3 rounded-xl"></div>
+                            
+                            <div class="flex gap-x-2 pt-2">
+                                <button type="submit" class="flex-1 bg-[#111111] hover:bg-[#C5A26F] text-white py-3 rounded-xl text-xs uppercase tracking-widest font-semibold transition-all">
+                                    Save
+                                </button>
+                                <button type="button" onclick="toggleEditProfile(false)" class="flex-1 border border-gray-200 hover:bg-gray-50 text-gray-600 py-3 rounded-xl text-xs uppercase tracking-widest font-semibold transition-all">
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- COLUMN 2-3: Past Orders List -->
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="bg-white rounded-3xl border border-gray-100 p-6 md:p-8 shadow-md">
+                        <div class="pb-4 border-b border-gray-50 mb-6">
+                            <span class="text-xs uppercase tracking-widest font-bold text-[#C5A26F]">Order History</span>
+                        </div>
+
+                        <!-- Orders listings container -->
+                        <div id="orders-list-container" class="space-y-6">
+                            <!-- Populated dynamically by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-[#111111] text-white/70 py-12 md:py-16 mt-20 border-t border-white/10 text-xs">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="space-y-4">
+                <div class="text-white text-lg font-black tracking-tighter">HERBAN ALCHEMY</div>
+                <p class="leading-relaxed">Luxury body care for melanated skin. Handcrafted botanical products formulated for dynamic hydration and glowing skin.</p>
+                <div class="flex items-center gap-x-3 text-lg">
+                    <a href="https://www.instagram.com/herban_alchemynaturalskincare" target="_blank" class="hover:text-[#C5A26F] transition-colors"><i class="fa-brands fa-instagram"></i></a>
+                </div>
+            </div>
+            <div>
+                <div class="text-white font-bold uppercase tracking-wider mb-4">Shop</div>
+                <ul class="space-y-2">
+                    <li><a href="shop.html" class="hover:underline hover:text-white">All Products</a></li>
+                    <li><a href="shop.html#men" class="hover:underline hover:text-white">Men's Collection</a></li>
+                    <li><a href="shop.html#raw-ingredients" class="hover:underline hover:text-white">Raw Ingredients</a></li>
+                    <li><a href="shop.html#carrier-oils" class="hover:underline hover:text-white">Carrier Oils</a></li>
+                </ul>
+            </div>
+            <div>
+                <div class="text-white font-bold uppercase tracking-wider mb-4">Company</div>
+                <ul class="space-y-2">
+                    <li><a href="about.html" class="hover:underline hover:text-white">Our Story</a></li>
+                    <li><a href="ingredients.html" class="hover:underline hover:text-white">Ingredients Library</a></li>
+                    <li><a href="journal.html" class="hover:underline hover:text-white">Journal / Blog</a></li>
+                    <li><a href="shipping-returns.html" class="hover:underline hover:text-white">Shipping & Returns</a></li>
+                </ul>
+            </div>
+            <div class="space-y-4">
+                <div class="text-white font-bold uppercase tracking-wider mb-4">Contact</div>
+                <p>Support email: <a href="mailto:glow@herbanalchemy.com" class="underline hover:text-white">glow@herbanalchemy.com</a></p>
+                <p>© <span id="current-year">2026</span> Herban Alchemy. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Shopping Cart Drawer -->
+    <div id="cart-drawer" onclick="if (event.target.id === 'cart-drawer') hideCart()" class="hidden fixed inset-0 bg-black/50 z-[100]">
+        <div onclick="event.stopImmediatePropagation()" class="absolute right-0 top-0 h-full w-full max-w-sm sm:max-w-md bg-white p-5 md:p-6 shadow-2xl flex flex-col overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <div class="font-semibold text-xl">Your Cart</div>
+                <button onclick="hideCart()" class="text-2xl leading-none w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100">&times;</button>
+            </div>
+            
+            <div id="cart-items" class="flex-1 overflow-auto space-y-5 text-sm">
+                <!-- Populated by JS -->
+            </div>
+            
+            <div class="border-t pt-5 mt-auto">
+                <div class="flex justify-between font-semibold text-lg mb-4">
+                    <span>Total</span>
+                    <span id="cart-total">$0</span>
+                </div>
+                
+                <button onclick="checkout()" class="w-full bg-[#111111] hover:bg-black text-white py-4 rounded-2xl font-semibold tracking-wider">
+                    CHECKOUT
+                </button>
+                <div class="text-center text-xs text-gray-400 mt-3">or 4 interest-free payments of $XX with Shop Pay</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/cart-images.js"></script>
+    <script>
+        // Set copyright year dynamically
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+
+        // ----------------------------------------------------
+        // Shopping Cart Implementation
+        // ----------------------------------------------------
+        let cart = JSON.parse(localStorage.getItem('herbanCart') || '[]');
+
+        const butterImages = {
+            "Mango Dream": "assets/mango_dream_butter.jpg",
+            "Vanilla Orchid": "assets/vanilla_orchid_butter.jpg",
+            "Citrus Zest": "assets/citrus_zest_butter.jpg",
+            "Lavender Haze": "assets/lavender_haze_butter.jpg",
+            "Amber Spice": "assets/amber_spice_butter.jpg",
+            "Rose Petal": "assets/rose_petal_butter.jpg",
+            "Coconut Kiss": "assets/coconut_kiss_butter.jpg",
+            "Eucalyptus Fresh": "assets/eucalyptus_fresh_butter.jpg",
+            "Jasmine Nights": "assets/jasmine_nights_butter.jpg",
+            "Sandalwood Warm": "assets/sandalwood_warm_butter.jpg",
+            "Grapefruit Glow": "assets/grapefruit_glow_butter.jpg",
+            "Patchouli Earth": "assets/patchouli_earth_butter.jpg",
+            "Sweet Auburn": "assets/atlanta-collection/sweet-auburn-photo-enhanced.jpg",
+            "Peachtree": "assets/atlanta-collection/peachtree-photo-enhanced.jpg",
+            "Lenox": "assets/atlanta-collection/lenox-photo-enhanced.jpg"
+        };
+
+        function resolveCartImage(type, scent, name = '', imageOverride = '') {
+            if (imageOverride) return imageOverride;
+            if (type === 'raw') {
+                return name.includes('Mango') ? 'assets/raw-mango-butter-le-card.jpg' : 'assets/raw-white-shea-le-card.jpg';
+            }
+            if (type === 'butter' && scent && butterImages[scent]) return butterImages[scent];
+            if (name.includes("Face Cleanser")) return "assets/men_face_cleanser.jfif";
+            if (name.includes("Body Glaze")) return "assets/men_body_glaze.jfif";
+            return 'assets/carrier_oil_base.png';
+        }
+
+        function getCartImage(item) {
+            if (window.HERBAN_CART_IMAGES) return window.HERBAN_CART_IMAGES.getCartImage(item);
+            if (!item) return 'assets/herban.jpg';
+            return resolveCartImage(item.type, item.scent, item.name || '');
+        }
+
+        function updateCartCount() {
+            const countEl = document.getElementById('cart-count');
+            const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+            countEl.textContent = totalItems;
+            countEl.style.display = totalItems > 0 ? 'flex' : 'none';
+        }
+
+        function showCart() {
+            const drawer = document.getElementById('cart-drawer');
+            const itemsContainer = document.getElementById('cart-items');
+            const totalEl = document.getElementById('cart-total');
+            
+            itemsContainer.innerHTML = '';
+            
+            if (cart.length === 0) {
+                itemsContainer.innerHTML = `<div class="text-center py-10 text-gray-400">Your cart is empty.<br><a href="shop.html" class="text-[#111] underline">Start shopping</a></div>`;
+                totalEl.textContent = '$0';
+            } else {
+                let total = 0;
+                cart.forEach((it) => {
+                    it.image = resolveCartImage(it.type, it.scent, it.name);
+                });
+                localStorage.setItem('herbanCart', JSON.stringify(cart));
+
+                cart.forEach((item, index) => {
+                    total += item.price * item.qty;
+                    
+                    const el = document.createElement('div');
+                    el.className = 'flex gap-3 border-b pb-4';
+                    el.innerHTML = `
+                        <div class="w-14 h-14 bg-gray-100 rounded-xl flex-shrink-0 overflow-hidden">
+                            <img src="${getCartImage(item)}" class="w-full h-full object-cover" alt="${item.scent || item.name}" onerror="this.src='assets/herban.jpg'">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="font-medium">${item.name}</div>
+                            <div class="text-xs text-gray-500">${item.scent ? item.scent + ' • ' : ''}${item.type}</div>
+                            
+                            <div class="flex items-center justify-between mt-2">
+                                <div class="flex items-center border rounded">
+                                    <button onclick="changeQty(${index}, -1)" class="px-2 py-px text-lg leading-none">-</button>
+                                    <span class="px-2.5 text-sm font-medium">${item.qty}</span>
+                                    <button onclick="changeQty(${index}, 1)" class="px-2 py-px text-lg leading-none">+</button>
+                                </div>
+                                
+                                <div class="font-semibold">$${(item.price * item.qty).toFixed(0)}</div>
+                            </div>
+                        </div>
+                        <button onclick="removeFromCart(${index})" class="text-gray-300 hover:text-red-500 text-xl leading-none self-start">×</button>
+                    `;
+                    itemsContainer.appendChild(el);
+                });
+                
+                totalEl.textContent = '$' + total;
+            }
+            
+            drawer.classList.remove('hidden');
+            drawer.classList.add('flex');
+        }
+
+        function changeQty(index, delta) {
+            cart[index].qty += delta;
+            if (cart[index].qty < 1) cart[index].qty = 1;
+            const it = cart[index];
+            it.image = resolveCartImage(it.type, it.scent, it.name);
+            localStorage.setItem('herbanCart', JSON.stringify(cart));
+            showCart();
+            updateCartCount();
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            localStorage.setItem('herbanCart', JSON.stringify(cart));
+            showCart();
+            updateCartCount();
+        }
+
+        function hideCart() {
+            const drawer = document.getElementById('cart-drawer');
+            drawer.classList.add('hidden');
+            drawer.classList.remove('flex');
+        }
+
+        // Initialize cart count on load
+        updateCartCount();
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // ----------------------------------------------------
+        // Authentication & Customer Management
+        // ----------------------------------------------------
+        let currentCustomer = null;
+
+        // On Page Load: Validate session
+        async function initPortal() {
+            const token = localStorage.getItem('herbanCustomerToken');
+            if (token) {
+                try {
+                    const res = await fetch('/api/customer/profile', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        currentCustomer = data.customer;
+                        renderDashboard();
+                        return;
+                    }
+                } catch (e) {
+                    console.error('Failed to authenticate token:', e);
+                }
+            }
+            // Fallback to login screen
+            showAuthScreen();
+        }
+
+        // Tab switches for auth panel
+        function switchAuthTab(tab) {
+            const tabLogin = document.getElementById('tab-login');
+            const tabRegister = document.getElementById('tab-register');
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+
+            if (tab === 'login') {
+                tabLogin.classList.add('active');
+                tabRegister.classList.remove('active');
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+            } else {
+                tabLogin.classList.remove('active');
+                tabRegister.classList.add('active');
+                loginForm.classList.add('hidden');
+                registerForm.classList.remove('hidden');
+            }
+        }
+
+        function showAuthScreen() {
+            document.getElementById('auth-section').classList.remove('hidden');
+            document.getElementById('dashboard-section').classList.add('hidden');
+        }
+
+        // Handle Customer Registration
+        async function handleCustomerRegister(e) {
+            e.preventDefault();
+            const errEl = document.getElementById('reg-error-container');
+            errEl.classList.add('hidden');
+            errEl.textContent = '';
+
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            const phone = document.getElementById('reg-phone').value;
+            const street = document.getElementById('reg-street').value;
+            const city = document.getElementById('reg-city').value;
+            const state = document.getElementById('reg-state').value;
+            const zip = document.getElementById('reg-zip').value;
+
+            try {
+                const res = await fetch('/api/customer/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name,
+                        email,
+                        password,
+                        phone,
+                        address: { street, city, state, zip }
+                    })
+                });
+
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    localStorage.setItem('herbanCustomerToken', data.token);
+                    currentCustomer = data.customer;
+                    renderDashboard();
+                } else {
+                    errEl.textContent = data.error || 'Registration failed. Please try again.';
+                    errEl.classList.remove('hidden');
+                }
+            } catch (err) {
+                console.error(err);
+                errEl.textContent = 'Server connection failed.';
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        // Handle Customer Login
+        async function handleCustomerLogin(e) {
+            e.preventDefault();
+            const errEl = document.getElementById('login-error-container');
+            errEl.classList.add('hidden');
+            errEl.textContent = '';
+
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                const res = await fetch('/api/customer/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    localStorage.setItem('herbanCustomerToken', data.token);
+                    currentCustomer = data.customer;
+                    renderDashboard();
+                } else {
+                    errEl.textContent = data.error || 'Invalid email or password.';
+                    errEl.classList.remove('hidden');
+                }
+            } catch (err) {
+                console.error(err);
+                errEl.textContent = 'Server connection failed.';
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        // Render Dashboard details
+        function renderDashboard() {
+            // Show dashboard, hide login
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('dashboard-section').classList.remove('hidden');
+
+            // Setup profile views
+            document.getElementById('dash-greeting-name').textContent = currentCustomer.name;
+            document.getElementById('profile-name').textContent = currentCustomer.name;
+            document.getElementById('profile-email').textContent = currentCustomer.email;
+            document.getElementById('profile-phone').textContent = currentCustomer.phone || 'No phone provided';
+            
+            const addr = currentCustomer.address || {};
+            if (addr.street || addr.city || addr.state || addr.zip) {
+                document.getElementById('profile-address').innerHTML = `
+                    <p>${addr.street || ''}</p>
+                    <p>${addr.city || ''}, ${addr.state || ''} ${addr.zip || ''}</p>
+                `;
+            } else {
+                document.getElementById('profile-address').textContent = 'No address provided';
+            }
+
+            // Populate edit inputs
+            document.getElementById('edit-name').value = currentCustomer.name;
+            document.getElementById('edit-phone').value = currentCustomer.phone || '';
+            document.getElementById('edit-street').value = addr.street || '';
+            document.getElementById('edit-city').value = addr.city || '';
+            document.getElementById('edit-state').value = addr.state || '';
+            document.getElementById('edit-zip').value = addr.zip || '';
+
+            // Render Orders List
+            renderOrders(currentCustomer.orders || []);
+        }
+
+        // Render order history block
+        function renderOrders(orders) {
+            const container = document.getElementById('orders-list-container');
+            container.innerHTML = '';
+
+            if (orders.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-gray-400 space-y-4">
+                        <div class="w-16 h-16 bg-[#FAF7F2] border border-gray-100 rounded-full flex items-center justify-center mx-auto">
+                            <i class="fa-solid fa-receipt text-gray-300 text-2xl"></i>
+                        </div>
+                        <p class="text-xs uppercase tracking-widest font-semibold text-gray-500">No Orders Placed Yet</p>
+                        <p class="text-xs text-gray-400 max-w-xs mx-auto">Start your self-care ritual and watch your organic products arrive.</p>
+                        <a href="shop.html" class="inline-block bg-[#111111] hover:bg-[#C5A26F] text-white text-[10px] uppercase tracking-widest font-bold px-6 py-3 rounded-xl transition-all shadow-md mt-2">
+                            Explore Catalog
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            orders.forEach(order => {
+                const dateStr = new Date(order.date).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                let badgeClass = 'status-processing';
+                if (order.status.toLowerCase() === 'delivered') badgeClass = 'status-delivered';
+                if (order.status.toLowerCase() === 'shipped') badgeClass = 'status-shipped';
+
+                const orderCard = document.createElement('div');
+                orderCard.className = 'border border-gray-100 rounded-2xl p-5 md:p-6 space-y-4 hover:shadow-md transition-shadow bg-[#fafaf9]/40';
+                
+                let itemsHtml = '';
+                order.items.forEach(item => {
+                    const itemImg = resolveCartImage(item.type, item.scent, item.name, item.image);
+                    itemsHtml += `
+                        <div class="flex items-center gap-x-4 border-t border-gray-100/60 pt-3.5 first:border-0 first:pt-0">
+                            <img class="w-12 h-12 object-cover rounded-xl bg-gray-50 border border-gray-100 flex-shrink-0" src="${itemImg}" alt="${item.name}" onerror="this.src='assets/herban.jpg'">
+                            <div class="flex-1 min-w-0">
+                                <h4 class="text-xs font-semibold text-gray-800 truncate">${item.name}</h4>
+                                <p class="text-[10px] text-gray-400">${item.qty} × $${item.price}</p>
+                            </div>
+                            <span class="text-xs font-bold text-gray-800">$${(item.qty * item.price).toFixed(0)}</span>
+                        </div>
+                    `;
+                });
+
+                orderCard.innerHTML = `
+                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100/60 pb-3">
+                        <div class="space-y-0.5">
+                            <span class="text-[9px] text-gray-400 font-bold uppercase tracking-widest">${order.orderId}</span>
+                            <div class="text-xs font-medium text-gray-500">${dateStr}</div>
+                        </div>
+                        <div class="flex items-center gap-x-3">
+                            <span class="status-badge ${badgeClass}">${order.status}</span>
+                            <span class="text-sm font-black text-gray-900">$${order.total.toFixed(0)}</span>
+                        </div>
+                    </div>
+                    <div class="space-y-3.5">
+                        ${itemsHtml}
+                    </div>
+                `;
+                container.appendChild(orderCard);
+            });
+        }
+
+        // Toggle edit mode in profile
+        function toggleEditProfile(editing = true) {
+            const viewMode = document.getElementById('profile-view-mode');
+            const editMode = document.getElementById('profile-edit-mode');
+            const btnEdit = document.getElementById('btn-edit-profile');
+
+            if (editing) {
+                viewMode.classList.add('hidden');
+                editMode.classList.remove('hidden');
+                btnEdit.classList.add('hidden');
+            } else {
+                viewMode.classList.remove('hidden');
+                editMode.classList.add('hidden');
+                btnEdit.classList.remove('hidden');
+            }
+        }
+
+        // Save updated details to profile
+        async function handleProfileUpdate(e) {
+            e.preventDefault();
+            const errEl = document.getElementById('edit-profile-error');
+            errEl.classList.add('hidden');
+            errEl.textContent = '';
+
+            const token = localStorage.getItem('herbanCustomerToken');
+            const name = document.getElementById('edit-name').value;
+            const phone = document.getElementById('edit-phone').value;
+            const street = document.getElementById('edit-street').value;
+            const city = document.getElementById('edit-city').value;
+            const state = document.getElementById('edit-state').value;
+            const zip = document.getElementById('edit-zip').value;
+
+            try {
+                const res = await fetch('/api/customer/update', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        name,
+                        phone,
+                        address: { street, city, state, zip }
+                    })
+                });
+
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    currentCustomer = data.customer;
+                    renderDashboard();
+                    toggleEditProfile(false);
+                    
+                    // Show a quick success toast
+                    const toast = document.createElement('div');
+                    toast.className = 'fixed bottom-5 right-5 bg-green-500 text-white px-5 py-3 rounded-xl text-xs uppercase tracking-widest font-semibold shadow-lg z-[200]';
+                    toast.textContent = 'Profile updated successfully!';
+                    document.body.appendChild(toast);
+                    setTimeout(() => toast.remove(), 2500);
+                } else {
+                    errEl.textContent = data.error || 'Failed to update profile.';
+                    errEl.classList.remove('hidden');
+                }
+            } catch (err) {
+                console.error(err);
+                errEl.textContent = 'Server connection failed.';
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        // Log out customer session
+        function handleCustomerLogout() {
+            localStorage.removeItem('herbanCustomerToken');
+            currentCustomer = null;
+            window.location.reload();
+        }
+
+        // Run on page load
+        window.addEventListener('DOMContentLoaded', initPortal);
+    </script>
+    <script src="assets/storefront-integration.js"></script>
+</body>
+</html>

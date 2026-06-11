@@ -192,7 +192,7 @@
         }
     }
 
-    // Route Account user icon to admin.html
+    // Route Account user icon to account.html (Customer Portal)
     function routeAccountButton() {
         // Find fa-user icon
         const userIcon = document.querySelector('.fa-user');
@@ -204,9 +204,9 @@
                 parentBtn.style.cursor = 'pointer';
                 parentBtn.onclick = function (e) {
                     e.preventDefault();
-                    window.location.href = 'admin.html';
+                    window.location.href = 'account.html';
                 };
-                console.log('[Herban Engine] Account user button bound to admin panel.');
+                console.log('[Herban Engine] Account user button bound to customer portal (account.html).');
             }
         }
     }
@@ -710,6 +710,36 @@
                 return;
             }
 
+            // Save order to customer account if logged in
+            const customerToken = localStorage.getItem('herbanCustomerToken');
+            if (customerToken) {
+                try {
+                    const orderTotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+                    const orderItems = cart.map(item => ({
+                        id: item.id || null,
+                        name: item.name,
+                        qty: item.qty,
+                        price: item.price,
+                        image: item.image || ''
+                    }));
+
+                    await fetch('/api/customer/orders', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${customerToken}`
+                        },
+                        body: JSON.stringify({
+                            items: orderItems,
+                            total: orderTotal
+                        })
+                    });
+                    console.log('[Herban Engine] Order successfully recorded to customer account.');
+                } catch (e) {
+                    console.error('[Herban Engine] Failed to record order to customer account:', e);
+                }
+            }
+
             const stripeEnabled = currentConfig.stripe && currentConfig.stripe.enabled;
             if (!stripeEnabled) {
                 // Fallback to the demo alert
@@ -720,6 +750,11 @@
                 localStorage.setItem('herbanCart', '[]');
                 if (typeof updateCartCount === 'function') updateCartCount();
                 if (typeof hideCart === 'function') hideCart();
+                
+                // Redirect to account dashboard after demo checkout to show their new order
+                if (customerToken) {
+                    window.location.href = 'account.html';
+                }
                 return;
             }
 
