@@ -8,6 +8,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="assets/card-layout.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&amp;family=Inter:wght@300;400;500;600&amp;display=swap');
         
@@ -317,6 +320,67 @@
                 min-width: 0;
             }
         }
+
+        /* ─── MOTION SYSTEM (scroll-driven hero + marquee) ─── */
+        .hero-media {
+            will-change: transform;
+        }
+
+        #hero-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        .ha-marquee {
+            overflow: hidden;
+            white-space: nowrap;
+            user-select: none;
+        }
+
+        .ha-marquee-track {
+            display: inline-flex;
+            align-items: center;
+            gap: 3rem;
+            padding-right: 3rem;
+            will-change: transform;
+        }
+
+        .ha-marquee-track span {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(1.5rem, 4vw, 2.75rem);
+            letter-spacing: 0.02em;
+        }
+
+        .ha-marquee-track .ha-marquee-dot {
+            color: #C5A26F;
+            font-size: clamp(0.8rem, 2vw, 1.2rem);
+        }
+
+        .le-card {
+            will-change: transform;
+        }
+
+        /* Reveal-on-scroll: hidden state only exists once motion.js adds
+           html.ha-motion, so content is never stuck invisible. Uses the
+           independent `translate` property — never fights GSAP transforms. */
+        html.ha-motion [data-reveal],
+        html.ha-motion [data-reveal-item] {
+            opacity: 0;
+            translate: 0 40px;
+            transition:
+                opacity 0.9s ease,
+                translate 0.9s cubic-bezier(0.22, 0.61, 0.36, 1),
+                box-shadow 0.3s ease,
+                border-color 0.3s ease;
+        }
+
+        html.ha-motion [data-reveal].is-in,
+        html.ha-motion [data-reveal-item].is-in {
+            opacity: 1;
+            translate: 0 0;
+        }
     </style>
 </head>
 <body class="bg-white text-[#111111] w-full max-w-[100vw] overflow-x-hidden">
@@ -421,19 +485,21 @@
     </div>
 
     <!-- HERO — High impact Fenty-style split layout using bright lifestyle imagery leading the brand -->
-    <header id="hero" class="relative min-h-[85svh] md:min-h-[95svh] flex items-center bg-[#FAF7F2] overflow-hidden text-[#111111] border-b border-gray-100">
+    <header id="hero" class="relative min-h-[92svh] md:min-h-[100svh] flex items-center bg-[#FAF7F2] overflow-hidden text-[#111111] border-b border-gray-100">
         <!-- Background mesh/pattern -->
         <div class="absolute inset-0 opacity-[0.15] pointer-events-none" style="background: radial-gradient(circle at 50% 50%, #C5A26F 0%, transparent 60%);"></div>
         
-        <!-- Large Editorial Hero Image (Background leads) -->
-        <div class="absolute inset-0 w-full h-full pointer-events-none z-0">
-            <img id="hero-img" src="https://images.unsplash.com/photo-1618284554746-71e1b439eb5b?q=80&w=1000&auto=format&fit=crop" alt="Healed, hydrated, luminous skin" class="w-full h-full object-cover object-center opacity-85 md:opacity-90" loading="eager">
-            <div class="absolute inset-0 bg-gradient-to-t from-[#FAF7F2] via-transparent to-transparent md:bg-gradient-to-r md:from-[#FAF7F2]/50 md:via-transparent md:to-transparent"></div>
+        <!-- Scroll-driven cinematic hero video (frame position follows scroll) -->
+        <div class="hero-media absolute inset-0 w-full h-full pointer-events-none z-0">
+            <video id="hero-video" muted playsinline preload="auto" poster="assets/hero_glaze_poster.jpg" aria-label="Whipped body butter glaze with floating mango, shea and magnolia">
+                <source src="assets/hero_glaze_scrub_web.mp4" type="video/mp4">
+            </video>
+            <div class="absolute inset-0 bg-gradient-to-t from-[#FAF7F2] via-transparent to-transparent md:bg-gradient-to-r md:from-[#FAF7F2]/60 md:via-transparent md:to-transparent"></div>
         </div>
 
         <!-- Editorial Glass overlay content - Shifted / Styled in a luxurious, modern Fenty-like overlay -->
         <div class="relative w-full max-w-7xl mx-auto px-4 sm:px-6 py-10 md:py-16 z-10 flex justify-center md:justify-start">
-            <div class="max-w-xl bg-white/70 backdrop-blur-xl rounded-3xl p-6 sm:p-8 md:p-10 border border-white/80 shadow-2xl text-[#111111] transition-transform duration-500 hover:scale-[1.01]">
+            <div class="hero-card max-w-xl bg-white/70 backdrop-blur-xl rounded-3xl p-6 sm:p-8 md:p-10 border border-white/80 shadow-2xl text-[#111111] transition-transform duration-500 hover:scale-[1.01]">
                 <!-- Small badge -->
                 <div class="inline-flex items-center gap-x-2 bg-[#111111] text-white px-4 py-1.5 rounded-full text-xs tracking-widest mb-4 border border-gray-800">
                     <span id="hero-badge" class="font-bold">THE NEW ERA OF SKINCARE</span>
@@ -482,11 +548,25 @@
         </div>
     </header>
 
+    <!-- Editorial marquee strip -->
+    <div class="ha-marquee bg-white border-b border-gray-100 py-6 md:py-8" aria-hidden="true">
+        <div class="ha-marquee-track text-[#111111]">
+            <span>THE GLAZE</span><span class="ha-marquee-dot">✦</span>
+            <span class="text-[#C5A26F] italic">THE GLOW</span><span class="ha-marquee-dot">✦</span>
+            <span>HERBAN ALCHEMY</span><span class="ha-marquee-dot">✦</span>
+            <span class="text-[#C5A26F] italic">LUXURY FOR MELANATED SKIN</span><span class="ha-marquee-dot">✦</span>
+            <span>THE GLAZE</span><span class="ha-marquee-dot">✦</span>
+            <span class="text-[#C5A26F] italic">THE GLOW</span><span class="ha-marquee-dot">✦</span>
+            <span>HERBAN ALCHEMY</span><span class="ha-marquee-dot">✦</span>
+            <span class="text-[#C5A26F] italic">LUXURY FOR MELANATED SKIN</span><span class="ha-marquee-dot">✦</span>
+        </div>
+    </div>
+
     <!-- Atlanta Collection — Limited Edition (extracted from client flyer) -->
-    <section id="atlanta-collection" class="le-section text-[#111111] py-16 md:py-24 relative overflow-hidden">
+    <section id="atlanta-collection" class="le-section text-[#111111] py-24 md:py-36 relative overflow-hidden">
         <div class="absolute inset-0 opacity-10 pointer-events-none" style="background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(197,162,111,0.15) 0%, transparent 70%);"></div>
         <div class="max-w-7xl mx-auto px-6 relative z-10">
-            <div class="text-center max-w-3xl mx-auto mb-12 md:mb-16">
+            <div class="text-center max-w-3xl mx-auto mb-14 md:mb-20" data-reveal>
                 <div class="inline-flex items-center gap-2 border border-[#C5A26F]/40 text-[#C5A26F] px-4 py-1 rounded-full text-[10px] md:text-xs tracking-[0.25em] font-semibold mb-5">
                     <i class="fa-solid fa-sparkles text-[10px]"></i>
                     LIMITED EDITION • HANDCRAFTED IN ATLANTA
@@ -500,15 +580,17 @@
                 <p class="text-gray-400 text-xs mt-3 tracking-wide">Real product photos appear in your cart after you add</p>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6 lg:gap-10">
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6 lg:gap-10" data-reveal-group>
                 <!-- Sweet Auburn -->
                 <article class="le-card ha-card le-card-wrap group rounded-2xl overflow-hidden transition-all duration-500 shadow-md">
                     <div class="ha-card-media">
                         <div class="ha-card-frame">
-                            <img src="assets/atlanta-collection/sweet-auburn-le-card.jpg" alt="Sweet Auburn limited edition" class="ha-card-img" loading="eager">
+                            <img src="assets/atlanta-collection/sweet-auburn-hf.jpg" alt="Sweet Auburn limited edition" class="ha-card-img" loading="eager">
                         </div>
                     </div>
                     <div class="ha-card-body p-3 sm:p-5 md:p-6 bg-white border-t border-gray-100">
+                        <h3 class="heading-serif text-lg sm:text-2xl mb-0.5">Sweet Auburn</h3>
+                        <p class="text-[10px] sm:text-xs text-[#C5A26F] italic mb-3">Warm. Rich. Timeless.</p>
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-y-1">
                             <span class="text-[9px] tracking-[0.1em] text-gray-500 font-medium">8 OZ • GLOW</span>
                             <span class="text-[#C5A26F] text-base sm:text-xl font-semibold">$38</span>
@@ -523,10 +605,12 @@
                 <article class="le-card ha-card le-card-wrap group rounded-2xl overflow-hidden transition-all duration-500 md:-translate-y-4 shadow-md ring-1 ring-[#FF6B35]/30">
                     <div class="ha-card-media">
                         <div class="ha-card-frame">
-                            <img src="assets/atlanta-collection/peachtree-le-card.jpg" alt="Peachtree limited edition" class="ha-card-img" loading="lazy">
+                            <img src="assets/atlanta-collection/peachtree-hf.jpg" alt="Peachtree limited edition" class="ha-card-img" loading="lazy">
                         </div>
                     </div>
                     <div class="ha-card-body p-3 sm:p-5 md:p-6 bg-white border-t border-gray-100">
+                        <h3 class="heading-serif text-lg sm:text-2xl mb-0.5">Peachtree</h3>
+                        <p class="text-[10px] sm:text-xs text-[#FF9F6B] italic mb-3">Fresh. Vibrant. Iconic.</p>
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-y-1">
                             <span class="text-[9px] tracking-[0.1em] text-gray-500 font-medium">8 OZ • GLOW</span>
                             <span class="text-[#FF9F6B] text-base sm:text-xl font-semibold">$38</span>
@@ -541,10 +625,12 @@
                 <article class="le-card ha-card le-card-wrap group rounded-2xl overflow-hidden transition-all duration-500 shadow-md">
                     <div class="ha-card-media">
                         <div class="ha-card-frame">
-                            <img src="assets/atlanta-collection/lenox-le-card.jpg" alt="Lenox limited edition" class="ha-card-img" loading="lazy">
+                            <img src="assets/atlanta-collection/lenox-hf.jpg" alt="Lenox limited edition" class="ha-card-img" loading="lazy">
                         </div>
                     </div>
                     <div class="ha-card-body p-3 sm:p-5 md:p-6 bg-white border-t border-gray-100">
+                        <h3 class="heading-serif text-lg sm:text-2xl mb-0.5">Lenox</h3>
+                        <p class="text-[10px] sm:text-xs text-[#C5A26F] italic mb-3">Bold. Luxe. Unapologetic.</p>
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-y-1">
                             <span class="text-[9px] tracking-[0.1em] text-gray-500 font-medium">8 OZ • GLOW</span>
                             <span class="text-[#C5A26F] text-base sm:text-xl font-semibold">$38</span>
@@ -567,7 +653,7 @@
     </section>
 
     <!-- Raw Ingredients -->
-    <section id="raw-ingredients" class="bg-white py-14 md:py-20 border-b relative overflow-hidden">
+    <section id="raw-ingredients" class="bg-white py-20 md:py-28 border-b relative overflow-hidden">
         <div class="max-w-7xl mx-auto px-6 relative z-10">
             <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10 md:mb-12">
                 <div>
@@ -616,7 +702,7 @@
     </section>
  
     <!-- Luxury Carrier Oils -->
-    <section id="carrier-oils" class="bg-[#FAF7F2] py-14 md:py-20 border-b relative overflow-hidden">
+    <section id="carrier-oils" class="bg-[#FAF7F2] py-20 md:py-28 border-b relative overflow-hidden">
         <div class="max-w-7xl mx-auto px-6 relative z-10">
             <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10 md:mb-12">
                 <div>
@@ -688,7 +774,7 @@
         </div>
 
     <!-- Skin Spectrum Console — interactive tone × product intelligence -->
-    <section id="every-shade" class="tone-console-section relative overflow-hidden py-16 md:py-24 border-y border-[#C5A26F]/20">
+    <section id="every-shade" class="tone-console-section relative overflow-hidden py-20 md:py-32 border-y border-[#C5A26F]/20">
         <div class="tone-console-mesh" aria-hidden="true"></div>
         <div class="tone-scanline" aria-hidden="true"></div>
         <div class="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
@@ -725,7 +811,7 @@
     </div>
 
 <!-- MEN'S COLLECTION -->
-    <section id="mens-collection" class="bg-[#FAF7F2] py-14 md:py-20 border-y border-[#C5A26F]/20 relative overflow-hidden">
+    <section id="mens-collection" class="bg-[#FAF7F2] py-20 md:py-28 border-y border-[#C5A26F]/20 relative overflow-hidden">
         <div class="max-w-7xl mx-auto px-6 relative z-10">
             <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10 md:mb-12">
                 <div>
@@ -789,7 +875,7 @@
     </section>
 
     <!-- FENTY-STYLE "SKINCARE STARS" / SCENT HIGHLIGHTS -->
-    <section class="bg-[#F9F7F4] py-8 md:py-14">
+    <section class="bg-[#F9F7F4] py-14 md:py-20">
         <div class="max-w-7xl mx-auto px-4 md:px-6">
             <div class="flex items-center justify-between mb-5 md:mb-7">
                 <h2 class="text-3xl md:text-4xl font-black tracking-[-1.5px]">Signature Scents.<br>Instant Obsession.</h2>
@@ -832,7 +918,7 @@
     </section>
 
     <!-- WHY HERBAN + FENTY ENERGY -->
-    <section class="relative max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-12 gap-x-8 items-center overflow-hidden">
+    <section class="relative max-w-7xl mx-auto px-6 py-20 md:py-28 grid md:grid-cols-12 gap-x-8 items-center overflow-hidden">
         <div class="md:col-span-5 relative z-10" data-glow-reveal>
             <div class="uppercase text-xs font-semibold tracking-[2px] text-[#C5A26F]">FOR MELANATED SKIN</div>
             <h2 class="text-4xl sm:text-5xl md:text-6xl leading-none font-black tracking-[-3px] mt-2">Rich. Hydrated.<br>Glowing.</h2>
@@ -1593,5 +1679,7 @@
     <script src="assets/skin-tone-experience.js"></script>
     <script src="assets/glow-experience.js"></script>
     <script src="assets/storefront-integration.js"></script>
+    <script defer src="assets/motion.js"></script>
 </body>
 </html>
+
