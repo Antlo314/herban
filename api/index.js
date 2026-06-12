@@ -120,19 +120,21 @@ function getMergedConfig() {
 
     // Merge Stripe overrides
     const secrets = readJSON(SECRETS_PATH);
-    const rawSecretKey = process.env.STRIPE_SECRET_KEY || secrets.stripeSecretKey;
+    const rawSecretKey = secrets.stripeSecretKey || process.env.STRIPE_SECRET_KEY;
     const stripeSecretKey = typeof rawSecretKey === 'string' ? rawSecretKey.trim() : '';
 
     if (process.env.STRIPE_ENABLED !== undefined) {
         config.stripe.enabled = process.env.STRIPE_ENABLED === 'true';
-    } else if (stripeSecretKey || process.env.STRIPE_PUBLISHABLE_KEY || process.env.STRIPE_PUBLIC_KEY || config.stripe.publicKey) {
+    } else if (stripeSecretKey || config.stripe.publicKey || process.env.STRIPE_PUBLISHABLE_KEY || process.env.STRIPE_PUBLIC_KEY) {
         config.stripe.enabled = true;
     }
     
-    if (process.env.STRIPE_PUBLISHABLE_KEY) {
-        config.stripe.publicKey = process.env.STRIPE_PUBLISHABLE_KEY.trim();
-    } else if (process.env.STRIPE_PUBLIC_KEY) {
-        config.stripe.publicKey = process.env.STRIPE_PUBLIC_KEY.trim();
+    if (!config.stripe.publicKey) {
+        if (process.env.STRIPE_PUBLISHABLE_KEY) {
+            config.stripe.publicKey = process.env.STRIPE_PUBLISHABLE_KEY.trim();
+        } else if (process.env.STRIPE_PUBLIC_KEY) {
+            config.stripe.publicKey = process.env.STRIPE_PUBLIC_KEY.trim();
+        }
     }
     
     if (process.env.STRIPE_CURRENCY) {
@@ -202,9 +204,9 @@ app.post('/api/config', checkAuth, (req, res) => {
 // SECRETS
 app.get('/api/secrets', checkAuth, (req, res) => {
     const secrets = readJSON(SECRETS_PATH);
-    const geminiApiKey = process.env.GEMINI_API_KEY || secrets.geminiApiKey;
-    const openaiApiKey = process.env.OPENAI_API_KEY || secrets.openaiApiKey;
-    const stripeSecretKey = process.env.STRIPE_SECRET_KEY || secrets.stripeSecretKey;
+    const geminiApiKey = secrets.geminiApiKey || process.env.GEMINI_API_KEY;
+    const openaiApiKey = secrets.openaiApiKey || process.env.OPENAI_API_KEY;
+    const stripeSecretKey = secrets.stripeSecretKey || process.env.STRIPE_SECRET_KEY;
     // Exclude actual password for safety, return mask details
     res.json({
         geminiApiKey: geminiApiKey ? '••••••••••••••••' : '',
@@ -528,8 +530,8 @@ app.post('/api/chat', async (req, res) => {
 
     const systemPrompt = req.body.systemPrompt || chatbot.systemPrompt || 'You are Aura, an AI assistant for Herban Alchemy.';
     const activeModel = chatbot.model || 'gemini';
-    const geminiApiKey = process.env.GEMINI_API_KEY || secrets.geminiApiKey;
-    const openaiApiKey = process.env.OPENAI_API_KEY || secrets.openaiApiKey;
+    const geminiApiKey = secrets.geminiApiKey || process.env.GEMINI_API_KEY;
+    const openaiApiKey = secrets.openaiApiKey || process.env.OPENAI_API_KEY;
 
     try {
         if (activeModel === 'gemini') {
@@ -644,8 +646,8 @@ app.post('/api/generate-image', checkAuth, async (req, res) => {
     }
 
     const secrets = readJSON(SECRETS_PATH);
-    const geminiApiKey = process.env.GEMINI_API_KEY || secrets.geminiApiKey;
-    const openaiApiKey = process.env.OPENAI_API_KEY || secrets.openaiApiKey;
+    const geminiApiKey = secrets.geminiApiKey || process.env.GEMINI_API_KEY;
+    const openaiApiKey = secrets.openaiApiKey || process.env.OPENAI_API_KEY;
     const targetFilename = `generated_${target}.jpg`;
     const targetPath = path.join(process.cwd(), 'assets', targetFilename);
 
@@ -783,7 +785,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
         const secrets = readJSON(SECRETS_PATH);
 
         const stripeEnabled = config.stripe && config.stripe.enabled;
-        const rawSecretKey = process.env.STRIPE_SECRET_KEY || secrets.stripeSecretKey;
+        const rawSecretKey = secrets.stripeSecretKey || process.env.STRIPE_SECRET_KEY;
         const stripeSecretKey = typeof rawSecretKey === 'string' ? rawSecretKey.trim() : '';
 
         if (!stripeEnabled || !stripeSecretKey) {
