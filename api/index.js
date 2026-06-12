@@ -35,8 +35,98 @@ const TMP_SECRETS_PATH = path.join(os.tmpdir(), 'herban_secrets.json');
 const TMP_LEADS_PATH = path.join(os.tmpdir(), 'herban_leads.json');
 const TMP_CUSTOMERS_PATH = path.join(os.tmpdir(), 'herban_customers.json');
 
-// Helper to read JSON with /tmp fallback support
-function readJSON(filePath, defaultData = {}) {
+// ==========================================
+// PERSISTENT STORAGE (Vercel Blob)
+// ------------------------------------------
+// Vercel's deployment filesystem is read-only and /tmp is per-instance,
+// so anything saved via the admin panel (Stripe/LLM keys, config, leads,
+// customers) used to evaporate between serverless invocations. When a
+// Vercel Blob store is connected (BLOB_READ_WRITE_TOKEN present), all
+// four JSON stores read/write through Blob instead. Local dev keeps the
+// original filesystem behavior.
+// ==========================================
+const { put: blobPut, del: blobDel, list: blobList } = require('@vercel/blob');
+const useBlob = !!process.env.BLOB_READ_WRITE_TOKEN;
+
+const STORE_NAMES = {
+    [CONFIG_PATH]: 'config',
+    [SECRETS_PATH]: 'secrets',
+    [LEADS_PATH]: 'leads',
+    [CUSTOMERS_PATH]: 'customers'
+};
+
+// Blob URLs are publicly accessible, so the secrets store is encrypted
+// at rest with a key derived from the blob token (never leaves Vercel).
+function getEncryptionKey() {
+    return crypto.createHash('sha256').update(process.env.BLOB_READ_WRITE_TOKEN).digest();
+}
+
+function encryptPayload(text) {
+    const iv = crypto.randomBytes(12);
+    const cipher = crypto.createCipheriv('aes-256-gcm', getEncryptionKey(), iv);
+    const encrypted = Buffer.concat([cipher.update(text, 'utf8'), cipher.final()]);
+    return JSON.stringify({
+        __enc: true,
+        iv: iv.toString('base64'),
+        tag: cipher.getAuthTag().toString('base64'),
+        data: encrypted.toString('base64')
+    });
+}
+
+function decryptPayload(text) {
+    const parsed = JSON.parse(text);
+    if (!parsed || parsed.__enc !== true) return parsed;
+    const decipher = crypto.createDecipheriv('aes-256-gcm', getEncryptionKey(), Buffer.from(parsed.iv, 'base64'));
+    decipher.setAuthTag(Buffer.from(parsed.tag, 'base64'));
+    const decrypted = Buffer.concat([decipher.update(Buffer.from(parsed.data, 'base64')), decipher.final()]);
+    return JSON.parse(decrypted.toString('utf8'));
+}
+
+// Each write creates a new random-suffixed blob (avoids CDN cache staleness
+// on overwrites); reads pick the newest and writes clean up older versions.
+async function blobReadStore(name) {
+    const { blobs } = await blobList({ prefix: `herban/${name}` });
+    if (!blobs || blobs.length === 0) return null;
+    const latest = blobs.reduce((a, b) => new Date(a.uploadedAt) > new Date(b.uploadedAt) ? a : b);
+    const res = await fetch(latest.url, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`Blob fetch failed: ${res.status}`);
+    const text = await res.text();
+    if (name === 'secrets') return decryptPayload(text);
+    return JSON.parse(text);
+}
+
+async function blobWriteStore(name, data) {
+    let body = JSON.stringify(data, null, 2);
+    if (name === 'secrets') body = encryptPayload(body);
+    const written = await blobPut(`herban/${name}.json`, body, {
+        access: 'public',
+        addRandomSuffix: true,
+        contentType: 'application/json'
+    });
+    // Best-effort cleanup of superseded versions
+    try {
+        const { blobs } = await blobList({ prefix: `herban/${name}` });
+        const stale = blobs.filter(b => b.url !== written.url);
+        if (stale.length > 0) await blobDel(stale.map(b => b.url));
+    } catch (err) {
+        console.error(`Blob cleanup error for ${name}:`, err);
+    }
+}
+
+// Helper to read JSON — Vercel Blob first, then local file / tmp fallback
+async function readJSON(filePath, defaultData = {}) {
+    const storeName = STORE_NAMES[filePath];
+
+    if (useBlob && storeName) {
+        try {
+            const data = await blobReadStore(storeName);
+            if (data !== null) return data;
+            // No blob yet — fall through to the bundled repo file as seed data
+        } catch (err) {
+            console.error(`Blob read error for ${storeName}:`, err);
+        }
+    }
+
     let tmpPath;
     if (filePath === CONFIG_PATH) tmpPath = TMP_CONFIG_PATH;
     if (filePath === SECRETS_PATH) tmpPath = TMP_SECRETS_PATH;
@@ -67,8 +157,20 @@ function readJSON(filePath, defaultData = {}) {
     }
 }
 
-// Helper to write JSON with /tmp fallback support
-function writeJSON(filePath, data) {
+// Helper to write JSON — Vercel Blob first, then local file / tmp fallback
+async function writeJSON(filePath, data) {
+    const storeName = STORE_NAMES[filePath];
+
+    if (useBlob && storeName) {
+        try {
+            await blobWriteStore(storeName, data);
+            return true;
+        } catch (err) {
+            console.error(`Blob write error for ${storeName}:`, err);
+            // fall through to filesystem attempts
+        }
+    }
+
     try {
         fs.mkdirSync(path.dirname(filePath), { recursive: true });
         fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
@@ -96,8 +198,8 @@ function writeJSON(filePath, data) {
 }
 
 // Helper to merge config with environment variables dynamically
-function getMergedConfig() {
-    const config = readJSON(CONFIG_PATH);
+async function getMergedConfig() {
+    const config = await readJSON(CONFIG_PATH);
     
     if (!config.stripe) {
         config.stripe = {
@@ -119,7 +221,7 @@ function getMergedConfig() {
     }
 
     // Merge Stripe overrides
-    const secrets = readJSON(SECRETS_PATH);
+    const secrets = await readJSON(SECRETS_PATH);
     const rawSecretKey = secrets.stripeSecretKey || process.env.STRIPE_SECRET_KEY;
     const stripeSecretKey = typeof rawSecretKey === 'string' ? rawSecretKey.trim() : '';
 
@@ -168,13 +270,13 @@ function getMergedConfig() {
 }
 
 // Auth Middleware
-function checkAuth(req, res, next) {
+async function checkAuth(req, res, next) {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({ error: 'Unauthorized: Missing token' });
     }
     const token = authHeader.split(' ')[1];
-    const secrets = readJSON(SECRETS_PATH, { adminPassword: 'kiara26!' });
+    const secrets = await readJSON(SECRETS_PATH, { adminPassword: 'kiara26!' });
     const adminPassword = process.env.ADMIN_PASSWORD || secrets.adminPassword || 'kiara26!';
     if (token !== adminPassword) {
         return res.status(403).json({ error: 'Forbidden: Invalid password' });
@@ -183,17 +285,17 @@ function checkAuth(req, res, next) {
 }
 
 // PUBLIC CONFIG
-app.get('/api/config', (req, res) => {
-    const config = getMergedConfig();
+app.get('/api/config', async (req, res) => {
+    const config = await getMergedConfig();
     res.json(config);
 });
 
-app.post('/api/config', checkAuth, (req, res) => {
+app.post('/api/config', checkAuth, async (req, res) => {
     const updated = req.body;
     if (!updated || typeof updated !== 'object') {
         return res.status(400).json({ error: 'Invalid config structure' });
     }
-    const success = writeJSON(CONFIG_PATH, updated);
+    const success = await writeJSON(CONFIG_PATH, updated);
     if (success) {
         res.json({ success: true, message: 'Configuration saved successfully' });
     } else {
@@ -202,8 +304,8 @@ app.post('/api/config', checkAuth, (req, res) => {
 });
 
 // SECRETS
-app.get('/api/secrets', checkAuth, (req, res) => {
-    const secrets = readJSON(SECRETS_PATH);
+app.get('/api/secrets', checkAuth, async (req, res) => {
+    const secrets = await readJSON(SECRETS_PATH);
     const geminiApiKey = secrets.geminiApiKey || process.env.GEMINI_API_KEY;
     const openaiApiKey = secrets.openaiApiKey || process.env.OPENAI_API_KEY;
     const stripeSecretKey = secrets.stripeSecretKey || process.env.STRIPE_SECRET_KEY;
@@ -218,9 +320,9 @@ app.get('/api/secrets', checkAuth, (req, res) => {
     });
 });
 
-app.post('/api/secrets', checkAuth, (req, res) => {
+app.post('/api/secrets', checkAuth, async (req, res) => {
     const { geminiApiKey, openaiApiKey, stripeSecretKey, adminPassword } = req.body;
-    const secrets = readJSON(SECRETS_PATH);
+    const secrets = await readJSON(SECRETS_PATH);
 
     if (geminiApiKey !== undefined && geminiApiKey !== '••••••••••••••••') {
         secrets.geminiApiKey = typeof geminiApiKey === 'string' ? geminiApiKey.trim() : geminiApiKey;
@@ -235,7 +337,7 @@ app.post('/api/secrets', checkAuth, (req, res) => {
         secrets.adminPassword = typeof adminPassword === 'string' ? adminPassword.trim() : adminPassword;
     }
 
-    const success = writeJSON(SECRETS_PATH, secrets);
+    const success = await writeJSON(SECRETS_PATH, secrets);
     if (success) {
         res.json({ success: true, message: 'Secrets updated successfully' });
     } else {
@@ -244,9 +346,9 @@ app.post('/api/secrets', checkAuth, (req, res) => {
 });
 
 // LOGIN
-app.post('/api/login', (req, res) => {
+app.post('/api/login', async (req, res) => {
     const { password } = req.body;
-    const secrets = readJSON(SECRETS_PATH, { adminPassword: 'kiara26!' });
+    const secrets = await readJSON(SECRETS_PATH, { adminPassword: 'kiara26!' });
     const adminPassword = process.env.ADMIN_PASSWORD || secrets.adminPassword || 'kiara26!';
     if (password === adminPassword) {
         res.json({ success: true, token: adminPassword });
@@ -264,13 +366,13 @@ function hashPassword(password) {
     return crypto.createHash('sha256').update(password).digest('hex');
 }
 
-function checkCustomerAuth(req, res, next) {
+async function checkCustomerAuth(req, res, next) {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({ error: 'Unauthorized: Missing token' });
     }
     const token = authHeader.split(' ')[1];
-    const customersData = readJSON(CUSTOMERS_PATH, { customers: [] });
+    const customersData = await readJSON(CUSTOMERS_PATH, { customers: [] });
     const customer = customersData.customers.find(c => c.sessionToken === token);
     if (!customer) {
         return res.status(403).json({ error: 'Forbidden: Invalid token' });
@@ -281,12 +383,12 @@ function checkCustomerAuth(req, res, next) {
 }
 
 // CUSTOMER REGISTER
-app.post('/api/customer/register', (req, res) => {
+app.post('/api/customer/register', async (req, res) => {
     const { name, email, password, phone, address } = req.body;
     if (!name || !email || !password) {
         return res.status(400).json({ error: 'Name, email, and password are required' });
     }
-    const customersData = readJSON(CUSTOMERS_PATH, { customers: [] });
+    const customersData = await readJSON(CUSTOMERS_PATH, { customers: [] });
     const cleanEmail = email.trim().toLowerCase();
     if (customersData.customers.some(c => c.email === cleanEmail)) {
         return res.status(400).json({ error: 'An account with this email already exists' });
@@ -330,7 +432,7 @@ app.post('/api/customer/register', (req, res) => {
     };
 
     customersData.customers.push(newCustomer);
-    const success = writeJSON(CUSTOMERS_PATH, customersData);
+    const success = await writeJSON(CUSTOMERS_PATH, customersData);
     if (!success) {
         return res.status(500).json({ error: 'Failed to register customer' });
     }
@@ -340,12 +442,12 @@ app.post('/api/customer/register', (req, res) => {
 });
 
 // CUSTOMER LOGIN
-app.post('/api/customer/login', (req, res) => {
+app.post('/api/customer/login', async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) {
         return res.status(400).json({ error: 'Email and password are required' });
     }
-    const customersData = readJSON(CUSTOMERS_PATH, { customers: [] });
+    const customersData = await readJSON(CUSTOMERS_PATH, { customers: [] });
     const cleanEmail = email.trim().toLowerCase();
     const customer = customersData.customers.find(c => c.email === cleanEmail);
     if (!customer) {
@@ -359,8 +461,8 @@ app.post('/api/customer/login', (req, res) => {
 
     const token = crypto.randomBytes(16).toString('hex');
     customer.sessionToken = token;
-    
-    const success = writeJSON(CUSTOMERS_PATH, customersData);
+
+    const success = await writeJSON(CUSTOMERS_PATH, customersData);
     if (!success) {
         return res.status(500).json({ error: 'Failed to create session' });
     }
@@ -376,7 +478,7 @@ app.get('/api/customer/profile', checkCustomerAuth, (req, res) => {
 });
 
 // CUSTOMER UPDATE PROFILE
-app.post('/api/customer/update', checkCustomerAuth, (req, res) => {
+app.post('/api/customer/update', checkCustomerAuth, async (req, res) => {
     const { name, email, phone, address } = req.body;
     const customer = req.customer;
     
@@ -402,7 +504,7 @@ app.post('/api/customer/update', checkCustomerAuth, (req, res) => {
         };
     }
 
-    const success = writeJSON(CUSTOMERS_PATH, req.customersData);
+    const success = await writeJSON(CUSTOMERS_PATH, req.customersData);
     if (!success) {
         return res.status(500).json({ error: 'Failed to update profile' });
     }
@@ -412,7 +514,7 @@ app.post('/api/customer/update', checkCustomerAuth, (req, res) => {
 });
 
 // CUSTOMER CREATE ORDER
-app.post('/api/customer/orders', checkCustomerAuth, (req, res) => {
+app.post('/api/customer/orders', checkCustomerAuth, async (req, res) => {
     const { items, total } = req.body;
     if (!items || !Array.isArray(items) || items.length === 0) {
         return res.status(400).json({ error: 'Order items are required' });
@@ -436,7 +538,7 @@ app.post('/api/customer/orders', checkCustomerAuth, (req, res) => {
     if (!customer.orders) customer.orders = [];
     customer.orders.unshift(newOrder);
 
-    const success = writeJSON(CUSTOMERS_PATH, req.customersData);
+    const success = await writeJSON(CUSTOMERS_PATH, req.customersData);
     if (!success) {
         return res.status(500).json({ error: 'Failed to save order' });
     }
@@ -445,19 +547,19 @@ app.post('/api/customer/orders', checkCustomerAuth, (req, res) => {
 });
 
 // GET LEADS (Protected)
-app.get('/api/leads', checkAuth, (req, res) => {
-    const leadsData = readJSON(LEADS_PATH, { leads: [] });
+app.get('/api/leads', checkAuth, async (req, res) => {
+    const leadsData = await readJSON(LEADS_PATH, { leads: [] });
     res.json(leadsData);
 });
 
 // POST LEAD (Public)
-app.post('/api/leads', (req, res) => {
+app.post('/api/leads', async (req, res) => {
     const { email, variantId, variantTitle } = req.body;
     if (!email || !email.includes('@')) {
         return res.status(400).json({ error: 'A valid email is required' });
     }
 
-    const leadsData = readJSON(LEADS_PATH, { leads: [] });
+    const leadsData = await readJSON(LEADS_PATH, { leads: [] });
     
     // Check if email already exists
     const exists = leadsData.leads.some(l => l.email === email.trim().toLowerCase());
@@ -470,7 +572,7 @@ app.post('/api/leads', (req, res) => {
             timestamp: new Date().toISOString(),
             status: 'Subscribed'
         });
-        const success = writeJSON(LEADS_PATH, leadsData);
+        const success = await writeJSON(LEADS_PATH, leadsData);
         if (!success) {
             return res.status(500).json({ error: 'Failed to save lead' });
         }
@@ -480,11 +582,11 @@ app.post('/api/leads', (req, res) => {
 });
 
 // DELETE LEAD (Protected)
-app.delete('/api/leads', checkAuth, (req, res) => {
+app.delete('/api/leads', checkAuth, async (req, res) => {
     const { id, clearAll } = req.query;
-    
+
     if (clearAll === 'true') {
-        const success = writeJSON(LEADS_PATH, { leads: [] });
+        const success = await writeJSON(LEADS_PATH, { leads: [] });
         if (success) {
             return res.json({ success: true, message: 'All leads cleared' });
         } else {
@@ -496,7 +598,7 @@ app.delete('/api/leads', checkAuth, (req, res) => {
         return res.status(400).json({ error: 'Lead ID is required' });
     }
 
-    const leadsData = readJSON(LEADS_PATH, { leads: [] });
+    const leadsData = await readJSON(LEADS_PATH, { leads: [] });
     const originalLength = leadsData.leads.length;
     leadsData.leads = leadsData.leads.filter(l => l.id !== id);
     
@@ -504,7 +606,7 @@ app.delete('/api/leads', checkAuth, (req, res) => {
         return res.status(404).json({ error: 'Lead not found' });
     }
 
-    const success = writeJSON(LEADS_PATH, leadsData);
+    const success = await writeJSON(LEADS_PATH, leadsData);
     if (success) {
         res.json({ success: true, message: 'Lead deleted successfully' });
     } else {
@@ -519,8 +621,8 @@ app.post('/api/chat', async (req, res) => {
         return res.status(400).json({ error: 'Message is required' });
     }
 
-    const config = getMergedConfig();
-    const secrets = readJSON(SECRETS_PATH);
+    const config = await getMergedConfig();
+    const secrets = await readJSON(SECRETS_PATH);
     const chatbot = config.chatbot || { enabled: true, model: 'gemini', systemPrompt: '' };
     const isThemeGen = req.body.isThemeGen || false;
 
@@ -645,7 +747,7 @@ app.post('/api/generate-image', checkAuth, async (req, res) => {
         return res.status(400).json({ error: 'Invalid target identifier. Must be alphanumeric with underscores/hyphens only.' });
     }
 
-    const secrets = readJSON(SECRETS_PATH);
+    const secrets = await readJSON(SECRETS_PATH);
     const geminiApiKey = secrets.geminiApiKey || process.env.GEMINI_API_KEY;
     const openaiApiKey = secrets.openaiApiKey || process.env.OPENAI_API_KEY;
     const targetFilename = `generated_${target}.jpg`;
@@ -781,8 +883,8 @@ app.post('/api/create-checkout-session', async (req, res) => {
     }
 
     try {
-        const config = getMergedConfig();
-        const secrets = readJSON(SECRETS_PATH);
+        const config = await getMergedConfig();
+        const secrets = await readJSON(SECRETS_PATH);
 
         const stripeEnabled = config.stripe && config.stripe.enabled;
         const rawSecretKey = secrets.stripeSecretKey || process.env.STRIPE_SECRET_KEY;
@@ -898,8 +1000,10 @@ app.use((req, res) => {
     res.sendFile(path.join(process.cwd(), 'index.html'));
 });
 
-app.listen(PORT, () => {
-    console.log(`Herban Alchemy backend server listening on port ${PORT}`);
-});
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`Herban Alchemy backend server listening on port ${PORT}`);
+    });
+}
 
 module.exports = app;

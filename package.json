@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/Antlo314/herban#readme",
   "dependencies": {
+    "@vercel/blob": "^2.4.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
