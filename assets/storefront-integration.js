@@ -672,10 +672,10 @@
             if (headerSocial) {
                 if (footer.socials && footer.socials.instagram) {
                     headerSocial.href = footer.socials.instagram;
-                    headerSocial.style.display = 'inline-block';
+                    headerSocial.style.removeProperty('display');
                 } else if (footer.instagramLink) {
                     headerSocial.href = footer.instagramLink;
-                    headerSocial.style.display = 'inline-block';
+                    headerSocial.style.removeProperty('display');
                 } else {
                     // find first available social link
                     const firstVal = Object.values(footer.socials || {}).find(v => v && v.trim() !== '');
@@ -696,7 +696,7 @@
                             };
                             iconEl.className = icons[activeKey] || 'fa-solid fa-link';
                         }
-                        headerSocial.style.display = 'inline-block';
+                        headerSocial.style.removeProperty('display');
                     } else {
                         headerSocial.style.display = 'none';
                     }
@@ -730,40 +730,40 @@
                 return;
             }
 
-            // Save order to customer account if logged in
-            const customerToken = localStorage.getItem('herbanCustomerToken');
-            if (customerToken) {
-                try {
-                    const orderTotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-                    const orderItems = cart.map(item => ({
-                        id: item.id || null,
-                        name: item.name,
-                        qty: item.qty,
-                        price: item.price,
-                        image: item.image || ''
-                    }));
-
-                    const backendOrigin = window.HERBAN_BACKEND_ORIGIN || '';
-                    await fetch(`${backendOrigin}/api/customer/orders`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${customerToken}`
-                        },
-                        body: JSON.stringify({
-                            items: orderItems,
-                            total: orderTotal
-                        })
-                    });
-                    console.log('[Herban Engine] Order successfully recorded to customer account.');
-                } catch (e) {
-                    console.error('[Herban Engine] Failed to record order to customer account:', e);
-                }
-            }
-
             const stripeEnabled = currentConfig.stripe && currentConfig.stripe.enabled;
             if (!stripeEnabled) {
-                // Redirect directly to the 'Thank You' (success.html) page for the demo checkout
+                // Demo checkout (no payment): record the order to the account,
+                // then go to the Thank You page. When Stripe is enabled, orders
+                // must NOT be recorded here — payment hasn't happened yet.
+                const customerToken = localStorage.getItem('herbanCustomerToken');
+                if (customerToken) {
+                    try {
+                        const orderTotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+                        const orderItems = cart.map(item => ({
+                            id: item.id || null,
+                            name: item.name,
+                            qty: item.qty,
+                            price: item.price,
+                            image: item.image || ''
+                        }));
+
+                        const backendOrigin = window.HERBAN_BACKEND_ORIGIN || '';
+                        await fetch(`${backendOrigin}/api/customer/orders`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${customerToken}`
+                            },
+                            body: JSON.stringify({
+                                items: orderItems,
+                                total: orderTotal
+                            })
+                        });
+                        console.log('[Herban Engine] Order successfully recorded to customer account.');
+                    } catch (e) {
+                        console.error('[Herban Engine] Failed to record order to customer account:', e);
+                    }
+                }
                 window.location.href = 'success.html';
                 return;
             }

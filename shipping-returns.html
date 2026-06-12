@@ -111,18 +111,18 @@
                     </div>
 
                     <!-- Account -->
-                    <button class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                    <a href="account.html" class="p-2 hover:bg-gray-100 rounded-full transition-colors" aria-label="My account">
                         <i class="fa-regular fa-user text-xl"></i>
-                    </button>
+                    </a>
 
-                    <!-- Instagram -->
-                    <a href="https://www.instagram.com/herban_alchemynaturalskincare" target="_blank" class="p-2 hover:bg-gray-100 rounded-full transition-colors text-xl">
+                    <!-- Instagram (desktop only — mobile menu has it) -->
+                    <a href="https://www.instagram.com/herban_alchemynaturalskincare" target="_blank" class="hidden md:inline-flex p-2 hover:bg-gray-100 rounded-full transition-colors text-xl">
                         <i class="fa-brands fa-instagram"></i>
                     </a>
 
                     <!-- Cart -->
-                    <button onclick="showCart()" 
-                            class="flex items-center gap-x-1.5 px-4 py-2 hover:bg-gray-100 rounded-full transition-colors relative">
+                    <button onclick="showCart()"
+                            class="flex items-center gap-x-1.5 px-2 md:px-4 py-2 hover:bg-gray-100 rounded-full transition-colors relative">
                         <i class="fa-solid fa-shopping-bag text-xl"></i>
                         <span id="cart-count" 
                               class="absolute -top-1 -right-1 bg-[#FF2E63] text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">0</span>

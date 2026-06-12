@@ -266,9 +266,6 @@
                     <button type="submit" class="flex-grow bg-[#111111] hover:bg-[#C5A26F] text-white font-bold py-4 rounded-2xl text-xs uppercase tracking-widest transition-all duration-300 shadow-md transform hover:scale-[1.01]">
                         Log In
                     </button>
-                    <button type="button" onclick="handleAdminQuickLogin()" class="flex-none border border-gray-200 hover:border-[#C5A26F] text-gray-600 hover:text-[#C5A26F] font-bold px-6 py-4 rounded-2xl text-xs uppercase tracking-widest transition-all duration-300 shadow-sm flex items-center justify-center gap-x-2">
-                        <i class="fa-solid fa-user-shield"></i> Admin
-                    </button>
                 </div>
             </form>
 
@@ -474,7 +471,7 @@
                 <button onclick="checkout()" class="w-full bg-[#111111] hover:bg-black text-white py-4 rounded-2xl font-semibold tracking-wider">
                     CHECKOUT
                 </button>
-                <div class="text-center text-xs text-gray-400 mt-3">or 4 interest-free payments of $XX with Shop Pay</div>
+                <div class="text-center text-xs text-gray-400 mt-3"><i class="fa-solid fa-lock mr-1"></i>Secure checkout powered by Stripe</div>
             </div>
         </div>
     </div>
@@ -748,24 +745,6 @@
                 errEl.textContent = 'Server connection failed.';
                 errEl.classList.remove('hidden');
             }
-        }
-
-        // Handle Admin Quick Login
-        async function handleAdminQuickLogin() {
-            try {
-                const res = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ password: 'kiara26!' })
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    sessionStorage.setItem('herbanAdminToken', data.token);
-                }
-            } catch (err) {
-                console.error('Admin quick login failed:', err);
-            }
-            window.location.href = 'admin.html';
         }
 
         // Render Dashboard details

@@ -270,15 +270,22 @@ async function getMergedConfig() {
 }
 
 // Auth Middleware
+// The admin password comes from the ADMIN_PASSWORD env var or a password
+// saved via the admin panel. There is intentionally NO hardcoded default —
+// this code is in a public repo.
+async function getAdminPassword() {
+    const secrets = await readJSON(SECRETS_PATH, {});
+    return process.env.ADMIN_PASSWORD || secrets.adminPassword || '';
+}
+
 async function checkAuth(req, res, next) {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({ error: 'Unauthorized: Missing token' });
     }
     const token = authHeader.split(' ')[1];
-    const secrets = await readJSON(SECRETS_PATH, { adminPassword: 'kiara26!' });
-    const adminPassword = process.env.ADMIN_PASSWORD || secrets.adminPassword || 'kiara26!';
-    if (token !== adminPassword) {
+    const adminPassword = await getAdminPassword();
+    if (!adminPassword || token !== adminPassword) {
         return res.status(403).json({ error: 'Forbidden: Invalid password' });
     }
     next();
@@ -348,8 +355,10 @@ app.post('/api/secrets', checkAuth, async (req, res) => {
 // LOGIN
 app.post('/api/login', async (req, res) => {
     const { password } = req.body;
-    const secrets = await readJSON(SECRETS_PATH, { adminPassword: 'kiara26!' });
-    const adminPassword = process.env.ADMIN_PASSWORD || secrets.adminPassword || 'kiara26!';
+    const adminPassword = await getAdminPassword();
+    if (!adminPassword) {
+        return res.status(503).json({ error: 'Admin access is not configured. Set the ADMIN_PASSWORD environment variable.' });
+    }
     if (password === adminPassword) {
         res.json({ success: true, token: adminPassword });
     } else {
@@ -894,12 +903,11 @@ app.post('/api/create-checkout-session', async (req, res) => {
             return res.status(400).json({ error: 'Stripe payments are not configured or disabled' });
         }
 
-        // Initialize Stripe client with the Fetch HTTP client for compatibility with serverless environments (like Vercel)
-        // and add timeout/retry controls for network resilience.
+        // Default Node HTTPS client — the fetch client caused
+        // StripeConnectionError on Vercel's Node runtime.
         const stripe = new Stripe(stripeSecretKey, {
-            httpClient: Stripe.createFetchHttpClient(),
-            maxNetworkRetries: 3,
-            timeout: 10000
+            maxNetworkRetries: 2,
+            timeout: 20000
         });
 
         const currency = config.stripe.currency || 'usd';
@@ -990,8 +998,14 @@ app.post('/api/create-checkout-session', async (req, res) => {
         });
 
     } catch (err) {
-        console.error('Stripe Checkout Error:', err);
-        res.status(500).json({ error: err.message || 'Error generating payment checkout session' });
+        console.error('Stripe Checkout Error:', err.type || '', err.code || '', err.message, err.stack);
+        let message = err.message || 'Error generating payment checkout session';
+        if (err.type === 'StripeAuthenticationError') {
+            message = 'The Stripe secret key is invalid. Please re-check it in the admin panel (Integrations).';
+        } else if (err.type === 'StripeConnectionError') {
+            message = 'Could not reach Stripe. Please try again in a moment.';
+        }
+        res.status(500).json({ error: message });
     }
 });
 

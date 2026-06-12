@@ -407,8 +407,8 @@
                     <a href="index.html" class="flex items-center gap-x-3">
                         <img src="assets/herban.jpg" alt="Herban Alchemy Logo" class="h-9 w-9 object-contain rounded-full border border-gray-200" onerror="this.style.display='none'">
                         <div>
-                            <div class="herban-logo text-2xl tracking-tighter font-black">HERBAN</div>
-                            <div class="text-[9px] text-[#C5A26F] -mt-1.5 font-medium tracking-[2px]">ALCHEMY</div>
+                            <div class="herban-logo text-xl md:text-2xl tracking-tighter font-black">HERBAN</div>
+                            <div class="text-[8px] md:text-[9px] text-[#C5A26F] -mt-1 md:-mt-1.5 font-medium tracking-[2px]">ALCHEMY</div>
                         </div>
                     </a>
                 </div>
@@ -434,26 +434,26 @@
                     </div>
 
                     <!-- Account -->
-                    <button class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                    <a href="account.html" class="p-2 hover:bg-gray-100 rounded-full transition-colors" aria-label="My account">
                         <i class="fa-regular fa-user text-xl"></i>
-                    </button>
+                    </a>
 
-                    <!-- Instagram -->
-                    <a href="https://www.instagram.com/herban_alchemynaturalskincare" target="_blank" class="p-2 hover:bg-gray-100 rounded-full transition-colors text-xl">
+                    <!-- Instagram (desktop only — mobile menu has it) -->
+                    <a href="https://www.instagram.com/herban_alchemynaturalskincare" target="_blank" class="hidden md:inline-flex p-2 hover:bg-gray-100 rounded-full transition-colors text-xl">
                         <i class="fa-brands fa-instagram"></i>
                     </a>
 
                     <!-- Cart -->
-                    <button onclick="showCart()" 
-                            class="flex items-center gap-x-1.5 px-4 py-2 hover:bg-gray-100 rounded-full transition-colors relative">
+                    <button onclick="showCart()"
+                            class="flex items-center gap-x-1.5 px-2 md:px-4 py-2 hover:bg-gray-100 rounded-full transition-colors relative">
                         <i class="fa-solid fa-shopping-bag text-xl"></i>
-                        <span id="cart-count" 
+                        <span id="cart-count"
                               class="absolute -top-1 -right-1 bg-[#FF2E63] text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">0</span>
                         <span class="hidden md:inline text-sm font-medium">Cart</span>
                     </button>
 
                     <!-- Mobile Menu Button -->
-                    <button onclick="toggleMobileMenu()" class="md:hidden p-2">
+                    <button onclick="toggleMobileMenu()" class="md:hidden p-2" aria-label="Menu">
                         <i class="fa-solid fa-bars text-xl"></i>
                     </button>
                 </div>
@@ -470,6 +470,7 @@
             <a href="about.html" class="block py-2 hover:text-[#C5A26F]">About</a>
             <a href="index.html#quiz" class="block py-2 hover:text-[#C5A26F]">Find Your Scent</a>
             <a href="ingredients.html" class="block py-2 hover:text-[#C5A26F]">Ingredients</a>
+            <a href="account.html" class="block py-2 hover:text-[#C5A26F]">My Account</a>
             <div class="pt-2 border-t flex items-center gap-4">
                 <a href="https://www.instagram.com/herban_alchemynaturalskincare" target="_blank" class="text-xl"><i class="fa-brands fa-instagram"></i></a>
                 <button onclick="showCart(); toggleMobileMenu();" class="text-sm">Cart</button>
@@ -1104,7 +1105,7 @@
                         class="w-full bg-[#111111] hover:bg-black text-white py-4 rounded-2xl font-semibold tracking-wider">
                     CHECKOUT
                 </button>
-                <div class="text-center text-xs text-gray-400 mt-3">or 4 interest-free payments of $XX with Shop Pay</div>
+                <div class="text-center text-xs text-gray-400 mt-3"><i class="fa-solid fa-lock mr-1"></i>Secure checkout powered by Stripe</div>
             </div>
         </div>
     </div>
@@ -1626,9 +1627,29 @@
             const count = document.getElementById('cart-count');
             if (count) count.style.display = 'flex';
             
-            // Launch modal after brief delay (if not dismissed before)
+            // Launch modal: wait for real engagement (40% scroll or 25s on
+            // page) instead of ambushing visitors the moment they arrive.
             if (!localStorage.getItem('herbanLaunchDismissed')) {
-                setTimeout(showLaunchModal, 1200);
+                let launchShown = false;
+                const maybeShowLaunch = () => {
+                    if (launchShown || localStorage.getItem('herbanLaunchDismissed')) return;
+                    // Never interrupt an active shopper: cart open or items in it
+                    const cartDrawer = document.getElementById('cart-drawer');
+                    if (cartDrawer && !cartDrawer.classList.contains('hidden')) return;
+                    try {
+                        const items = JSON.parse(localStorage.getItem('herbanCart') || '[]');
+                        if (items.length > 0) return;
+                    } catch (e) { /* ignore */ }
+                    launchShown = true;
+                    window.removeEventListener('scroll', onLaunchScroll);
+                    showLaunchModal();
+                };
+                const onLaunchScroll = () => {
+                    const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+                    if (scrollable > 0 && window.scrollY / scrollable > 0.4) maybeShowLaunch();
+                };
+                window.addEventListener('scroll', onLaunchScroll, { passive: true });
+                setTimeout(maybeShowLaunch, 25000);
             }
 
             // Cookie banner after user has been on page a few seconds
