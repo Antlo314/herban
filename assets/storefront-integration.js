@@ -27,43 +27,62 @@
             greeting: "Hi there! I'm Aura, your Herban Alchemy skincare guide. How can I help you find your glow today?",
             systemPrompt: "",
             model: "gemini"
+        },
+        stripe: {
+            enabled: false,
+            publicKey: '',
+            currency: 'usd',
+            shippingFlatRate: 5.99,
+            freeShippingThreshold: 65
         }
     };
 
     // Load dynamic configuration from API
     async function loadConfig() {
-        try {
-            const res = await fetch('/api/config');
-            if (res.ok) {
-                const data = await res.json();
-                
-                // Safe deep merge to prevent TypeError crashes with empty objects/properties
-                currentConfig = {
-                    ...currentConfig,
-                    ...data,
-                    banner: { ...currentConfig.banner, ...(data.banner || {}) },
-                    placements: { ...currentConfig.placements, ...(data.placements || {}) },
-                    chatbot: { ...currentConfig.chatbot, ...(data.chatbot || {}) },
-                    stripe: { ...currentConfig.stripe, ...(data.stripe || {}) }
-                };
-                if (data.theme) {
-                    currentConfig.theme = { ...(currentConfig.theme || {}), ...data.theme };
+        const origins = ['', 'http://localhost:3000'];
+        let configLoaded = false;
+        
+        for (const origin of origins) {
+            if (configLoaded) break;
+            try {
+                const res = await fetch(`${origin}/api/config`);
+                if (res.ok) {
+                    const data = await res.json();
+                    
+                    // Safe deep merge to prevent TypeError crashes with empty objects/properties
+                    currentConfig = {
+                        ...currentConfig,
+                        ...data,
+                        banner: { ...currentConfig.banner, ...(data.banner || {}) },
+                        placements: { ...currentConfig.placements, ...(data.placements || {}) },
+                        chatbot: { ...currentConfig.chatbot, ...(data.chatbot || {}) },
+                        stripe: { ...currentConfig.stripe, ...(data.stripe || {}) }
+                    };
+                    if (data.theme) {
+                        currentConfig.theme = { ...(currentConfig.theme || {}), ...data.theme };
+                    }
+                    if (data.hero) {
+                        currentConfig.hero = { ...(currentConfig.hero || {}), ...data.hero };
+                    }
+                    if (data.footer) {
+                        currentConfig.footer = { ...(currentConfig.footer || {}), ...data.footer };
+                    }
+                    if (data.products) {
+                        currentConfig.products = data.products;
+                    }
+                    
+                    window.HERBAN_BACKEND_ORIGIN = origin;
+                    window.currentConfig = currentConfig; // Expose globally for cart/product lookups
+                    console.log(`[Herban Engine] Dynamic configuration loaded successfully from ${origin || 'relative path'}.`);
+                    configLoaded = true;
                 }
-                if (data.hero) {
-                    currentConfig.hero = { ...(currentConfig.hero || {}), ...data.hero };
-                }
-                if (data.footer) {
-                    currentConfig.footer = { ...(currentConfig.footer || {}), ...data.footer };
-                }
-                if (data.products) {
-                    currentConfig.products = data.products;
-                }
-                
-                window.currentConfig = currentConfig; // Expose globally for cart/product lookups
-                console.log('[Herban Engine] Dynamic configuration loaded successfully.');
+            } catch (err) {
+                // Try next origin in loop silently
             }
-        } catch (err) {
-            console.warn('[Herban Engine] Failed to fetch server config. Running in offline/static fallback mode.', err);
+        }
+
+        if (!configLoaded) {
+            console.warn('[Herban Engine] Failed to fetch server config. Running in offline/static fallback mode.');
         }
 
         // Initialize elements
@@ -375,7 +394,8 @@
         container.scrollTop = container.scrollHeight;
 
         try {
-            const res = await fetch('/api/chat', {
+            const backendOrigin = window.HERBAN_BACKEND_ORIGIN || '';
+            const res = await fetch(`${backendOrigin}/api/chat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -723,7 +743,8 @@
                         image: item.image || ''
                     }));
 
-                    await fetch('/api/customer/orders', {
+                    const backendOrigin = window.HERBAN_BACKEND_ORIGIN || '';
+                    await fetch(`${backendOrigin}/api/customer/orders`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -761,7 +782,8 @@
 
             try {
                 // Call create checkout session endpoint
-                const res = await fetch('/api/create-checkout-session', {
+                const backendOrigin = window.HERBAN_BACKEND_ORIGIN || '';
+                const res = await fetch(`${backendOrigin}/api/create-checkout-session`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 

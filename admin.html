@@ -1643,13 +1643,13 @@
                     if (secrets.hasGemini || secrets.hasOpenai || secrets.hasStripe) {
                         statusEl.textContent = 'Configured';
                         statusEl.className = 'text-sm font-bold text-green-600';
-                        if (secrets.hasGemini) document.getElementById('secret-gemini').placeholder = '•••••••••••••••• (Configured)';
-                        if (secrets.hasOpenai) document.getElementById('secret-openai').placeholder = '•••••••••••••••• (Configured)';
-                        if (secrets.hasStripe) document.getElementById('secret-stripe-secret').placeholder = '•••••••••••••••• (Configured)';
                     } else {
                         statusEl.textContent = 'Unconfigured';
                         statusEl.className = 'text-sm font-bold text-yellow-600';
                     }
+                    document.getElementById('secret-gemini').placeholder = secrets.hasGemini ? '•••••••••••••••• (Configured)' : 'AIzaSy...';
+                    document.getElementById('secret-openai').placeholder = secrets.hasOpenai ? '•••••••••••••••• (Configured)' : 'sk-...';
+                    document.getElementById('secret-stripe-secret').placeholder = secrets.hasStripe ? '•••••••••••••••• (Configured)' : 'Unconfigured';
                 }
             } catch (err) {
                 console.error(err);
@@ -1836,8 +1836,8 @@
             e.preventDefault();
             const stripeSecret = document.getElementById('secret-stripe-secret').value.trim();
             if (!stripeSecret) {
-                alert('Please enter a secret key value.');
-                return;
+                const confirmClear = confirm('Are you sure you want to clear the Stripe Secret Key? This will disable Stripe Checkout payments.');
+                if (!confirmClear) return;
             }
 
             try {

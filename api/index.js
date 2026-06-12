@@ -119,9 +119,13 @@ function getMergedConfig() {
     }
 
     // Merge Stripe overrides
+    const secrets = readJSON(SECRETS_PATH);
+    const rawSecretKey = process.env.STRIPE_SECRET_KEY || secrets.stripeSecretKey;
+    const stripeSecretKey = typeof rawSecretKey === 'string' ? rawSecretKey.trim() : '';
+
     if (process.env.STRIPE_ENABLED !== undefined) {
         config.stripe.enabled = process.env.STRIPE_ENABLED === 'true';
-    } else if (process.env.STRIPE_SECRET_KEY || process.env.STRIPE_PUBLISHABLE_KEY) {
+    } else if (stripeSecretKey || process.env.STRIPE_PUBLISHABLE_KEY || process.env.STRIPE_PUBLIC_KEY || config.stripe.publicKey) {
         config.stripe.enabled = true;
     }
     
@@ -799,7 +803,11 @@ app.post('/api/create-checkout-session', async (req, res) => {
         const freeShippingThreshold = parseFloat(config.stripe.freeShippingThreshold || 65);
 
         // Sum total amount for shipping calculations
-        const totalAmount = items.reduce((sum, item) => sum + (item.price * item.qty), 0);
+        const totalAmount = items.reduce((sum, item) => {
+            const price = parseFloat(item.price) || 0;
+            const qty = parseInt(item.qty, 10) || 1;
+            return sum + (price * qty);
+        }, 0);
 
         // Resolve absolute URL helper
         const getAbsoluteUrl = (pathStr) => {
@@ -810,15 +818,17 @@ app.post('/api/create-checkout-session', async (req, res) => {
 
         // Format cart items to Stripe Line Items
         const line_items = items.map(item => {
+            const price = parseFloat(item.price) || 0;
+            const qty = parseInt(item.qty, 10) || 1;
             const line = {
                 price_data: {
                     currency: currency,
                     product_data: {
                         name: item.scent ? `${item.name} (${item.scent})` : item.name,
                     },
-                    unit_amount: Math.round(item.price * 100), // Stripe expects unit price in cents
+                    unit_amount: Math.round(price * 100), // Stripe expects unit price in cents
                 },
-                quantity: item.qty
+                quantity: qty
             };
 
             // Safely append absolute image URL if present and is a public URL
