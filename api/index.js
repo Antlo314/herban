@@ -1242,8 +1242,8 @@ app.post('/api/create-checkout-session', async (req, res) => {
     } catch (err) {
         console.error('Stripe Checkout Error:', err.type || '', err.code || '', err.message, err.stack);
         let message = err.message || 'Error generating payment checkout session';
-        if (err.type === 'StripeAuthenticationError') {
-            message = 'The Stripe secret key is invalid. Please re-check STRIPE_SECRET_KEY in your Vercel environment variables.';
+        if (err.type === 'StripeAuthenticationError' || err.message?.includes('Invalid API Key')) {
+            message = 'The Stripe secret key is invalid or corrupted. In Stripe Dashboard → Developers → API keys, copy a fresh sk_live_... secret key, paste it into STRIPE_SECRET_KEY in Vercel (no spaces or line breaks), then redeploy.';
         } else if (err.type === 'StripeConnectionError') {
             const detail = err.code || err.cause?.code || 'connection error';
             console.error('Stripe connection detail:', detail, err.cause?.message || '');
