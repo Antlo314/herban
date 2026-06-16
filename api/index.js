@@ -220,16 +220,8 @@ async function writeJSON(filePath, data) {
     }
 }
 
-// Force IPv4 for outbound HTTPS — Vercel serverless egress can fail on IPv6.
-const stripeHttpAgent = new https.Agent({
-    keepAlive: true,
-    lookup: (hostname, options, callback) => {
-        dns.lookup(hostname, { family: 4, all: false }, (err, address, family) => {
-            if (err) return callback(err, null, null);
-            callback(null, address, family || 4);
-        });
-    }
-});
+// Prefer IPv4 for Stripe HTTPS — Vercel serverless egress can fail on IPv6.
+const stripeHttpAgent = new https.Agent({ keepAlive: true, family: 4 });
 
 function sanitizeStripeKey(key) {
     if (typeof key !== 'string') return '';
