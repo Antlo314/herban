@@ -221,7 +221,12 @@ async function writeJSON(filePath, data) {
 }
 
 // Force IPv4 for outbound HTTPS — Vercel serverless egress can fail on IPv6.
-const stripeHttpAgent = new https.Agent({ family: 4, keepAlive: true });
+const stripeHttpAgent = new https.Agent({
+    keepAlive: true,
+    lookup: (hostname, options, callback) => {
+        dns.lookup(hostname, { family: 4, all: false }, callback);
+    }
+});
 
 function sanitizeStripeKey(key) {
     if (typeof key !== 'string') return '';
@@ -237,12 +242,14 @@ function createStripeClient(secretKey) {
     });
 }
 
-// Stripe secret key: Vercel env vars take priority over admin-saved blob secrets.
+// Stripe secret key is read only from Vercel/server environment variables.
 async function getStripeSecretKey() {
-    const secrets = await readJSON(SECRETS_PATH);
-    const envKey = sanitizeStripeKey(process.env.STRIPE_SECRET_KEY || '');
-    const storedKey = sanitizeStripeKey(secrets.stripeSecretKey || '');
-    return envKey || storedKey;
+    return sanitizeStripeKey(
+        process.env.STRIPE_SECRET_KEY ||
+        process.env.STRIPE_API_KEY ||
+        process.env.STRIPE_KEY ||
+        ''
+    );
 }
 
 // Helper to merge config with environment variables dynamically
@@ -277,6 +284,7 @@ async function getMergedConfig() {
     );
 
     config.stripe.ready = !!stripeSecretKey;
+    config.stripe.keySource = stripeSecretKey ? 'env' : 'none';
 
     if (process.env.STRIPE_ENABLED !== undefined) {
         config.stripe.enabled = process.env.STRIPE_ENABLED === 'true';
@@ -1085,7 +1093,9 @@ app.post('/api/create-checkout-session', async (req, res) => {
         if (err.type === 'StripeAuthenticationError') {
             message = 'The Stripe secret key is invalid. Please re-check STRIPE_SECRET_KEY in your Vercel environment variables.';
         } else if (err.type === 'StripeConnectionError') {
-            message = `Could not reach Stripe (${err.code || 'connection error'}). Please try again in a moment.`;
+            const detail = err.code || err.cause?.code || 'connection error';
+            console.error('Stripe connection detail:', detail, err.cause?.message || '');
+            message = `Could not reach Stripe (${detail}). Please try again in a moment.`;
         }
         res.status(500).json({ error: message });
     }
