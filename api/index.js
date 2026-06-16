@@ -224,7 +224,10 @@ async function writeJSON(filePath, data) {
 const stripeHttpAgent = new https.Agent({
     keepAlive: true,
     lookup: (hostname, options, callback) => {
-        dns.lookup(hostname, { family: 4, all: false }, callback);
+        dns.lookup(hostname, { family: 4, all: false }, (err, address, family) => {
+            if (err) return callback(err, null, null);
+            callback(null, address, family || 4);
+        });
     }
 });
 
@@ -242,14 +245,164 @@ function createStripeClient(secretKey) {
     });
 }
 
-// Stripe secret key is read only from Vercel/server environment variables.
+function flattenStripeParams(value, prefix = '', parts = []) {
+    if (value === undefined || value === null) return parts;
+
+    if (Array.isArray(value)) {
+        const primitiveArray = value.every(v => v === null || typeof v !== 'object');
+        if (primitiveArray) {
+            value.forEach((item) => {
+                if (item === undefined || item === null) return;
+                parts.push([`${prefix}[]`, String(item)]);
+            });
+            return parts;
+        }
+        value.forEach((item, index) => {
+            flattenStripeParams(item, `${prefix}[${index}]`, parts);
+        });
+        return parts;
+    }
+
+    if (typeof value === 'object') {
+        Object.entries(value).forEach(([key, nested]) => {
+            const nextPrefix = prefix ? `${prefix}[${key}]` : key;
+            flattenStripeParams(nested, nextPrefix, parts);
+        });
+        return parts;
+    }
+
+    parts.push([prefix, String(value)]);
+    return parts;
+}
+
+function encodeStripeFormBody(payload) {
+    return flattenStripeParams(payload)
+        .map(([key, val]) => `${encodeURIComponent(key)}=${encodeURIComponent(val)}`)
+        .join('&');
+}
+
+function stripeHttpsRequest(secretKey, path, payload) {
+    const body = encodeStripeFormBody(payload);
+    return new Promise((resolve, reject) => {
+        const request = https.request({
+            hostname: 'api.stripe.com',
+            port: 443,
+            path: `/v1${path}`,
+            method: 'POST',
+            agent: stripeHttpAgent,
+            headers: {
+                Authorization: `Bearer ${secretKey}`,
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Length': Buffer.byteLength(body)
+            },
+            timeout: 30000
+        }, (response) => {
+            let raw = '';
+            response.on('data', (chunk) => { raw += chunk; });
+            response.on('end', () => {
+                let parsed;
+                try {
+                    parsed = JSON.parse(raw);
+                } catch (err) {
+                    return reject(new Error(`Stripe returned invalid JSON (${response.statusCode})`));
+                }
+                if (response.statusCode >= 400) {
+                    const err = new Error(parsed.error?.message || 'Stripe API error');
+                    err.type = parsed.error?.type || 'StripeAPIError';
+                    err.code = parsed.error?.code;
+                    return reject(err);
+                }
+                resolve(parsed);
+            });
+        });
+
+        request.on('timeout', () => {
+            request.destroy();
+            reject(new Error('Stripe HTTPS request timed out'));
+        });
+        request.on('error', reject);
+        request.write(body);
+        request.end();
+    });
+}
+
+async function createCheckoutSession(secretKey, payload) {
+    // On Vercel, the Stripe SDK can throw StripeConnectionError even with a valid
+    // secret key. Direct IPv4-forced HTTPS to api.stripe.com is more reliable.
+    if (process.env.VERCEL) {
+        return stripeHttpsRequest(secretKey, '/checkout/sessions', payload);
+    }
+
+    const stripe = createStripeClient(secretKey);
+    return stripe.checkout.sessions.create(payload);
+}
+
+function stripeHttpsGet(secretKey, path) {
+    return new Promise((resolve, reject) => {
+        const request = https.request({
+            hostname: 'api.stripe.com',
+            port: 443,
+            path: `/v1${path}`,
+            method: 'GET',
+            agent: stripeHttpAgent,
+            headers: {
+                Authorization: `Bearer ${secretKey}`
+            },
+            timeout: 30000
+        }, (response) => {
+            let raw = '';
+            response.on('data', (chunk) => { raw += chunk; });
+            response.on('end', () => {
+                let parsed;
+                try {
+                    parsed = JSON.parse(raw);
+                } catch (err) {
+                    return reject(new Error(`Stripe returned invalid JSON (${response.statusCode})`));
+                }
+                if (response.statusCode >= 400) {
+                    const err = new Error(parsed.error?.message || 'Stripe API error');
+                    err.type = parsed.error?.type || 'StripeAPIError';
+                    err.code = parsed.error?.code;
+                    return reject(err);
+                }
+                resolve(parsed);
+            });
+        });
+
+        request.on('timeout', () => {
+            request.destroy();
+            reject(new Error('Stripe HTTPS request timed out'));
+        });
+        request.on('error', reject);
+        request.end();
+    });
+}
+
+async function retrieveCheckoutSession(secretKey, sessionId) {
+    if (process.env.VERCEL) {
+        return stripeHttpsGet(secretKey, `/checkout/sessions/${sessionId}`);
+    }
+
+    const stripe = createStripeClient(secretKey);
+    return stripe.checkout.sessions.retrieve(sessionId);
+}
+
+// Stripe secret key: Vercel env vars in production; secrets.json fallback for local dev/tests.
 async function getStripeSecretKey() {
-    return sanitizeStripeKey(
+    const envKey = sanitizeStripeKey(
         process.env.STRIPE_SECRET_KEY ||
         process.env.STRIPE_API_KEY ||
         process.env.STRIPE_KEY ||
         ''
     );
+    if (envKey) return envKey;
+
+    if (!process.env.VERCEL) {
+        const secrets = await readJSON(SECRETS_PATH);
+        return sanitizeStripeKey(secrets.stripeSecretKey || '');
+    }
+
+    return '';
 }
 
 // Helper to merge config with environment variables dynamically
@@ -986,8 +1139,6 @@ app.post('/api/create-checkout-session', async (req, res) => {
             }
         }
 
-        const stripe = createStripeClient(stripeSecretKey);
-
         const currency = config.stripe.currency || 'usd';
         const shippingFlatRate = parseFloat(config.stripe.shippingFlatRate || 5.99);
         const freeShippingThreshold = parseFloat(config.stripe.freeShippingThreshold || 65);
@@ -1057,18 +1208,20 @@ app.post('/api/create-checkout-session', async (req, res) => {
             });
         }
 
-        const session = await stripe.checkout.sessions.create({
+        const sessionPayload = {
             payment_method_types: ['card'],
             line_items,
             mode: 'payment',
-            customer_email: customerEmail || undefined,
             success_url: getAbsoluteUrl('/success.html?session_id={CHECKOUT_SESSION_ID}'),
             cancel_url: getAbsoluteUrl('/index.html?cart_open=true'),
             shipping_address_collection: {
                 allowed_countries: ['US', 'CA', 'GB']
-            },
-            shipping_options: shipping_options.length > 0 ? shipping_options : undefined
-        });
+            }
+        };
+        if (customerEmail) sessionPayload.customer_email = customerEmail;
+        if (shipping_options.length > 0) sessionPayload.shipping_options = shipping_options;
+
+        const session = await createCheckoutSession(stripeSecretKey, sessionPayload);
 
         // Save the pending order
         const pendingOrdersData = await readJSON(PENDING_ORDERS_PATH, { pendingOrders: {} });
@@ -1121,10 +1274,8 @@ app.post('/api/stripe-checkout-success', async (req, res) => {
             return res.status(400).json({ error: 'Stripe is not configured' });
         }
 
-        const stripe = createStripeClient(stripeSecretKey);
-
         // 1. Retrieve the session from Stripe to verify payment status
-        const session = await stripe.checkout.sessions.retrieve(session_id);
+        const session = await retrieveCheckoutSession(stripeSecretKey, session_id);
         if (!session) {
             return res.status(404).json({ error: 'Stripe checkout session not found' });
         }
