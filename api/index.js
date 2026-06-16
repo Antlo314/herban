@@ -584,12 +584,6 @@ async function getMergedConfig() {
     config.stripe.keyNormalizedChars = keyDiagnostics.normalizedChars;
     config.stripe.keyHasInvalidChars = keyDiagnostics.hasInvalidChars;
     config.stripe.keyWasNormalized = keyDiagnostics.wasNormalized;
-    const publicKeyForMatch = config.stripe.publicKey || '';
-    const secretPrefix = stripeKeyAccountPrefix(stripeSecretKey);
-    const publicPrefix = stripeKeyAccountPrefix(publicKeyForMatch);
-    config.stripe.accountPrefixMatch = !!(secretPrefix && publicPrefix && secretPrefix === publicPrefix);
-    if (secretPrefix) config.stripe.secretAccountPrefix = secretPrefix.slice(0, 16);
-    if (publicPrefix) config.stripe.publicAccountPrefix = publicPrefix.slice(0, 16);
 
     if (process.env.STRIPE_ENABLED !== undefined) {
         config.stripe.enabled = process.env.STRIPE_ENABLED === 'true';
@@ -607,6 +601,12 @@ async function getMergedConfig() {
     } else if (config.stripe.publicKey) {
         config.stripe.publicKey = sanitizeStripeKey(config.stripe.publicKey);
     }
+
+    const secretPrefix = stripeKeyAccountPrefix(stripeSecretKey);
+    const publicPrefix = stripeKeyAccountPrefix(config.stripe.publicKey || '');
+    config.stripe.accountPrefixMatch = !!(secretPrefix && publicPrefix && secretPrefix === publicPrefix);
+    if (secretPrefix) config.stripe.secretAccountPrefix = secretPrefix.slice(0, 20);
+    if (publicPrefix) config.stripe.publicAccountPrefix = publicPrefix.slice(0, 20);
     
     if (process.env.STRIPE_CURRENCY) {
         config.stripe.currency = process.env.STRIPE_CURRENCY;
@@ -1413,11 +1413,17 @@ app.post('/api/create-checkout-session', async (req, res) => {
             const keyHint = stripeSecretKey
                 ? `Detected key: ${stripeSecretKey.startsWith('sk_live_') ? 'live' : stripeSecretKey.startsWith('sk_test_') ? 'test' : 'unknown'} mode, ${stripeSecretKey.length} characters after cleanup${keyDiagnostics.rawLength ? ` (Vercel raw: ${keyDiagnostics.rawLength})` : ''}.`
                 : '';
+            const configForHint = await getMergedConfig();
+            const prefixMismatch = configForHint.stripe?.accountPrefixMatch === false &&
+                configForHint.stripe?.secretAccountPrefix &&
+                configForHint.stripe?.publicAccountPrefix;
             const invalidHint = keyDiagnostics.hasInvalidChars
                 ? ` ${keyDiagnostics.strippedChars} unreadable character(s) could not be fixed — re-copy from Stripe without pasting through email or Word.`
-                : keyDiagnostics.wasNormalized
-                    ? ' The key had copy-paste corruption that was auto-corrected, but Stripe still rejected it — roll a new secret key in Stripe Dashboard and paste it fresh into Vercel.'
-                    : ' Stripe rejected the key — it may be revoked (roll a new one in Stripe Dashboard) or from a different account than your publishable key.';
+                : prefixMismatch
+                    ? ` Your secret key does not match your publishable key (secret starts with ${configForHint.stripe.secretAccountPrefix}…, publishable starts with ${configForHint.stripe.publicAccountPrefix}…). Roll a new secret key in Stripe, click Reveal → Copy, paste directly into Vercel STRIPE_SECRET_KEY, and redeploy.`
+                    : keyDiagnostics.wasNormalized
+                        ? ' The key had copy-paste corruption that was auto-corrected, but Stripe still rejected it — roll a new secret key in Stripe Dashboard and paste it fresh into Vercel.'
+                        : ' Stripe rejected the key — it may be revoked (roll a new one in Stripe Dashboard) or from a different account than your publishable key.';
             message = `The Stripe secret key is invalid. In Stripe Dashboard → Developers → API keys, click Reveal on the Secret key, copy the full sk_live_... value into STRIPE_SECRET_KEY in Vercel (Production), then redeploy.${invalidHint} ${keyHint}`;
         } else if (err.type === 'StripeConnectionError') {
             const detail = err.code || err.cause?.code || 'connection error';

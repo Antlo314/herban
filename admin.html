@@ -1806,6 +1806,9 @@
             if (st.ready && st.keyValid && st.keyHasInvalidChars) {
                 statusEl.textContent = `STRIPE_SECRET_KEY has ${st.keyStrippedChars} unreadable character(s). Vercel shows ${st.keyRawLength} chars but only ${st.keyLength} are usable — re-copy from Stripe directly into Vercel.`;
                 statusEl.className = 'rounded-xl border border-red-200 bg-red-50 text-red-800 px-4 py-3 text-xs font-semibold';
+            } else if (st.ready && st.keyValid && st.accountPrefixMatch === false && st.publicAccountPrefix) {
+                statusEl.textContent = `Secret key does not match your publishable key (${st.secretAccountPrefix}… vs ${st.publicAccountPrefix}…). Roll a new secret key in Stripe, copy with Reveal, paste into Vercel STRIPE_SECRET_KEY, redeploy.`;
+                statusEl.className = 'rounded-xl border border-red-200 bg-red-50 text-red-800 px-4 py-3 text-xs font-semibold';
             } else if (st.ready && st.keyValid && st.keyWasNormalized) {
                 statusEl.textContent = `Stripe key auto-corrected ${st.keyNormalizedChars} copy-paste character(s). Checkout should work — consider re-pasting a clean key in Vercel when convenient.`;
                 statusEl.className = 'rounded-xl border border-yellow-200 bg-yellow-50 text-yellow-800 px-4 py-3 text-xs font-semibold';
