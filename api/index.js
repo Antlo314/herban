@@ -230,6 +230,28 @@ function sanitizeStripeKey(key) {
     return key.replace(/\s+/g, '').replace(/[^a-zA-Z0-9_]/g, '');
 }
 
+function getStripeEnvRaw() {
+    return process.env.STRIPE_SECRET_KEY ||
+        process.env.STRIPE_API_KEY ||
+        process.env.STRIPE_KEY ||
+        '';
+}
+
+function getStripeKeyDiagnostics(rawKey = getStripeEnvRaw()) {
+    if (typeof rawKey !== 'string' || !rawKey) {
+        return { rawLength: 0, sanitizedLength: 0, strippedChars: 0, hasInvalidChars: false };
+    }
+    const withoutWhitespace = rawKey.replace(/\s+/g, '');
+    const sanitized = sanitizeStripeKey(rawKey);
+    const strippedChars = withoutWhitespace.length - sanitized.length;
+    return {
+        rawLength: withoutWhitespace.length,
+        sanitizedLength: sanitized.length,
+        strippedChars,
+        hasInvalidChars: strippedChars > 0
+    };
+}
+
 function createStripeClient(secretKey) {
     return new Stripe(secretKey, {
         httpAgent: stripeHttpAgent,
@@ -382,12 +404,7 @@ async function retrieveCheckoutSession(secretKey, sessionId) {
 
 // Stripe secret key: Vercel env vars in production; secrets.json fallback for local dev/tests.
 async function getStripeSecretKey() {
-    const envKey = sanitizeStripeKey(
-        process.env.STRIPE_SECRET_KEY ||
-        process.env.STRIPE_API_KEY ||
-        process.env.STRIPE_KEY ||
-        ''
-    );
+    const envKey = sanitizeStripeKey(getStripeEnvRaw());
     if (envKey) return envKey;
 
     if (!process.env.VERCEL) {
@@ -434,6 +451,10 @@ async function getMergedConfig() {
     config.stripe.keyValid = stripeSecretKey.startsWith('sk_');
     config.stripe.keyMode = stripeSecretKey.startsWith('sk_live_') ? 'live' : (stripeSecretKey.startsWith('sk_test_') ? 'test' : 'unknown');
     config.stripe.keyLength = stripeSecretKey.length;
+    const keyDiagnostics = getStripeKeyDiagnostics();
+    config.stripe.keyRawLength = keyDiagnostics.rawLength;
+    config.stripe.keyStrippedChars = keyDiagnostics.strippedChars;
+    config.stripe.keyHasInvalidChars = keyDiagnostics.hasInvalidChars;
 
     if (process.env.STRIPE_ENABLED !== undefined) {
         config.stripe.enabled = process.env.STRIPE_ENABLED === 'true';
@@ -1115,6 +1136,12 @@ app.post('/api/create-checkout-session', async (req, res) => {
                 error: 'STRIPE_SECRET_KEY must be a Stripe secret key (starts with sk_live_ or sk_test_). A publishable key (pk_) was detected — check your Vercel environment variables.'
             });
         }
+        const keyDiagnostics = getStripeKeyDiagnostics();
+        if (keyDiagnostics.hasInvalidChars) {
+            return res.status(400).json({
+                error: `STRIPE_SECRET_KEY contains ${keyDiagnostics.strippedChars} hidden invalid character(s) (often from copy-paste). Vercel shows ${keyDiagnostics.rawLength} characters but only ${keyDiagnostics.sanitizedLength} are valid. In Stripe Dashboard, click Reveal on the Secret key and paste it directly into Vercel in one line — do not paste through email, Word, or Notes.`
+            });
+        }
         if (!stripeEnabled) {
             return res.status(400).json({ error: 'Stripe payments are disabled. Enable them in the admin Payments tab.' });
         }
@@ -1246,10 +1273,14 @@ app.post('/api/create-checkout-session', async (req, res) => {
         let message = err.message || 'Error generating payment checkout session';
         if (err.type === 'StripeAuthenticationError' || err.message?.includes('Invalid API Key')) {
             const stripeSecretKey = await getStripeSecretKey();
+            const keyDiagnostics = getStripeKeyDiagnostics();
             const keyHint = stripeSecretKey
-                ? `Detected key: ${stripeSecretKey.startsWith('sk_live_') ? 'live' : stripeSecretKey.startsWith('sk_test_') ? 'test' : 'unknown'} mode, ${stripeSecretKey.length} characters (expect ~107).`
+                ? `Detected key: ${stripeSecretKey.startsWith('sk_live_') ? 'live' : stripeSecretKey.startsWith('sk_test_') ? 'test' : 'unknown'} mode, ${stripeSecretKey.length} characters after cleanup${keyDiagnostics.rawLength ? ` (Vercel raw: ${keyDiagnostics.rawLength})` : ''}.`
                 : '';
-            message = `The Stripe secret key is invalid or corrupted. In Stripe Dashboard → Developers → API keys, click Reveal on the Secret key, copy the full sk_live_... value into STRIPE_SECRET_KEY in Vercel (Production environment), then redeploy. ${keyHint}`;
+            const invalidHint = keyDiagnostics.hasInvalidChars
+                ? ` ${keyDiagnostics.strippedChars} hidden invalid character(s) were removed — re-copy from Stripe without pasting through email or Word.`
+                : ' Stripe rejected the key — it may be revoked (roll a new one in Stripe Dashboard) or from a different account than your publishable key.';
+            message = `The Stripe secret key is invalid. In Stripe Dashboard → Developers → API keys, click Reveal on the Secret key, copy the full sk_live_... value into STRIPE_SECRET_KEY in Vercel (Production), then redeploy.${invalidHint} ${keyHint}`;
         } else if (err.type === 'StripeConnectionError') {
             const detail = err.code || err.cause?.code || 'connection error';
             console.error('Stripe connection detail:', detail, err.cause?.message || '');

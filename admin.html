@@ -1803,8 +1803,11 @@
             if (!statusEl) return;
 
             const st = storefrontConfig.stripe || {};
-            if (st.ready && st.keyValid) {
-                statusEl.textContent = 'Stripe secret key detected in Vercel (sk_...). Checkout is ready when payments are enabled.';
+            if (st.ready && st.keyValid && st.keyHasInvalidChars) {
+                statusEl.textContent = `STRIPE_SECRET_KEY has ${st.keyStrippedChars} hidden invalid character(s). Vercel shows ${st.keyRawLength} chars but only ${st.keyLength} are valid — re-copy from Stripe directly into Vercel.`;
+                statusEl.className = 'rounded-xl border border-red-200 bg-red-50 text-red-800 px-4 py-3 text-xs font-semibold';
+            } else if (st.ready && st.keyValid) {
+                statusEl.textContent = `Stripe secret key detected in Vercel (${st.keyLength} chars, ${st.keyMode} mode). Checkout is ready when payments are enabled.`;
                 statusEl.className = 'rounded-xl border border-green-200 bg-green-50 text-green-800 px-4 py-3 text-xs font-semibold';
             } else if (st.keySource === 'env' && !st.keyValid) {
                 statusEl.textContent = 'STRIPE_SECRET_KEY in Vercel looks wrong — it must be a secret key (sk_live_... or sk_test_...), not a publishable key (pk_...).';
