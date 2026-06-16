@@ -432,6 +432,8 @@ async function getMergedConfig() {
     config.stripe.ready = !!stripeSecretKey && stripeSecretKey.startsWith('sk_');
     config.stripe.keySource = stripeSecretKey ? 'env' : 'none';
     config.stripe.keyValid = stripeSecretKey.startsWith('sk_');
+    config.stripe.keyMode = stripeSecretKey.startsWith('sk_live_') ? 'live' : (stripeSecretKey.startsWith('sk_test_') ? 'test' : 'unknown');
+    config.stripe.keyLength = stripeSecretKey.length;
 
     if (process.env.STRIPE_ENABLED !== undefined) {
         config.stripe.enabled = process.env.STRIPE_ENABLED === 'true';
@@ -1243,7 +1245,11 @@ app.post('/api/create-checkout-session', async (req, res) => {
         console.error('Stripe Checkout Error:', err.type || '', err.code || '', err.message, err.stack);
         let message = err.message || 'Error generating payment checkout session';
         if (err.type === 'StripeAuthenticationError' || err.message?.includes('Invalid API Key')) {
-            message = 'The Stripe secret key is invalid or corrupted. In Stripe Dashboard → Developers → API keys, copy a fresh sk_live_... secret key, paste it into STRIPE_SECRET_KEY in Vercel (no spaces or line breaks), then redeploy.';
+            const stripeSecretKey = await getStripeSecretKey();
+            const keyHint = stripeSecretKey
+                ? `Detected key: ${stripeSecretKey.startsWith('sk_live_') ? 'live' : stripeSecretKey.startsWith('sk_test_') ? 'test' : 'unknown'} mode, ${stripeSecretKey.length} characters (expect ~107).`
+                : '';
+            message = `The Stripe secret key is invalid or corrupted. In Stripe Dashboard → Developers → API keys, click Reveal on the Secret key, copy the full sk_live_... value into STRIPE_SECRET_KEY in Vercel (Production environment), then redeploy. ${keyHint}`;
         } else if (err.type === 'StripeConnectionError') {
             const detail = err.code || err.cause?.code || 'connection error';
             console.error('Stripe connection detail:', detail, err.cause?.message || '');
