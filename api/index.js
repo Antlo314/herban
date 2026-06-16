@@ -31,7 +31,12 @@ app.use((req, res, next) => {
     console.log(`[HTTP] ${req.method} ${req.url}`);
     next();
 });
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({
+    limit: '10mb',
+    verify: (req, res, buf) => {
+        req.rawBody = buf;
+    }
+}));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // Serve static frontend files
@@ -41,11 +46,13 @@ const CONFIG_PATH = path.join(__dirname, '..', 'data', 'config.json');
 const SECRETS_PATH = path.join(__dirname, '..', 'data', 'secrets.json');
 const LEADS_PATH = path.join(__dirname, '..', 'data', 'leads.json');
 const CUSTOMERS_PATH = path.join(__dirname, '..', 'data', 'customers.json');
+const PENDING_ORDERS_PATH = path.join(__dirname, '..', 'data', 'pending_orders.json');
 
 const TMP_CONFIG_PATH = path.join(os.tmpdir(), 'herban_config.json');
 const TMP_SECRETS_PATH = path.join(os.tmpdir(), 'herban_secrets.json');
 const TMP_LEADS_PATH = path.join(os.tmpdir(), 'herban_leads.json');
 const TMP_CUSTOMERS_PATH = path.join(os.tmpdir(), 'herban_customers.json');
+const TMP_PENDING_ORDERS_PATH = path.join(os.tmpdir(), 'herban_pending_orders.json');
 
 // ==========================================
 // PERSISTENT STORAGE (Vercel Blob)
@@ -64,7 +71,8 @@ const STORE_NAMES = {
     [CONFIG_PATH]: 'config',
     [SECRETS_PATH]: 'secrets',
     [LEADS_PATH]: 'leads',
-    [CUSTOMERS_PATH]: 'customers'
+    [CUSTOMERS_PATH]: 'customers',
+    [PENDING_ORDERS_PATH]: 'pending_orders'
 };
 
 // Blob URLs are publicly accessible, so the secrets store is encrypted
@@ -144,6 +152,7 @@ async function readJSON(filePath, defaultData = {}) {
     if (filePath === SECRETS_PATH) tmpPath = TMP_SECRETS_PATH;
     if (filePath === LEADS_PATH) tmpPath = TMP_LEADS_PATH;
     if (filePath === CUSTOMERS_PATH) tmpPath = TMP_CUSTOMERS_PATH;
+    if (filePath === PENDING_ORDERS_PATH) tmpPath = TMP_PENDING_ORDERS_PATH;
 
     if (tmpPath && fs.existsSync(tmpPath)) {
         try {
@@ -195,6 +204,7 @@ async function writeJSON(filePath, data) {
             if (filePath === SECRETS_PATH) tmpPath = TMP_SECRETS_PATH;
             if (filePath === LEADS_PATH) tmpPath = TMP_LEADS_PATH;
             if (filePath === CUSTOMERS_PATH) tmpPath = TMP_CUSTOMERS_PATH;
+            if (filePath === PENDING_ORDERS_PATH) tmpPath = TMP_PENDING_ORDERS_PATH;
 
             if (tmpPath) {
                 fs.mkdirSync(path.dirname(tmpPath), { recursive: true });
@@ -915,6 +925,21 @@ app.post('/api/create-checkout-session', async (req, res) => {
             return res.status(400).json({ error: 'Stripe payments are not configured or disabled' });
         }
 
+        // Authenticate the customer if an Authorization token is provided
+        let customerId = null;
+        let customerEmail = email || '';
+
+        const authHeader = req.headers.authorization;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            const token = authHeader.split(' ')[1];
+            const customersData = await readJSON(CUSTOMERS_PATH, { customers: [] });
+            const customer = customersData.customers.find(c => c.sessionToken === token);
+            if (customer) {
+                customerId = customer.id;
+                customerEmail = customer.email;
+            }
+        }
+
         // Default Node HTTPS client — the fetch client caused
         // StripeConnectionError on Vercel's Node runtime.
         const stripe = new Stripe(stripeSecretKey, {
@@ -995,7 +1020,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
             payment_method_types: ['card'],
             line_items,
             mode: 'payment',
-            customer_email: email || undefined,
+            customer_email: customerEmail || undefined,
             success_url: getAbsoluteUrl('/success.html?session_id={CHECKOUT_SESSION_ID}'),
             cancel_url: getAbsoluteUrl('/index.html?cart_open=true'),
             shipping_address_collection: {
@@ -1003,6 +1028,24 @@ app.post('/api/create-checkout-session', async (req, res) => {
             },
             shipping_options: shipping_options.length > 0 ? shipping_options : undefined
         });
+
+        // Save the pending order
+        const pendingOrdersData = await readJSON(PENDING_ORDERS_PATH, { pendingOrders: {} });
+        pendingOrdersData.pendingOrders[session.id] = {
+            items: items.map(item => ({
+                id: item.id || null,
+                name: item.name,
+                qty: item.qty,
+                price: item.price,
+                image: item.image || '',
+                scent: item.scent || ''
+            })),
+            total: totalAmount + (totalAmount >= freeShippingThreshold ? 0 : shippingFlatRate),
+            email: customerEmail,
+            customerId: customerId,
+            createdAt: new Date().toISOString()
+        };
+        await writeJSON(PENDING_ORDERS_PATH, pendingOrdersData);
 
         res.json({
             success: true,
@@ -1015,13 +1058,263 @@ app.post('/api/create-checkout-session', async (req, res) => {
         if (err.type === 'StripeAuthenticationError') {
             message = 'The Stripe secret key is invalid. Please re-check it in the admin panel (Integrations).';
         } else if (err.type === 'StripeConnectionError') {
-            // Include the underlying network code (ETIMEDOUT/ENOTFOUND/ECONNRESET
-            // /ENETUNREACH...) so a recurring failure is diagnosable from the
-            // user-facing alert without digging through Vercel logs.
             message = `Could not reach Stripe (${err.code || 'connection error'}). Please try again in a moment.`;
         }
         res.status(500).json({ error: message });
     }
+});
+
+// STRIPE CHECKOUT VERIFICATION ENDPOINT (Public success callback)
+app.post('/api/stripe-checkout-success', async (req, res) => {
+    const { session_id } = req.body;
+    if (!session_id) {
+        return res.status(400).json({ error: 'Session ID is required' });
+    }
+
+    try {
+        const config = await getMergedConfig();
+        const secrets = await readJSON(SECRETS_PATH);
+
+        const rawSecretKey = secrets.stripeSecretKey || process.env.STRIPE_SECRET_KEY;
+        const stripeSecretKey = typeof rawSecretKey === 'string' ? rawSecretKey.trim() : '';
+
+        if (!stripeSecretKey) {
+            return res.status(400).json({ error: 'Stripe is not configured' });
+        }
+
+        const stripe = new Stripe(stripeSecretKey, {
+            maxNetworkRetries: 2,
+            timeout: 20000
+        });
+
+        // 1. Retrieve the session from Stripe to verify payment status
+        const session = await stripe.checkout.sessions.retrieve(session_id);
+        if (!session) {
+            return res.status(404).json({ error: 'Stripe checkout session not found' });
+        }
+
+        if (session.payment_status !== 'paid') {
+            return res.status(400).json({ error: 'Payment is not completed' });
+        }
+
+        // 2. Retrieve the pending order details
+        const pendingOrdersData = await readJSON(PENDING_ORDERS_PATH, { pendingOrders: {} });
+        const pendingOrder = pendingOrdersData.pendingOrders[session_id];
+
+        if (!pendingOrder) {
+            // Check if this order was already promoted (to handle page reloads)
+            const customersData = await readJSON(CUSTOMERS_PATH, { customers: [] });
+            let existingOrder = null;
+            for (const c of customersData.customers) {
+                if (c.orders) {
+                    existingOrder = c.orders.find(o => o.stripeSessionId === session_id);
+                    if (existingOrder) break;
+                }
+            }
+
+            if (existingOrder) {
+                return res.json({ success: true, alreadyProcessed: true, order: existingOrder });
+            }
+
+            return res.status(404).json({ error: 'Pending order details not found or already processed' });
+        }
+
+        // 3. Promote pending order to a real order
+        const customersData = await readJSON(CUSTOMERS_PATH, { customers: [] });
+        
+        let customer = null;
+        if (pendingOrder.customerId) {
+            customer = customersData.customers.find(c => c.id === pendingOrder.customerId);
+        }
+        if (!customer && pendingOrder.email) {
+            customer = customersData.customers.find(c => c.email === pendingOrder.email.trim().toLowerCase());
+        }
+
+        const orderId = 'HA-' + Math.floor(100000 + Math.random() * 900000);
+        const finalOrder = {
+            orderId: orderId,
+            stripeSessionId: session_id,
+            date: new Date().toISOString(),
+            total: pendingOrder.total,
+            status: 'Processing',
+            items: pendingOrder.items.map(item => ({
+                id: item.id || null,
+                name: item.name,
+                qty: item.qty,
+                price: item.price,
+                image: item.image || 'assets/carrier_oil_base.png',
+                scent: item.scent || ''
+            }))
+        };
+
+        if (customer) {
+            if (!customer.orders) customer.orders = [];
+            if (!customer.orders.some(o => o.stripeSessionId === session_id)) {
+                customer.orders.unshift(finalOrder);
+            }
+            
+            // Update address
+            if (session.shipping_details && session.shipping_details.address) {
+                const addr = session.shipping_details.address;
+                customer.address = {
+                    street: addr.line1 + (addr.line2 ? ', ' + addr.line2 : ''),
+                    city: addr.city || '',
+                    state: addr.state || '',
+                    zip: addr.postal_code || ''
+                };
+                if (session.shipping_details.name && !customer.name) {
+                    customer.name = session.shipping_details.name;
+                }
+            }
+            await writeJSON(CUSTOMERS_PATH, customersData);
+        } else {
+            // Guest checkout: create a guest customer profile
+            const guestCustomer = {
+                id: 'guest_' + Math.random().toString(36).substr(2, 9),
+                name: session.shipping_details?.name || 'Guest Customer',
+                email: pendingOrder.email.trim().toLowerCase(),
+                phone: session.customer_details?.phone || '',
+                address: session.shipping_details?.address ? {
+                    street: session.shipping_details.address.line1 + (session.shipping_details.address.line2 ? ', ' + session.shipping_details.address.line2 : ''),
+                    city: session.shipping_details.address.city || '',
+                    state: session.shipping_details.address.state || '',
+                    zip: session.shipping_details.address.postal_code || ''
+                } : { street: '', city: '', state: '', zip: '' },
+                orders: [finalOrder],
+                createdAt: new Date().toISOString(),
+                isGuest: true
+            };
+            customersData.customers.push(guestCustomer);
+            await writeJSON(CUSTOMERS_PATH, customersData);
+        }
+
+        // Remove from pending orders
+        delete pendingOrdersData.pendingOrders[session_id];
+        await writeJSON(PENDING_ORDERS_PATH, pendingOrdersData);
+
+        res.json({ success: true, order: finalOrder, shipping: session.shipping_details });
+
+    } catch (err) {
+        console.error('Stripe Success Verification Error:', err);
+        res.status(500).json({ error: err.message || 'Verification failed' });
+    }
+});
+
+// STRIPE WEBHOOK FALLBACK ENDPOINT
+app.post('/api/stripe-webhook', async (req, res) => {
+    const secrets = await readJSON(SECRETS_PATH);
+    const stripeWebhookSecret = secrets.stripeWebhookSecret || process.env.STRIPE_WEBHOOK_SECRET;
+    const rawSecretKey = secrets.stripeSecretKey || process.env.STRIPE_SECRET_KEY;
+    const stripeSecretKey = typeof rawSecretKey === 'string' ? rawSecretKey.trim() : '';
+
+    if (!stripeSecretKey) {
+        return res.status(400).send('Stripe is not configured');
+    }
+
+    const stripe = new Stripe(stripeSecretKey, {
+        maxNetworkRetries: 2,
+        timeout: 20000
+    });
+
+    const sig = req.headers['stripe-signature'];
+    let event;
+
+    try {
+        if (stripeWebhookSecret && sig && req.rawBody) {
+            event = stripe.webhooks.constructEvent(req.rawBody, sig, stripeWebhookSecret);
+        } else {
+            // Fallback for local testing/dev
+            event = req.body;
+        }
+    } catch (err) {
+        console.error('Webhook signature verification failed:', err.message);
+        return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    if (event.type === 'checkout.session.completed') {
+        const session = event.data.object;
+        const session_id = session.id;
+
+        try {
+            const pendingOrdersData = await readJSON(PENDING_ORDERS_PATH, { pendingOrders: {} });
+            const pendingOrder = pendingOrdersData.pendingOrders[session_id];
+
+            if (pendingOrder) {
+                const customersData = await readJSON(CUSTOMERS_PATH, { customers: [] });
+                
+                let customer = null;
+                if (pendingOrder.customerId) {
+                    customer = customersData.customers.find(c => c.id === pendingOrder.customerId);
+                }
+                if (!customer && pendingOrder.email) {
+                    customer = customersData.customers.find(c => c.email === pendingOrder.email.trim().toLowerCase());
+                }
+
+                const orderId = 'HA-' + Math.floor(100000 + Math.random() * 900000);
+                const finalOrder = {
+                    orderId: orderId,
+                    stripeSessionId: session_id,
+                    date: new Date().toISOString(),
+                    total: pendingOrder.total,
+                    status: 'Processing',
+                    items: pendingOrder.items.map(item => ({
+                        id: item.id || null,
+                        name: item.name,
+                        qty: item.qty,
+                        price: item.price,
+                        image: item.image || 'assets/carrier_oil_base.png',
+                        scent: item.scent || ''
+                    }))
+                };
+
+                if (customer) {
+                    if (!customer.orders) customer.orders = [];
+                    if (!customer.orders.some(o => o.stripeSessionId === session_id)) {
+                        customer.orders.unshift(finalOrder);
+                        
+                        if (session.shipping_details && session.shipping_details.address) {
+                            const addr = session.shipping_details.address;
+                            customer.address = {
+                                street: addr.line1 + (addr.line2 ? ', ' + addr.line2 : ''),
+                                city: addr.city || '',
+                                state: addr.state || '',
+                                zip: addr.postal_code || ''
+                            };
+                        }
+                        await writeJSON(CUSTOMERS_PATH, customersData);
+                    }
+                } else {
+                    if (!customersData.customers.some(c => c.orders && c.orders.some(o => o.stripeSessionId === session_id))) {
+                        const guestCustomer = {
+                            id: 'guest_' + Math.random().toString(36).substr(2, 9),
+                            name: session.shipping_details?.name || 'Guest Customer',
+                            email: pendingOrder.email.trim().toLowerCase(),
+                            phone: session.customer_details?.phone || '',
+                            address: session.shipping_details?.address ? {
+                                street: session.shipping_details.address.line1 + (session.shipping_details.address.line2 ? ', ' + session.shipping_details.address.line2 : ''),
+                                city: session.shipping_details.address.city || '',
+                                state: session.shipping_details.address.state || '',
+                                zip: session.shipping_details.address.postal_code || ''
+                            } : { street: '', city: '', state: '', zip: '' },
+                            orders: [finalOrder],
+                            createdAt: new Date().toISOString(),
+                            isGuest: true
+                        };
+                        customersData.customers.push(guestCustomer);
+                        await writeJSON(CUSTOMERS_PATH, customersData);
+                    }
+                }
+
+                delete pendingOrdersData.pendingOrders[session_id];
+                await writeJSON(PENDING_ORDERS_PATH, pendingOrdersData);
+            }
+        } catch (err) {
+            console.error('Error promoting order via webhook:', err);
+            return res.status(500).send('Webhook processing failed');
+        }
+    }
+
+    res.json({ received: true });
 });
 
 // Fallback for everything else (SPA redirect to index.html)

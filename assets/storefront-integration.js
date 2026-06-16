@@ -783,9 +783,14 @@
             try {
                 // Call create checkout session endpoint
                 const backendOrigin = window.HERBAN_BACKEND_ORIGIN || '';
+                const headers = { 'Content-Type': 'application/json' };
+                const customerToken = localStorage.getItem('herbanCustomerToken');
+                if (customerToken) {
+                    headers['Authorization'] = `Bearer ${customerToken}`;
+                }
                 const res = await fetch(`${backendOrigin}/api/create-checkout-session`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: headers,
                     body: JSON.stringify({ 
                         items: cart,
                         email: localStorage.getItem('herbanCustomerEmail') || ''
