@@ -7,6 +7,7 @@ const os = require('os');
 const Stripe = require('stripe');
 const crypto = require('crypto');
 const dns = require('dns');
+const https = require('https');
 
 dotenv.config();
 
@@ -219,6 +220,31 @@ async function writeJSON(filePath, data) {
     }
 }
 
+// Force IPv4 for outbound HTTPS — Vercel serverless egress can fail on IPv6.
+const stripeHttpAgent = new https.Agent({ family: 4, keepAlive: true });
+
+function sanitizeStripeKey(key) {
+    if (typeof key !== 'string') return '';
+    // Strip whitespace/newlines that sometimes sneak in when pasting env vars.
+    return key.replace(/\s+/g, '');
+}
+
+function createStripeClient(secretKey) {
+    return new Stripe(secretKey, {
+        httpAgent: stripeHttpAgent,
+        maxNetworkRetries: 3,
+        timeout: 30000
+    });
+}
+
+// Stripe secret key: Vercel env vars take priority over admin-saved blob secrets.
+async function getStripeSecretKey() {
+    const secrets = await readJSON(SECRETS_PATH);
+    const envKey = sanitizeStripeKey(process.env.STRIPE_SECRET_KEY || '');
+    const storedKey = sanitizeStripeKey(secrets.stripeSecretKey || '');
+    return envKey || storedKey;
+}
+
 // Helper to merge config with environment variables dynamically
 async function getMergedConfig() {
     const config = await readJSON(CONFIG_PATH);
@@ -243,22 +269,30 @@ async function getMergedConfig() {
     }
 
     // Merge Stripe overrides
-    const secrets = await readJSON(SECRETS_PATH);
-    const rawSecretKey = secrets.stripeSecretKey || process.env.STRIPE_SECRET_KEY;
-    const stripeSecretKey = typeof rawSecretKey === 'string' ? rawSecretKey.trim() : '';
+    const stripeSecretKey = await getStripeSecretKey();
+    const hasPublishableKey = !!(
+        (config.stripe.publicKey && config.stripe.publicKey.trim()) ||
+        process.env.STRIPE_PUBLISHABLE_KEY ||
+        process.env.STRIPE_PUBLIC_KEY
+    );
+
+    config.stripe.ready = !!stripeSecretKey;
 
     if (process.env.STRIPE_ENABLED !== undefined) {
         config.stripe.enabled = process.env.STRIPE_ENABLED === 'true';
-    } else if (stripeSecretKey || config.stripe.publicKey || process.env.STRIPE_PUBLISHABLE_KEY || process.env.STRIPE_PUBLIC_KEY) {
+    } else if (stripeSecretKey) {
+        // Secret key present (typically via Vercel env) — enable checkout automatically.
+        config.stripe.enabled = true;
+    } else if (hasPublishableKey) {
         config.stripe.enabled = true;
     }
     
-    if (!config.stripe.publicKey) {
-        if (process.env.STRIPE_PUBLISHABLE_KEY) {
-            config.stripe.publicKey = process.env.STRIPE_PUBLISHABLE_KEY.trim();
-        } else if (process.env.STRIPE_PUBLIC_KEY) {
-            config.stripe.publicKey = process.env.STRIPE_PUBLIC_KEY.trim();
-        }
+    if (process.env.STRIPE_PUBLISHABLE_KEY) {
+        config.stripe.publicKey = sanitizeStripeKey(process.env.STRIPE_PUBLISHABLE_KEY);
+    } else if (process.env.STRIPE_PUBLIC_KEY) {
+        config.stripe.publicKey = sanitizeStripeKey(process.env.STRIPE_PUBLIC_KEY);
+    } else if (config.stripe.publicKey) {
+        config.stripe.publicKey = sanitizeStripeKey(config.stripe.publicKey);
     }
     
     if (process.env.STRIPE_CURRENCY) {
@@ -337,20 +371,21 @@ app.get('/api/secrets', checkAuth, async (req, res) => {
     const secrets = await readJSON(SECRETS_PATH);
     const geminiApiKey = secrets.geminiApiKey || process.env.GEMINI_API_KEY;
     const openaiApiKey = secrets.openaiApiKey || process.env.OPENAI_API_KEY;
-    const stripeSecretKey = secrets.stripeSecretKey || process.env.STRIPE_SECRET_KEY;
+    const stripeSecretKey = await getStripeSecretKey();
+    const stripeFromEnv = !!(process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY.trim());
     // Exclude actual password for safety, return mask details
     res.json({
         geminiApiKey: geminiApiKey ? '••••••••••••••••' : '',
         openaiApiKey: openaiApiKey ? '••••••••••••••••' : '',
-        stripeSecretKey: stripeSecretKey ? '••••••••••••••••' : '',
         hasGemini: !!geminiApiKey,
         hasOpenai: !!openaiApiKey,
-        hasStripe: !!stripeSecretKey
+        hasStripe: !!stripeSecretKey,
+        stripeFromEnv
     });
 });
 
 app.post('/api/secrets', checkAuth, async (req, res) => {
-    const { geminiApiKey, openaiApiKey, stripeSecretKey, adminPassword } = req.body;
+    const { geminiApiKey, openaiApiKey, adminPassword } = req.body;
     const secrets = await readJSON(SECRETS_PATH);
 
     if (geminiApiKey !== undefined && geminiApiKey !== '••••••••••••••••') {
@@ -358,9 +393,6 @@ app.post('/api/secrets', checkAuth, async (req, res) => {
     }
     if (openaiApiKey !== undefined && openaiApiKey !== '••••••••••••••••') {
         secrets.openaiApiKey = typeof openaiApiKey === 'string' ? openaiApiKey.trim() : openaiApiKey;
-    }
-    if (stripeSecretKey !== undefined && stripeSecretKey !== '••••••••••••••••') {
-        secrets.stripeSecretKey = typeof stripeSecretKey === 'string' ? stripeSecretKey.trim() : stripeSecretKey;
     }
     if (adminPassword && adminPassword.trim() !== '') {
         secrets.adminPassword = typeof adminPassword === 'string' ? adminPassword.trim() : adminPassword;
@@ -915,14 +947,14 @@ app.post('/api/create-checkout-session', async (req, res) => {
 
     try {
         const config = await getMergedConfig();
-        const secrets = await readJSON(SECRETS_PATH);
-
+        const stripeSecretKey = await getStripeSecretKey();
         const stripeEnabled = config.stripe && config.stripe.enabled;
-        const rawSecretKey = secrets.stripeSecretKey || process.env.STRIPE_SECRET_KEY;
-        const stripeSecretKey = typeof rawSecretKey === 'string' ? rawSecretKey.trim() : '';
 
-        if (!stripeEnabled || !stripeSecretKey) {
-            return res.status(400).json({ error: 'Stripe payments are not configured or disabled' });
+        if (!stripeSecretKey) {
+            return res.status(400).json({ error: 'Stripe is not configured. Add STRIPE_SECRET_KEY in your Vercel project environment variables, then redeploy.' });
+        }
+        if (!stripeEnabled) {
+            return res.status(400).json({ error: 'Stripe payments are disabled. Enable them in the admin Payments tab.' });
         }
 
         // Authenticate the customer if an Authorization token is provided
@@ -940,12 +972,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
             }
         }
 
-        // Default Node HTTPS client — the fetch client caused
-        // StripeConnectionError on Vercel's Node runtime.
-        const stripe = new Stripe(stripeSecretKey, {
-            maxNetworkRetries: 2,
-            timeout: 20000
-        });
+        const stripe = createStripeClient(stripeSecretKey);
 
         const currency = config.stripe.currency || 'usd';
         const shippingFlatRate = parseFloat(config.stripe.shippingFlatRate || 5.99);
@@ -1056,7 +1083,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
         console.error('Stripe Checkout Error:', err.type || '', err.code || '', err.message, err.stack);
         let message = err.message || 'Error generating payment checkout session';
         if (err.type === 'StripeAuthenticationError') {
-            message = 'The Stripe secret key is invalid. Please re-check it in the admin panel (Integrations).';
+            message = 'The Stripe secret key is invalid. Please re-check STRIPE_SECRET_KEY in your Vercel environment variables.';
         } else if (err.type === 'StripeConnectionError') {
             message = `Could not reach Stripe (${err.code || 'connection error'}). Please try again in a moment.`;
         }
@@ -1072,20 +1099,13 @@ app.post('/api/stripe-checkout-success', async (req, res) => {
     }
 
     try {
-        const config = await getMergedConfig();
-        const secrets = await readJSON(SECRETS_PATH);
-
-        const rawSecretKey = secrets.stripeSecretKey || process.env.STRIPE_SECRET_KEY;
-        const stripeSecretKey = typeof rawSecretKey === 'string' ? rawSecretKey.trim() : '';
+        const stripeSecretKey = await getStripeSecretKey();
 
         if (!stripeSecretKey) {
             return res.status(400).json({ error: 'Stripe is not configured' });
         }
 
-        const stripe = new Stripe(stripeSecretKey, {
-            maxNetworkRetries: 2,
-            timeout: 20000
-        });
+        const stripe = createStripeClient(stripeSecretKey);
 
         // 1. Retrieve the session from Stripe to verify payment status
         const session = await stripe.checkout.sessions.retrieve(session_id);
@@ -1204,17 +1224,13 @@ app.post('/api/stripe-checkout-success', async (req, res) => {
 app.post('/api/stripe-webhook', async (req, res) => {
     const secrets = await readJSON(SECRETS_PATH);
     const stripeWebhookSecret = secrets.stripeWebhookSecret || process.env.STRIPE_WEBHOOK_SECRET;
-    const rawSecretKey = secrets.stripeSecretKey || process.env.STRIPE_SECRET_KEY;
-    const stripeSecretKey = typeof rawSecretKey === 'string' ? rawSecretKey.trim() : '';
+    const stripeSecretKey = await getStripeSecretKey();
 
     if (!stripeSecretKey) {
         return res.status(400).send('Stripe is not configured');
     }
 
-    const stripe = new Stripe(stripeSecretKey, {
-        maxNetworkRetries: 2,
-        timeout: 20000
-    });
+    const stripe = createStripeClient(stripeSecretKey);
 
     const sig = req.headers['stripe-signature'];
     let event;

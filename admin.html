@@ -812,7 +812,7 @@
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div>
                                     <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-2">Stripe Publishable Key</label>
-                                    <input type="text" id="stripe-public-key" placeholder="pk_test_..." class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#C5A26F]">
+                                    <input type="text" id="stripe-public-key" placeholder="pk_test_... (or set STRIPE_PUBLISHABLE_KEY in Vercel)" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#C5A26F]">
                                 </div>
                                 <div>
                                     <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-2">Currency Selection</label>
@@ -865,26 +865,28 @@
                         </form>
                     </div>
 
-                    <!-- Right: Secrets & Keys -->
+                    <!-- Right: Vercel Environment Info -->
                     <div class="space-y-6">
-                        <form onsubmit="saveStripeSecret(event)" class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+                        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-5">
                             <div class="flex items-center justify-between pb-2 border-b">
-                                <h3 class="text-xs uppercase tracking-widest font-bold text-gray-500">Stripe Secret Key</h3>
+                                <h3 class="text-xs uppercase tracking-widest font-bold text-gray-500">Stripe API Keys</h3>
                                 <span class="text-gray-300 text-base"><i class="fa-solid fa-lock"></i></span>
                             </div>
-                            
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-1">Stripe Secret Key (sk_test_...)</label>
-                                    <input type="password" id="secret-stripe-secret" placeholder="Unconfigured" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#C5A26F]">
-                                    <span class="text-[9px] text-gray-400 mt-1 block">Your secret key is saved securely on the server and is never exposed in client storefront scripts.</span>
-                                </div>
+
+                            <div id="stripe-env-status" class="rounded-xl border px-4 py-3 text-xs font-semibold">
+                                Checking Stripe connection...
                             </div>
 
-                            <button type="submit" class="w-full bg-[#111111] hover:bg-[#C5A26F] text-white py-3 rounded-xl text-xs uppercase tracking-widest font-semibold transition-all">
-                                Update Secret Key
-                            </button>
-                        </form>
+                            <div class="space-y-3 text-xs text-gray-600 leading-relaxed">
+                                <p>Stripe secret keys are managed in your <strong>Vercel project environment variables</strong>, not in this admin panel.</p>
+                                <p class="font-semibold text-gray-800">Required Vercel env vars:</p>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li><code>STRIPE_SECRET_KEY</code> — your <code>sk_live_...</code> or <code>sk_test_...</code> key</li>
+                                    <li><code>STRIPE_PUBLISHABLE_KEY</code> — optional; can also be set below</li>
+                                </ul>
+                                <p>After adding or changing keys in Vercel, <strong>redeploy</strong> the site for checkout to work.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -1640,7 +1642,7 @@
                     const secrets = await res.json();
                     const statusEl = document.getElementById('stat-keys-status');
                     
-                    if (secrets.hasGemini || secrets.hasOpenai || secrets.hasStripe) {
+                    if (secrets.hasGemini || secrets.hasOpenai) {
                         statusEl.textContent = 'Configured';
                         statusEl.className = 'text-sm font-bold text-green-600';
                     } else {
@@ -1649,7 +1651,7 @@
                     }
                     document.getElementById('secret-gemini').placeholder = secrets.hasGemini ? '•••••••••••••••• (Configured)' : 'AIzaSy...';
                     document.getElementById('secret-openai').placeholder = secrets.hasOpenai ? '•••••••••••••••• (Configured)' : 'sk-...';
-                    document.getElementById('secret-stripe-secret').placeholder = secrets.hasStripe ? '•••••••••••••••• (Configured)' : 'Unconfigured';
+                    updateStripeEnvStatus(secrets);
                 }
             } catch (err) {
                 console.error(err);
@@ -1796,11 +1798,26 @@
             }
         }
 
+        function updateStripeEnvStatus(secrets) {
+            const statusEl = document.getElementById('stripe-env-status');
+            if (!statusEl) return;
+
+            if (secrets.hasStripe) {
+                const source = secrets.stripeFromEnv ? 'Vercel environment variable' : 'stored configuration';
+                statusEl.textContent = `Stripe connected via ${source}. Checkout is ready when payments are enabled.`;
+                statusEl.className = 'rounded-xl border border-green-200 bg-green-50 text-green-800 px-4 py-3 text-xs font-semibold';
+            } else {
+                statusEl.textContent = 'Stripe secret key not detected. Add STRIPE_SECRET_KEY in Vercel, then redeploy.';
+                statusEl.className = 'rounded-xl border border-yellow-200 bg-yellow-50 text-yellow-800 px-4 py-3 text-xs font-semibold';
+            }
+        }
+
         // STRIPE INTEGRATION SETUP
         function populatePaymentsTab() {
             if (!storefrontConfig.stripe) {
                 storefrontConfig.stripe = {
                     enabled: false,
+                    ready: false,
                     publicKey: '',
                     currency: 'usd',
                     shippingFlatRate: 5.99,
@@ -1808,11 +1825,12 @@
                 };
             }
             const st = storefrontConfig.stripe;
-            document.getElementById('stripe-enabled').checked = st.enabled;
+            document.getElementById('stripe-enabled').checked = st.enabled || st.ready;
             document.getElementById('stripe-public-key').value = st.publicKey || '';
             document.getElementById('stripe-currency').value = st.currency || 'usd';
             document.getElementById('stripe-shipping-flat').value = st.shippingFlatRate !== undefined ? st.shippingFlatRate : 5.99;
             document.getElementById('stripe-shipping-threshold').value = st.freeShippingThreshold !== undefined ? st.freeShippingThreshold : 65;
+            loadSecretsStatus();
         }
 
         async function savePaymentsConfig(e) {
@@ -1829,42 +1847,6 @@
             if (res) {
                 alert('Stripe configuration saved successfully!');
                 populateDashboardStats();
-            }
-        }
-
-        async function saveStripeSecret(e) {
-            e.preventDefault();
-            const stripeSecret = document.getElementById('secret-stripe-secret').value.trim();
-            if (!stripeSecret) {
-                const confirmClear = confirm('Are you sure you want to clear the Stripe Secret Key? This will disable Stripe Checkout payments.');
-                if (!confirmClear) return;
-            }
-
-            try {
-                const res = await fetch('/api/secrets', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${adminToken}`
-                    },
-                    body: JSON.stringify({ stripeSecretKey: stripeSecret })
-                });
-                
-                if (res.ok) {
-                    alert('Stripe Secret Key saved securely on backend!');
-                    document.getElementById('secret-stripe-secret').value = '';
-                    loadSecretsStatus();
-                } else {
-                    const data = await res.json();
-                    let msg = 'Error saving Stripe Secret Key: ' + data.error;
-                    if (window.location.hostname.includes('vercel') || data.error.includes('Failed to save')) {
-                        msg += '\n\nTip: On Vercel, the filesystem is read-only. Please add STRIPE_SECRET_KEY as an Environment Variable in your Vercel Dashboard, then redeploy.';
-                    }
-                    alert(msg);
-                }
-            } catch (err) {
-                console.error(err);
-                alert('Server request failed.');
             }
         }
 

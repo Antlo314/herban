@@ -569,14 +569,7 @@
             drawer.classList.remove('flex');
         }
 
-        function checkout() {
-            const total = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
-            alert(`Thank you! This is a demo checkout.\n\nYour order total would be $${total}.\n\nIn a real build we would integrate Stripe / Shopify checkout here.`);
-            cart = [];
-            localStorage.setItem('herbanCart', '[]');
-            updateCartCount();
-            hideCart();
-        }
+        // checkout() is provided by assets/storefront-integration.js (Stripe Checkout)
 
         function initializeEverything() {
             initializeTailwind();

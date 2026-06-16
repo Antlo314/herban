@@ -30,6 +30,7 @@
         },
         stripe: {
             enabled: false,
+            ready: false,
             publicKey: '',
             currency: 'usd',
             shippingFlatRate: 5.99,
@@ -730,41 +731,10 @@
                 return;
             }
 
-            const stripeEnabled = currentConfig.stripe && currentConfig.stripe.enabled;
-            if (!stripeEnabled) {
-                // Demo checkout (no payment): record the order to the account,
-                // then go to the Thank You page. When Stripe is enabled, orders
-                // must NOT be recorded here — payment hasn't happened yet.
-                const customerToken = localStorage.getItem('herbanCustomerToken');
-                if (customerToken) {
-                    try {
-                        const orderTotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-                        const orderItems = cart.map(item => ({
-                            id: item.id || null,
-                            name: item.name,
-                            qty: item.qty,
-                            price: item.price,
-                            image: item.image || ''
-                        }));
-
-                        const backendOrigin = window.HERBAN_BACKEND_ORIGIN || '';
-                        await fetch(`${backendOrigin}/api/customer/orders`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${customerToken}`
-                            },
-                            body: JSON.stringify({
-                                items: orderItems,
-                                total: orderTotal
-                            })
-                        });
-                        console.log('[Herban Engine] Order successfully recorded to customer account.');
-                    } catch (e) {
-                        console.error('[Herban Engine] Failed to record order to customer account:', e);
-                    }
-                }
-                window.location.href = 'success.html';
+            const stripeConfig = (window.currentConfig || currentConfig).stripe || {};
+            const stripeActive = stripeConfig.enabled || stripeConfig.ready;
+            if (!stripeActive) {
+                alert('Secure checkout is not available yet. Please ensure STRIPE_SECRET_KEY is set in your Vercel environment variables and payments are enabled in the admin panel.');
                 return;
             }
 
@@ -822,6 +792,9 @@
             }
         };
     }
+
+    // Register checkout handler immediately so inline demo stubs never win.
+    setupCheckoutOverride();
 
     // Auto start on page load
     window.addEventListener('DOMContentLoaded', loadConfig);
