@@ -283,8 +283,9 @@ async function getMergedConfig() {
         process.env.STRIPE_PUBLIC_KEY
     );
 
-    config.stripe.ready = !!stripeSecretKey;
+    config.stripe.ready = !!stripeSecretKey && stripeSecretKey.startsWith('sk_');
     config.stripe.keySource = stripeSecretKey ? 'env' : 'none';
+    config.stripe.keyValid = stripeSecretKey.startsWith('sk_');
 
     if (process.env.STRIPE_ENABLED !== undefined) {
         config.stripe.enabled = process.env.STRIPE_ENABLED === 'true';
@@ -959,7 +960,12 @@ app.post('/api/create-checkout-session', async (req, res) => {
         const stripeEnabled = config.stripe && config.stripe.enabled;
 
         if (!stripeSecretKey) {
-            return res.status(400).json({ error: 'Stripe is not configured. Add STRIPE_SECRET_KEY in your Vercel project environment variables, then redeploy.' });
+            return res.status(400).json({ error: 'Stripe is not configured. Add STRIPE_SECRET_KEY (sk_live_... or sk_test_...) in your Vercel project environment variables, then redeploy.' });
+        }
+        if (!stripeSecretKey.startsWith('sk_')) {
+            return res.status(400).json({
+                error: 'STRIPE_SECRET_KEY must be a Stripe secret key (starts with sk_live_ or sk_test_). A publishable key (pk_) was detected — check your Vercel environment variables.'
+            });
         }
         if (!stripeEnabled) {
             return res.status(400).json({ error: 'Stripe payments are disabled. Enable them in the admin Payments tab.' });
