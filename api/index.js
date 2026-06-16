@@ -6,8 +6,20 @@ const dotenv = require('dotenv');
 const os = require('os');
 const Stripe = require('stripe');
 const crypto = require('crypto');
+const dns = require('dns');
 
 dotenv.config();
+
+// Prefer IPv4 when resolving outbound hosts. Vercel's serverless egress can
+// fail fast on IPv6 (ENETUNREACH/ECONNREFUSED), which surfaced as Stripe
+// "StripeConnectionError / Could not reach Stripe" at checkout even though the
+// secret key was valid and the same code connects fine locally. Forcing
+// IPv4-first makes the Stripe (and Blob) HTTPS calls take the routable path.
+try {
+    dns.setDefaultResultOrder('ipv4first');
+} catch (e) {
+    // Older Node without this API — safe to ignore.
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -1003,7 +1015,10 @@ app.post('/api/create-checkout-session', async (req, res) => {
         if (err.type === 'StripeAuthenticationError') {
             message = 'The Stripe secret key is invalid. Please re-check it in the admin panel (Integrations).';
         } else if (err.type === 'StripeConnectionError') {
-            message = 'Could not reach Stripe. Please try again in a moment.';
+            // Include the underlying network code (ETIMEDOUT/ENOTFOUND/ECONNRESET
+            // /ENETUNREACH...) so a recurring failure is diagnosable from the
+            // user-facing alert without digging through Vercel logs.
+            message = `Could not reach Stripe (${err.code || 'connection error'}). Please try again in a moment.`;
         }
         res.status(500).json({ error: message });
     }
