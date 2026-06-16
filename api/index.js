@@ -242,19 +242,72 @@ function normalizeStripeKeyChar(ch) {
     return null;
 }
 
-function sanitizeStripeKey(key) {
-    if (typeof key !== 'string') return '';
+const STRIPE_KEY_HOMOGLYPH_ALTERNATES = {
+    p: ['r'],
+    r: ['p'],
+    '3': ['Z'],
+    Z: ['3'],
+    H: ['N'],
+    N: ['H'],
+    o: ['0'],
+    '0': ['o']
+};
+
+function sanitizeStripeKeyDetailed(key) {
+    if (typeof key !== 'string') return { key: '', replacements: [] };
     const compact = key.replace(/\s+/g, '');
     let sanitized = '';
+    const replacements = [];
     for (const ch of compact) {
         if (/[a-zA-Z0-9_]/.test(ch)) {
             sanitized += ch;
             continue;
         }
         const normalized = normalizeStripeKeyChar(ch);
-        if (normalized) sanitized += normalized;
+        if (!normalized) continue;
+        const alternates = STRIPE_KEY_HOMOGLYPH_ALTERNATES[normalized] || [];
+        replacements.push({
+            index: sanitized.length,
+            primary: normalized,
+            alternates
+        });
+        sanitized += normalized;
     }
-    return sanitized;
+    return { key: sanitized, replacements };
+}
+
+function sanitizeStripeKey(key) {
+    return sanitizeStripeKeyDetailed(key).key;
+}
+
+function getStripeKeyVariants(baseKey, replacements) {
+    const ambiguous = replacements.filter((entry) => entry.alternates.length > 0);
+    if (!ambiguous.length) return [baseKey];
+
+    const variants = new Set([baseKey]);
+    const chars = baseKey.split('');
+
+    function buildVariant(idx) {
+        if (idx === ambiguous.length) {
+            variants.add(chars.join(''));
+            return;
+        }
+        const entry = ambiguous[idx];
+        const options = [entry.primary, ...entry.alternates];
+        for (const option of options) {
+            chars[entry.index] = option;
+            buildVariant(idx + 1);
+        }
+    }
+
+    buildVariant(0);
+    return [...variants];
+}
+
+function stripeKeyAccountPrefix(key) {
+    if (typeof key !== 'string') return '';
+    const match = key.match(/^(?:sk|pk)_(?:live|test)_(.{10,24})/);
+    return match ? match[1] : '';
 }
 
 function getStripeEnvRaw() {
@@ -394,6 +447,31 @@ async function createCheckoutSession(secretKey, payload) {
     return stripe.checkout.sessions.create(payload);
 }
 
+function isStripeAuthError(err) {
+    return err?.type === 'StripeAuthenticationError' ||
+        err?.message?.includes('Invalid API Key') ||
+        err?.code === 'invalid_api_key';
+}
+
+async function createCheckoutSessionWithKeyRetry(secretKeyDetails, payload) {
+    const details = typeof secretKeyDetails === 'string'
+        ? { key: secretKeyDetails, replacements: [] }
+        : secretKeyDetails;
+    const variants = getStripeKeyVariants(details.key, details.replacements);
+    let lastError;
+
+    for (const variantKey of variants) {
+        try {
+            return await createCheckoutSession(variantKey, payload);
+        } catch (err) {
+            lastError = err;
+            if (!isStripeAuthError(err) || variants.length === 1) throw err;
+        }
+    }
+
+    throw lastError;
+}
+
 function stripeHttpsGet(secretKey, path) {
     return new Promise((resolve, reject) => {
         const request = https.request({
@@ -445,6 +523,13 @@ async function retrieveCheckoutSession(secretKey, sessionId) {
 }
 
 // Stripe secret key: Vercel env vars in production; secrets.json fallback for local dev/tests.
+function getStripeSecretKeyDetails() {
+    const raw = getStripeEnvRaw();
+    if (!raw) return { raw: '', key: '', replacements: [] };
+    const detailed = sanitizeStripeKeyDetailed(raw);
+    return { raw, key: detailed.key, replacements: detailed.replacements };
+}
+
 async function getStripeSecretKey() {
     const envKey = sanitizeStripeKey(getStripeEnvRaw());
     if (envKey) return envKey;
@@ -499,6 +584,12 @@ async function getMergedConfig() {
     config.stripe.keyNormalizedChars = keyDiagnostics.normalizedChars;
     config.stripe.keyHasInvalidChars = keyDiagnostics.hasInvalidChars;
     config.stripe.keyWasNormalized = keyDiagnostics.wasNormalized;
+    const publicKeyForMatch = config.stripe.publicKey || '';
+    const secretPrefix = stripeKeyAccountPrefix(stripeSecretKey);
+    const publicPrefix = stripeKeyAccountPrefix(publicKeyForMatch);
+    config.stripe.accountPrefixMatch = !!(secretPrefix && publicPrefix && secretPrefix === publicPrefix);
+    if (secretPrefix) config.stripe.secretAccountPrefix = secretPrefix.slice(0, 16);
+    if (publicPrefix) config.stripe.publicAccountPrefix = publicPrefix.slice(0, 16);
 
     if (process.env.STRIPE_ENABLED !== undefined) {
         config.stripe.enabled = process.env.STRIPE_ENABLED === 'true';
@@ -1169,7 +1260,8 @@ app.post('/api/create-checkout-session', async (req, res) => {
 
     try {
         const config = await getMergedConfig();
-        const stripeSecretKey = await getStripeSecretKey();
+        const secretKeyDetails = getStripeSecretKeyDetails();
+        const stripeSecretKey = secretKeyDetails.key;
         const stripeEnabled = config.stripe && config.stripe.enabled;
 
         if (!stripeSecretKey) {
@@ -1287,7 +1379,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
         if (customerEmail) sessionPayload.customer_email = customerEmail;
         if (shipping_options.length > 0) sessionPayload.shipping_options = shipping_options;
 
-        const session = await createCheckoutSession(stripeSecretKey, sessionPayload);
+        const session = await createCheckoutSessionWithKeyRetry(secretKeyDetails, sessionPayload);
 
         // Save the pending order
         const pendingOrdersData = await readJSON(PENDING_ORDERS_PATH, { pendingOrders: {} });
@@ -1315,7 +1407,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
     } catch (err) {
         console.error('Stripe Checkout Error:', err.type || '', err.code || '', err.message, err.stack);
         let message = err.message || 'Error generating payment checkout session';
-        if (err.type === 'StripeAuthenticationError' || err.message?.includes('Invalid API Key')) {
+        if (isStripeAuthError(err)) {
             const stripeSecretKey = await getStripeSecretKey();
             const keyDiagnostics = getStripeKeyDiagnostics();
             const keyHint = stripeSecretKey
