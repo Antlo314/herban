@@ -233,8 +233,9 @@ const stripeHttpAgent = new https.Agent({
 
 function sanitizeStripeKey(key) {
     if (typeof key !== 'string') return '';
-    // Strip whitespace/newlines that sometimes sneak in when pasting env vars.
-    return key.replace(/\s+/g, '');
+    // Strip whitespace/newlines and any non-ASCII characters that break HTTP headers
+    // when keys are copy-pasted into Vercel (a common cause of checkout failures).
+    return key.replace(/\s+/g, '').replace(/[^a-zA-Z0-9_]/g, '');
 }
 
 function createStripeClient(secretKey) {
