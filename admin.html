@@ -48,6 +48,10 @@
             
             <form onsubmit="handleLogin(event)">
                 <div class="mb-4">
+                    <label class="block text-left text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Username</label>
+                    <input type="text" id="login-username" placeholder="admin" autocomplete="username" class="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-[#C5A26F] text-center text-lg" required>
+                </div>
+                <div class="mb-4">
                     <label class="block text-left text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Password</label>
                     <input type="password" id="login-password" placeholder="••••••••" class="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-[#C5A26F] text-center text-lg tracking-widest" required>
                 </div>
@@ -776,9 +780,15 @@
                                     <span class="text-[9px] text-gray-400 mt-1 block">Used if active engine is set to OpenAI.</span>
                                 </div>
                                 <hr class="my-4">
+                                <p class="text-xs uppercase tracking-wider font-bold text-gray-700 mb-1">Admin Login Credentials</p>
+                                <p class="text-[9px] text-gray-400 mb-2">Both are required to sign in to this panel. Changing them takes effect on your next login.</p>
                                 <div>
-                                    <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-1">Change Console Password</label>
-                                    <input type="password" id="secret-password" placeholder="Leave blank to keep current password" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#C5A26F]">
+                                    <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-1">Admin Username</label>
+                                    <input type="text" id="secret-username" autocomplete="username" placeholder="admin" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#C5A26F]">
+                                </div>
+                                <div>
+                                    <label class="block text-xs uppercase tracking-wider font-semibold text-gray-500 mb-1">Change Password</label>
+                                    <input type="password" id="secret-password" autocomplete="new-password" placeholder="Leave blank to keep current password" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#C5A26F]">
                                 </div>
                             </div>
 
@@ -1560,6 +1570,13 @@
         let storefrontConfig = null;
         let adminToken = sessionStorage.getItem('herbanAdminToken') || '';
 
+        // Pre-fill the login username from the last successful login (not a secret).
+        const savedAdminUser = localStorage.getItem('herbanAdminUser');
+        if (savedAdminUser) {
+            const loginUserEl = document.getElementById('login-username');
+            if (loginUserEl) loginUserEl.value = savedAdminUser;
+        }
+
         // Auto-check auth state
         if (adminToken) {
             document.getElementById('login-gate').classList.add('hidden');
@@ -1569,19 +1586,21 @@
 
         async function handleLogin(e) {
             e.preventDefault();
+            const username = document.getElementById('login-username').value;
             const password = document.getElementById('login-password').value;
             const errEl = document.getElementById('login-error');
-            
+
             try {
                 const res = await fetch('/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ password })
+                    body: JSON.stringify({ username, password })
                 });
-                
+
                 if (res.ok) {
                     const data = await res.json();
                     sessionStorage.setItem('herbanAdminToken', data.token);
+                    if (data.username) localStorage.setItem('herbanAdminUser', data.username);
                     adminToken = data.token;
                     document.getElementById('login-gate').classList.add('hidden');
                     document.getElementById('admin-dashboard').classList.remove('hidden');
@@ -1651,6 +1670,10 @@
                     }
                     document.getElementById('secret-gemini').placeholder = secrets.hasGemini ? '•••••••••••••••• (Configured)' : 'AIzaSy...';
                     document.getElementById('secret-openai').placeholder = secrets.hasOpenai ? '•••••••••••••••• (Configured)' : 'sk-...';
+                    if (secrets.adminUsername) {
+                        const suEl = document.getElementById('secret-username');
+                        if (suEl) suEl.value = secrets.adminUsername;
+                    }
                     updateStripeEnvStatus(secrets);
                 }
             } catch (err) {
@@ -1804,14 +1827,8 @@
 
             const st = storefrontConfig.stripe || {};
             if (st.ready && st.keyValid && st.keyHasInvalidChars) {
-                statusEl.textContent = `STRIPE_SECRET_KEY has ${st.keyStrippedChars} unreadable character(s). Vercel shows ${st.keyRawLength} chars but only ${st.keyLength} are usable — re-copy from Stripe directly into Vercel.`;
+                statusEl.textContent = `STRIPE_SECRET_KEY is corrupted — it contains ${st.keyInvalidChars} non-ASCII character(s). Re-copy the secret key from Stripe with the copy button and paste it directly into Vercel, then redeploy.`;
                 statusEl.className = 'rounded-xl border border-red-200 bg-red-50 text-red-800 px-4 py-3 text-xs font-semibold';
-            } else if (st.ready && st.keyValid && st.accountPrefixMatch === false && st.publicAccountPrefix) {
-                statusEl.textContent = `Secret key does not match your publishable key (${st.secretAccountPrefix}… vs ${st.publicAccountPrefix}…). Roll a new secret key in Stripe, copy with Reveal, paste into Vercel STRIPE_SECRET_KEY, redeploy.`;
-                statusEl.className = 'rounded-xl border border-red-200 bg-red-50 text-red-800 px-4 py-3 text-xs font-semibold';
-            } else if (st.ready && st.keyValid && st.keyWasNormalized) {
-                statusEl.textContent = `Stripe key auto-corrected ${st.keyNormalizedChars} copy-paste character(s). Checkout should work — consider re-pasting a clean key in Vercel when convenient.`;
-                statusEl.className = 'rounded-xl border border-yellow-200 bg-yellow-50 text-yellow-800 px-4 py-3 text-xs font-semibold';
             } else if (st.ready && st.keyValid) {
                 statusEl.textContent = `Stripe secret key detected in Vercel (${st.keyLength} chars, ${st.keyMode} mode). Checkout is ready when payments are enabled.`;
                 statusEl.className = 'rounded-xl border border-green-200 bg-green-50 text-green-800 px-4 py-3 text-xs font-semibold';
@@ -1869,11 +1886,13 @@
             e.preventDefault();
             const geminiKey = document.getElementById('secret-gemini').value;
             const openaiKey = document.getElementById('secret-openai').value;
+            const newUsername = document.getElementById('secret-username').value;
             const newPassword = document.getElementById('secret-password').value;
 
             const body = {};
             if (geminiKey) body.geminiApiKey = geminiKey;
             if (openaiKey) body.openaiApiKey = openaiKey;
+            if (newUsername) body.adminUsername = newUsername;
             if (newPassword) body.adminPassword = newPassword;
 
             try {
@@ -1891,6 +1910,7 @@
                     document.getElementById('secret-gemini').value = '';
                     document.getElementById('secret-openai').value = '';
                     document.getElementById('secret-password').value = '';
+                    if (newUsername) localStorage.setItem('herbanAdminUser', newUsername.trim());
                     if (newPassword) {
                         sessionStorage.setItem('herbanAdminToken', newPassword);
                         adminToken = newPassword;

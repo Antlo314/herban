@@ -55,6 +55,10 @@ Module.prototype.require = function (name) {
 // Mock Stripe webhook signature validation bypass
 process.env.STRIPE_WEBHOOK_SECRET = ''; // empty bypasses signature verification in webhook mock
 
+// The checkout endpoint reads the secret key from env (Vercel) via getStripeEnvRaw(),
+// not from secrets.json. Provide a mock key here so the flow runs end-to-end.
+process.env.STRIPE_SECRET_KEY = 'sk_test_mock';
+
 // 2. BACKUP DATABASE FILES TO PREVENT CORRUPTING DATA
 const CUSTOMERS_PATH = path.join(__dirname, '..', 'data', 'customers.json');
 const CONFIG_PATH = path.join(__dirname, '..', 'data', 'config.json');

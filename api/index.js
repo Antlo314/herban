@@ -223,91 +223,12 @@ async function writeJSON(filePath, data) {
 // Prefer IPv4 for Stripe HTTPS — Vercel serverless egress can fail on IPv6.
 const stripeHttpAgent = new https.Agent({ keepAlive: true, family: 4 });
 
-// Common copy-paste homoglyphs (Cyrillic/Greek/symbols) that look like ASCII in Stripe keys.
-const STRIPE_KEY_HOMOGLYPHS = new Map([
-    ['а', 'a'], ['е', 'e'], ['о', 'o'], ['р', 'p'], ['с', 'c'], ['у', 'y'], ['х', 'x'],
-    ['і', 'i'], ['ј', 'j'], ['ѕ', 's'], ['в', 'b'], ['ԁ', 'd'], ['ɡ', 'g'],
-    ['А', 'A'], ['В', 'B'], ['Е', 'E'], ['К', 'K'], ['М', 'M'], ['Н', 'H'], ['О', 'O'],
-    ['Р', 'P'], ['С', 'C'], ['Т', 'T'], ['Х', 'X'], ['У', 'Y'], ['З', '3'],
-    ['ο', 'o'], ['α', 'a'], ['ν', 'v'], ['ρ', 'p'], ['χ', 'x'],
-    ['ø', 'o'], ['Ø', 'O'], ['ð', 'd'], ['ħ', 'h'], ['ł', 'l'], ['đ', 'd'],
-    ['‐', '-'], ['‑', '-'], ['‒', '-'], ['–', '-'], ['—', '-']
-]);
-
-function normalizeStripeKeyChar(ch) {
-    if (STRIPE_KEY_HOMOGLYPHS.has(ch)) return STRIPE_KEY_HOMOGLYPHS.get(ch);
-    const nfkc = ch.normalize('NFKC');
-    if (nfkc.length === 1 && /[a-zA-Z0-9_]/.test(nfkc)) return nfkc;
-    if (STRIPE_KEY_HOMOGLYPHS.has(nfkc)) return STRIPE_KEY_HOMOGLYPHS.get(nfkc);
-    return null;
-}
-
-const STRIPE_KEY_HOMOGLYPH_ALTERNATES = {
-    p: ['r'],
-    r: ['p'],
-    '3': ['Z'],
-    Z: ['3'],
-    H: ['N'],
-    N: ['H'],
-    o: ['0'],
-    '0': ['o']
-};
-
-function sanitizeStripeKeyDetailed(key) {
-    if (typeof key !== 'string') return { key: '', replacements: [] };
-    const compact = key.replace(/\s+/g, '');
-    let sanitized = '';
-    const replacements = [];
-    for (const ch of compact) {
-        if (/[a-zA-Z0-9_]/.test(ch)) {
-            sanitized += ch;
-            continue;
-        }
-        const normalized = normalizeStripeKeyChar(ch);
-        if (!normalized) continue;
-        const alternates = STRIPE_KEY_HOMOGLYPH_ALTERNATES[normalized] || [];
-        replacements.push({
-            index: sanitized.length,
-            primary: normalized,
-            alternates
-        });
-        sanitized += normalized;
-    }
-    return { key: sanitized, replacements };
-}
-
 function sanitizeStripeKey(key) {
-    return sanitizeStripeKeyDetailed(key).key;
-}
-
-function getStripeKeyVariants(baseKey, replacements) {
-    const ambiguous = replacements.filter((entry) => entry.alternates.length > 0);
-    if (!ambiguous.length) return [baseKey];
-
-    const variants = new Set([baseKey]);
-    const chars = baseKey.split('');
-
-    function buildVariant(idx) {
-        if (idx === ambiguous.length) {
-            variants.add(chars.join(''));
-            return;
-        }
-        const entry = ambiguous[idx];
-        const options = [entry.primary, ...entry.alternates];
-        for (const option of options) {
-            chars[entry.index] = option;
-            buildVariant(idx + 1);
-        }
-    }
-
-    buildVariant(0);
-    return [...variants];
-}
-
-function stripeKeyAccountPrefix(key) {
+    // Stripe keys are plain printable ASCII. Only trim whitespace — never rewrite
+    // characters. Any other corruption is reported by getStripeKeyDiagnostics, not
+    // silently "fixed" (which only produced a wrong key that Stripe then rejected).
     if (typeof key !== 'string') return '';
-    const match = key.match(/^(?:sk|pk)_(?:live|test)_(.{10,24})/);
-    return match ? match[1] : '';
+    return key.replace(/\s+/g, '');
 }
 
 function getStripeEnvRaw() {
@@ -318,32 +239,18 @@ function getStripeEnvRaw() {
 }
 
 function getStripeKeyDiagnostics(rawKey = getStripeEnvRaw()) {
-    if (typeof rawKey !== 'string' || !rawKey) {
-        return {
-            rawLength: 0,
-            sanitizedLength: 0,
-            normalizedChars: 0,
-            strippedChars: 0,
-            hasInvalidChars: false,
-            wasNormalized: false
-        };
-    }
-    const withoutWhitespace = rawKey.replace(/\s+/g, '');
     const sanitized = sanitizeStripeKey(rawKey);
-    let normalizedChars = 0;
-    let strippedChars = 0;
-    for (const ch of withoutWhitespace) {
-        if (/[a-zA-Z0-9_]/.test(ch)) continue;
-        if (normalizeStripeKeyChar(ch)) normalizedChars++;
-        else strippedChars++;
-    }
+    const invalidPositions = [];
+    [...sanitized].forEach((ch, i) => {
+        // Stripe keys are printable ASCII only; anything else is copy-paste corruption.
+        if (!/[\x21-\x7e]/.test(ch)) invalidPositions.push(i);
+    });
     return {
-        rawLength: withoutWhitespace.length,
+        rawLength: sanitized.length,
         sanitizedLength: sanitized.length,
-        normalizedChars,
-        strippedChars,
-        hasInvalidChars: strippedChars > 0,
-        wasNormalized: normalizedChars > 0
+        invalidChars: invalidPositions.length,
+        invalidPositions,
+        hasInvalidChars: invalidPositions.length > 0
     };
 }
 
@@ -453,25 +360,6 @@ function isStripeAuthError(err) {
         err?.code === 'invalid_api_key';
 }
 
-async function createCheckoutSessionWithKeyRetry(secretKeyDetails, payload) {
-    const details = typeof secretKeyDetails === 'string'
-        ? { key: secretKeyDetails, replacements: [] }
-        : secretKeyDetails;
-    const variants = getStripeKeyVariants(details.key, details.replacements);
-    let lastError;
-
-    for (const variantKey of variants) {
-        try {
-            return await createCheckoutSession(variantKey, payload);
-        } catch (err) {
-            lastError = err;
-            if (!isStripeAuthError(err) || variants.length === 1) throw err;
-        }
-    }
-
-    throw lastError;
-}
-
 function stripeHttpsGet(secretKey, path) {
     return new Promise((resolve, reject) => {
         const request = https.request({
@@ -523,13 +411,6 @@ async function retrieveCheckoutSession(secretKey, sessionId) {
 }
 
 // Stripe secret key: Vercel env vars in production; secrets.json fallback for local dev/tests.
-function getStripeSecretKeyDetails() {
-    const raw = getStripeEnvRaw();
-    if (!raw) return { raw: '', key: '', replacements: [] };
-    const detailed = sanitizeStripeKeyDetailed(raw);
-    return { raw, key: detailed.key, replacements: detailed.replacements };
-}
-
 async function getStripeSecretKey() {
     const envKey = sanitizeStripeKey(getStripeEnvRaw());
     if (envKey) return envKey;
@@ -580,10 +461,8 @@ async function getMergedConfig() {
     config.stripe.keyLength = stripeSecretKey.length;
     const keyDiagnostics = getStripeKeyDiagnostics();
     config.stripe.keyRawLength = keyDiagnostics.rawLength;
-    config.stripe.keyStrippedChars = keyDiagnostics.strippedChars;
-    config.stripe.keyNormalizedChars = keyDiagnostics.normalizedChars;
     config.stripe.keyHasInvalidChars = keyDiagnostics.hasInvalidChars;
-    config.stripe.keyWasNormalized = keyDiagnostics.wasNormalized;
+    config.stripe.keyInvalidChars = keyDiagnostics.invalidChars;
 
     if (process.env.STRIPE_ENABLED !== undefined) {
         config.stripe.enabled = process.env.STRIPE_ENABLED === 'true';
@@ -602,12 +481,6 @@ async function getMergedConfig() {
         config.stripe.publicKey = sanitizeStripeKey(config.stripe.publicKey);
     }
 
-    const secretPrefix = stripeKeyAccountPrefix(stripeSecretKey);
-    const publicPrefix = stripeKeyAccountPrefix(config.stripe.publicKey || '');
-    config.stripe.accountPrefixMatch = !!(secretPrefix && publicPrefix && secretPrefix === publicPrefix);
-    if (secretPrefix) config.stripe.secretAccountPrefix = secretPrefix.slice(0, 20);
-    if (publicPrefix) config.stripe.publicAccountPrefix = publicPrefix.slice(0, 20);
-    
     if (process.env.STRIPE_CURRENCY) {
         config.stripe.currency = process.env.STRIPE_CURRENCY;
     }
@@ -645,6 +518,14 @@ async function getMergedConfig() {
 async function getAdminPassword() {
     const secrets = await readJSON(SECRETS_PATH, {});
     return process.env.ADMIN_PASSWORD || secrets.adminPassword || '';
+}
+
+// The admin username comes from the ADMIN_USERNAME env var, a value saved via the
+// admin panel, or defaults to 'admin'. A username is not a secret, so a default is
+// safe here — the password is the protected credential.
+async function getAdminUsername() {
+    const secrets = await readJSON(SECRETS_PATH, {});
+    return process.env.ADMIN_USERNAME || secrets.adminUsername || 'admin';
 }
 
 async function checkAuth(req, res, next) {
@@ -686,8 +567,10 @@ app.get('/api/secrets', checkAuth, async (req, res) => {
     const openaiApiKey = secrets.openaiApiKey || process.env.OPENAI_API_KEY;
     const stripeSecretKey = await getStripeSecretKey();
     const stripeFromEnv = !!(process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY.trim());
-    // Exclude actual password for safety, return mask details
+    const adminUsername = await getAdminUsername();
+    // Exclude actual password for safety, return mask details. The username is not a secret.
     res.json({
+        adminUsername,
         geminiApiKey: geminiApiKey ? '••••••••••••••••' : '',
         openaiApiKey: openaiApiKey ? '••••••••••••••••' : '',
         hasGemini: !!geminiApiKey,
@@ -698,7 +581,7 @@ app.get('/api/secrets', checkAuth, async (req, res) => {
 });
 
 app.post('/api/secrets', checkAuth, async (req, res) => {
-    const { geminiApiKey, openaiApiKey, adminPassword } = req.body;
+    const { geminiApiKey, openaiApiKey, adminUsername, adminPassword } = req.body;
     const secrets = await readJSON(SECRETS_PATH);
 
     if (geminiApiKey !== undefined && geminiApiKey !== '••••••••••••••••') {
@@ -706,6 +589,9 @@ app.post('/api/secrets', checkAuth, async (req, res) => {
     }
     if (openaiApiKey !== undefined && openaiApiKey !== '••••••••••••••••') {
         secrets.openaiApiKey = typeof openaiApiKey === 'string' ? openaiApiKey.trim() : openaiApiKey;
+    }
+    if (adminUsername && adminUsername.trim() !== '') {
+        secrets.adminUsername = adminUsername.trim();
     }
     if (adminPassword && adminPassword.trim() !== '') {
         secrets.adminPassword = typeof adminPassword === 'string' ? adminPassword.trim() : adminPassword;
@@ -721,15 +607,18 @@ app.post('/api/secrets', checkAuth, async (req, res) => {
 
 // LOGIN
 app.post('/api/login', async (req, res) => {
-    const { password } = req.body;
+    const { username, password } = req.body;
     const adminPassword = await getAdminPassword();
+    const adminUsername = await getAdminUsername();
     if (!adminPassword) {
         return res.status(503).json({ error: 'Admin access is not configured. Set the ADMIN_PASSWORD environment variable.' });
     }
-    if (password === adminPassword) {
-        res.json({ success: true, token: adminPassword });
+    const usernameOk = (username || '').trim().toLowerCase() === adminUsername.trim().toLowerCase();
+    const passwordOk = password === adminPassword;
+    if (usernameOk && passwordOk) {
+        res.json({ success: true, token: adminPassword, username: adminUsername });
     } else {
-        res.status(401).json({ error: 'Invalid password' });
+        res.status(401).json({ error: 'Invalid username or password' });
     }
 });
 
@@ -1260,22 +1149,21 @@ app.post('/api/create-checkout-session', async (req, res) => {
 
     try {
         const config = await getMergedConfig();
-        const secretKeyDetails = getStripeSecretKeyDetails();
-        const stripeSecretKey = secretKeyDetails.key;
+        const stripeSecretKey = sanitizeStripeKey(getStripeEnvRaw());
         const stripeEnabled = config.stripe && config.stripe.enabled;
 
         if (!stripeSecretKey) {
             return res.status(400).json({ error: 'Stripe is not configured. Add STRIPE_SECRET_KEY (sk_live_... or sk_test_...) in your Vercel project environment variables, then redeploy.' });
         }
-        if (!stripeSecretKey.startsWith('sk_')) {
-            return res.status(400).json({
-                error: 'STRIPE_SECRET_KEY must be a Stripe secret key (starts with sk_live_ or sk_test_). A publishable key (pk_) was detected — check your Vercel environment variables.'
-            });
-        }
         const keyDiagnostics = getStripeKeyDiagnostics();
         if (keyDiagnostics.hasInvalidChars) {
             return res.status(400).json({
-                error: `STRIPE_SECRET_KEY contains ${keyDiagnostics.strippedChars} unreadable character(s) that could not be fixed automatically. Vercel shows ${keyDiagnostics.rawLength} characters but only ${keyDiagnostics.sanitizedLength} are usable. In Stripe Dashboard, click Reveal on the Secret key and paste it directly into Vercel in one line — do not paste through email, Word, or Notes.`
+                error: `STRIPE_SECRET_KEY is corrupted: it contains ${keyDiagnostics.invalidChars} non-ASCII character(s) at position(s) ${keyDiagnostics.invalidPositions.join(', ')}. In Stripe Dashboard, click Reveal on the Secret key, copy it with the copy button, and paste it directly into Vercel — do not retype it or paste through email, Word, or Notes.`
+            });
+        }
+        if (!stripeSecretKey.startsWith('sk_')) {
+            return res.status(400).json({
+                error: 'STRIPE_SECRET_KEY must be a Stripe secret key (starts with sk_live_ or sk_test_). A publishable key (pk_) was detected — check your Vercel environment variables.'
             });
         }
         if (!stripeEnabled) {
@@ -1379,7 +1267,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
         if (customerEmail) sessionPayload.customer_email = customerEmail;
         if (shipping_options.length > 0) sessionPayload.shipping_options = shipping_options;
 
-        const session = await createCheckoutSessionWithKeyRetry(secretKeyDetails, sessionPayload);
+        const session = await createCheckoutSession(stripeSecretKey, sessionPayload);
 
         // Save the pending order
         const pendingOrdersData = await readJSON(PENDING_ORDERS_PATH, { pendingOrders: {} });
@@ -1411,19 +1299,11 @@ app.post('/api/create-checkout-session', async (req, res) => {
             const stripeSecretKey = await getStripeSecretKey();
             const keyDiagnostics = getStripeKeyDiagnostics();
             const keyHint = stripeSecretKey
-                ? `Detected key: ${stripeSecretKey.startsWith('sk_live_') ? 'live' : stripeSecretKey.startsWith('sk_test_') ? 'test' : 'unknown'} mode, ${stripeSecretKey.length} characters after cleanup${keyDiagnostics.rawLength ? ` (Vercel raw: ${keyDiagnostics.rawLength})` : ''}.`
+                ? `Detected key: ${stripeSecretKey.startsWith('sk_live_') ? 'live' : stripeSecretKey.startsWith('sk_test_') ? 'test' : 'unknown'} mode, ${stripeSecretKey.length} characters.`
                 : '';
-            const configForHint = await getMergedConfig();
-            const prefixMismatch = configForHint.stripe?.accountPrefixMatch === false &&
-                configForHint.stripe?.secretAccountPrefix &&
-                configForHint.stripe?.publicAccountPrefix;
             const invalidHint = keyDiagnostics.hasInvalidChars
-                ? ` ${keyDiagnostics.strippedChars} unreadable character(s) could not be fixed — re-copy from Stripe without pasting through email or Word.`
-                : prefixMismatch
-                    ? ` Your secret key does not match your publishable key (secret starts with ${configForHint.stripe.secretAccountPrefix}…, publishable starts with ${configForHint.stripe.publicAccountPrefix}…). Roll a new secret key in Stripe, click Reveal → Copy, paste directly into Vercel STRIPE_SECRET_KEY, and redeploy.`
-                    : keyDiagnostics.wasNormalized
-                        ? ' The key had copy-paste corruption that was auto-corrected, but Stripe still rejected it — roll a new secret key in Stripe Dashboard and paste it fresh into Vercel.'
-                        : ' Stripe rejected the key — it may be revoked (roll a new one in Stripe Dashboard) or from a different account than your publishable key.';
+                ? ` The key contains ${keyDiagnostics.invalidChars} non-ASCII character(s) and is corrupted — re-copy it from Stripe with the copy button, without pasting through email, Word, or Notes.`
+                : ' Stripe rejected the key — it may be revoked or from a different account. Roll a new secret key in Stripe Dashboard and paste it fresh into Vercel.';
             message = `The Stripe secret key is invalid. In Stripe Dashboard → Developers → API keys, click Reveal on the Secret key, copy the full sk_live_... value into STRIPE_SECRET_KEY in Vercel (Production), then redeploy.${invalidHint} ${keyHint}`;
         } else if (err.type === 'StripeConnectionError') {
             const detail = err.code || err.cause?.code || 'connection error';
