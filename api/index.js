@@ -629,6 +629,44 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
+// ADMIN SETUP STATUS (public, no secrets) — tells the panel whether to show the
+// first-run "create admin" screen or the normal login, and whether storage persists.
+app.get('/api/admin-status', async (req, res) => {
+    const adminPassword = await getAdminPassword();
+    // Persistent unless we're on Vercel with no Blob store (then writes hit ephemeral /tmp).
+    const persistentStorage = useBlob || !process.env.VERCEL;
+    res.json({ configured: !!adminPassword, persistentStorage });
+});
+
+// FIRST-RUN ADMIN SETUP — lets the owner create the admin login from the page itself,
+// with no Vercel env var. Works ONLY while no admin password exists yet; once one is
+// set it returns 403, so it can't hijack a configured panel.
+app.post('/api/admin-setup', async (req, res) => {
+    const existing = await getAdminPassword();
+    if (existing) {
+        return res.status(403).json({ error: 'Admin is already set up. Log in and change your credentials in Settings.' });
+    }
+    if (process.env.VERCEL && !useBlob) {
+        return res.status(503).json({ error: 'Storage is not connected, so a password set here would not be saved. Connect a Vercel Blob store to this project (Storage tab), or set ADMIN_PASSWORD in the environment variables, then reload.' });
+    }
+    const { username, password } = req.body;
+    const cleanUser = typeof username === 'string' ? username.trim() : '';
+    if (!cleanUser) {
+        return res.status(400).json({ error: 'Choose a username.' });
+    }
+    if (typeof password !== 'string' || password.length < 6) {
+        return res.status(400).json({ error: 'Choose a password of at least 6 characters.' });
+    }
+    const secrets = await readJSON(SECRETS_PATH, {});
+    secrets.adminUsername = cleanUser;
+    secrets.adminPassword = password;
+    const saved = await writeJSON(SECRETS_PATH, secrets);
+    if (!saved) {
+        return res.status(500).json({ error: 'Could not save the admin login. Please try again.' });
+    }
+    res.json({ success: true, token: password, username: cleanUser });
+});
+
 // ==========================================
 // CUSTOMER AUTHENTICATION & MANAGEMENT
 // ==========================================

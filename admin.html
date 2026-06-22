@@ -45,7 +45,8 @@
         <div class="bg-white max-w-md w-full rounded-3xl shadow-2xl border border-gray-100 p-8 text-center">
             <div class="herban-logo text-3xl font-black tracking-tighter mb-2">HERBAN ALCHEMY</div>
             <div class="text-xs text-gray-500 uppercase tracking-widest mb-6">Storefront Admin Portal</div>
-            
+
+            <div id="login-view">
             <form onsubmit="handleLogin(event)">
                 <div class="mb-4">
                     <label class="block text-left text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Username</label>
@@ -60,6 +61,34 @@
                     Unlock System
                 </button>
             </form>
+            </div>
+
+            <div id="setup-view" class="hidden">
+                <div id="setup-storage-warning" class="hidden text-xs text-red-700 bg-red-50 border border-red-200 rounded-xl p-3 mb-4 text-left">
+                    Your site's storage isn't connected, so a password set here won't be saved. Connect a Vercel Blob store (Storage tab) or set ADMIN_PASSWORD in the environment variables, then reload.
+                </div>
+                <div class="text-xs text-gray-600 mb-5 bg-[#FAF7F2] border border-gray-200 rounded-xl p-3 text-left">
+                    Welcome! No admin login exists yet. Create yours below — you can change it anytime from Settings.
+                </div>
+                <form onsubmit="handleAdminSetup(event)">
+                    <div class="mb-4">
+                        <label class="block text-left text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Choose a Username</label>
+                        <input type="text" id="setup-username" placeholder="e.g. herbanadmin" autocomplete="username" class="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-[#C5A26F] text-center text-lg" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-left text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Choose a Password</label>
+                        <input type="password" id="setup-password" placeholder="At least 6 characters" autocomplete="new-password" class="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-[#C5A26F] text-center text-lg" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-left text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Confirm Password</label>
+                        <input type="password" id="setup-password2" placeholder="Re-enter password" autocomplete="new-password" class="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-[#C5A26F] text-center text-lg" required>
+                    </div>
+                    <div id="setup-error" class="text-xs text-red-500 font-semibold mb-4 hidden"></div>
+                    <button type="submit" class="w-full bg-[#111111] text-white hover:bg-[#C5A26F] transition-all font-semibold py-4 rounded-2xl text-xs uppercase tracking-widest">
+                        Create Admin Login
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -1582,6 +1611,9 @@
             document.getElementById('login-gate').classList.add('hidden');
             document.getElementById('admin-dashboard').classList.remove('hidden');
             loadConfigData();
+        } else {
+            // No session: decide between the login form and first-run setup form.
+            checkAdminGate();
         }
 
         async function handleLogin(e) {
@@ -1614,6 +1646,71 @@
             } catch (err) {
                 console.error(err);
                 errEl.textContent = 'Server connection failed. Make sure server is running.';
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        // First-run: show the "create admin" setup form when no admin exists yet,
+        // otherwise the normal login form.
+        async function checkAdminGate() {
+            const loginView = document.getElementById('login-view');
+            const setupView = document.getElementById('setup-view');
+            try {
+                const res = await fetch('/api/admin-status');
+                const st = await res.json();
+                if (!st.configured) {
+                    loginView.classList.add('hidden');
+                    setupView.classList.remove('hidden');
+                    if (!st.persistentStorage) {
+                        document.getElementById('setup-storage-warning').classList.remove('hidden');
+                    }
+                } else {
+                    setupView.classList.add('hidden');
+                    loginView.classList.remove('hidden');
+                }
+            } catch (err) {
+                setupView.classList.add('hidden');
+                loginView.classList.remove('hidden');
+            }
+        }
+
+        async function handleAdminSetup(e) {
+            e.preventDefault();
+            const username = document.getElementById('setup-username').value;
+            const password = document.getElementById('setup-password').value;
+            const password2 = document.getElementById('setup-password2').value;
+            const errEl = document.getElementById('setup-error');
+            errEl.classList.add('hidden');
+            if (password !== password2) {
+                errEl.textContent = 'Passwords do not match.';
+                errEl.classList.remove('hidden');
+                return;
+            }
+            if (password.length < 6) {
+                errEl.textContent = 'Password must be at least 6 characters.';
+                errEl.classList.remove('hidden');
+                return;
+            }
+            try {
+                const res = await fetch('/api/admin-setup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    sessionStorage.setItem('herbanAdminToken', data.token);
+                    if (data.username) localStorage.setItem('herbanAdminUser', data.username);
+                    adminToken = data.token;
+                    document.getElementById('login-gate').classList.add('hidden');
+                    document.getElementById('admin-dashboard').classList.remove('hidden');
+                    loadConfigData();
+                } else {
+                    errEl.textContent = data.error || 'Setup failed.';
+                    errEl.classList.remove('hidden');
+                }
+            } catch (err) {
+                errEl.textContent = 'Server connection failed.';
                 errEl.classList.remove('hidden');
             }
         }
