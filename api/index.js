@@ -512,20 +512,19 @@ async function getMergedConfig() {
 }
 
 // Auth Middleware
-// The admin password comes from the ADMIN_PASSWORD env var or a password
-// saved via the admin panel. There is intentionally NO hardcoded default —
-// this code is in a public repo.
+// Admin credentials: panel-saved values (in the Blob/secrets store) are the source
+// of truth so they can be changed from inside the admin panel. The ADMIN_PASSWORD /
+// ADMIN_USERNAME env vars are the bootstrap + break-glass recovery login (always
+// accepted — see checkAuth and /api/login). There is intentionally NO hardcoded
+// password default (public repo). Username defaults to 'admin' (not a secret).
 async function getAdminPassword() {
     const secrets = await readJSON(SECRETS_PATH, {});
-    return process.env.ADMIN_PASSWORD || secrets.adminPassword || '';
+    return secrets.adminPassword || process.env.ADMIN_PASSWORD || '';
 }
 
-// The admin username comes from the ADMIN_USERNAME env var, a value saved via the
-// admin panel, or defaults to 'admin'. A username is not a secret, so a default is
-// safe here — the password is the protected credential.
 async function getAdminUsername() {
     const secrets = await readJSON(SECRETS_PATH, {});
-    return process.env.ADMIN_USERNAME || secrets.adminUsername || 'admin';
+    return secrets.adminUsername || process.env.ADMIN_USERNAME || 'admin';
 }
 
 async function checkAuth(req, res, next) {
@@ -535,7 +534,9 @@ async function checkAuth(req, res, next) {
     }
     const token = authHeader.split(' ')[1];
     const adminPassword = await getAdminPassword();
-    if (!adminPassword || token !== adminPassword) {
+    const envPassword = process.env.ADMIN_PASSWORD || '';
+    const valid = (adminPassword && token === adminPassword) || (envPassword && token === envPassword);
+    if (!valid) {
         return res.status(403).json({ error: 'Forbidden: Invalid password' });
     }
     next();
@@ -611,12 +612,18 @@ app.post('/api/login', async (req, res) => {
     const adminPassword = await getAdminPassword();
     const adminUsername = await getAdminUsername();
     if (!adminPassword) {
-        return res.status(503).json({ error: 'Admin access is not configured. Set the ADMIN_PASSWORD environment variable.' });
+        return res.status(503).json({ error: 'Admin access is not configured. Set ADMIN_USERNAME and ADMIN_PASSWORD in your Vercel environment variables and redeploy; after logging in you can change them here.' });
     }
-    const usernameOk = (username || '').trim().toLowerCase() === adminUsername.trim().toLowerCase();
-    const passwordOk = password === adminPassword;
-    if (usernameOk && passwordOk) {
-        res.json({ success: true, token: adminPassword, username: adminUsername });
+    const norm = (s) => (s || '').trim().toLowerCase();
+    const envUsername = process.env.ADMIN_USERNAME || 'admin';
+    const envPassword = process.env.ADMIN_PASSWORD || '';
+    // Primary = current (panel-saved, else env) credentials. Break-glass = the env
+    // credentials are always accepted too, so a forgotten panel password can be
+    // recovered from Vercel without losing access.
+    const primaryOk = norm(username) === norm(adminUsername) && password === adminPassword;
+    const breakGlassOk = !!envPassword && norm(username) === norm(envUsername) && password === envPassword;
+    if (primaryOk || breakGlassOk) {
+        res.json({ success: true, token: password, username: primaryOk ? adminUsername : envUsername });
     } else {
         res.status(401).json({ error: 'Invalid username or password' });
     }
