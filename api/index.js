@@ -656,40 +656,7 @@ app.get('/api/admin-status', async (req, res) => {
     const adminPassword = await getAdminPassword();
     // Persistent unless we're on Vercel with no Blob store (then writes hit ephemeral /tmp).
     const persistentStorage = useBlob || !process.env.VERCEL;
-    // Diagnostic (names only, no secret values) to confirm whether the deployment can
-    // see a Blob token and under what env-var name. Helps debug an already-connected store.
-    const blobTokenVars = Object.keys(process.env).filter(k => /_READ_WRITE_TOKEN$/.test(k));
-    res.json({
-        configured: !!adminPassword,
-        persistentStorage,
-        storage: {
-            blobDetected: useBlob,
-            defaultVarPresent: !!process.env.BLOB_READ_WRITE_TOKEN,
-            blobTokenVars,
-            onVercel: !!process.env.VERCEL
-        }
-    });
-});
-
-// TEMPORARY storage round-trip self-test — writes and reads a throwaway blob and reports
-// the real result (surfaces any private-store/access errors). Remove once confirmed.
-app.get('/api/storage-test', async (req, res) => {
-    if (!useBlob) {
-        return res.json({ blob: false, note: 'No Blob token detected; app is using local/tmp storage.' });
-    }
-    const stamp = Date.now();
-    try {
-        await blobWriteStore('storage_test', { marker: 'ok', stamp });
-        const readBack = await blobReadStore('storage_test');
-        const roundTripMatch = !!readBack && readBack.stamp === stamp;
-        try {
-            const { blobs } = await blobList({ prefix: 'herban/storage_test', token: BLOB_TOKEN });
-            if (blobs && blobs.length) await blobDel(blobs.map(b => b.url), { token: BLOB_TOKEN });
-        } catch (e) { /* best-effort cleanup */ }
-        res.json({ blob: true, writeOk: true, readOk: !!readBack, roundTripMatch });
-    } catch (err) {
-        res.json({ blob: true, writeOk: false, error: err.message, code: err.code || null });
-    }
+    res.json({ configured: !!adminPassword, persistentStorage });
 });
 
 // FIRST-RUN ADMIN SETUP — lets the owner create the admin login from the page itself,
