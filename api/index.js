@@ -66,7 +66,17 @@ const TMP_PENDING_ORDERS_PATH = path.join(os.tmpdir(), 'herban_pending_orders.js
 // original filesystem behavior.
 // ==========================================
 const { put: blobPut, del: blobDel, list: blobList } = require('@vercel/blob');
-const useBlob = !!process.env.BLOB_READ_WRITE_TOKEN;
+
+// Vercel injects BLOB_READ_WRITE_TOKEN by default, but a custom Blob store name/prefix
+// yields <PREFIX>_READ_WRITE_TOKEN instead. Accept either so an already-connected store
+// is detected regardless of its env-var name (and pass the token explicitly to the SDK).
+function getBlobToken() {
+    if (process.env.BLOB_READ_WRITE_TOKEN) return process.env.BLOB_READ_WRITE_TOKEN;
+    const key = Object.keys(process.env).find(k => /_READ_WRITE_TOKEN$/.test(k) && process.env[k]);
+    return key ? process.env[key] : '';
+}
+const BLOB_TOKEN = getBlobToken();
+const useBlob = !!BLOB_TOKEN;
 
 const STORE_NAMES = {
     [CONFIG_PATH]: 'config',
@@ -79,7 +89,7 @@ const STORE_NAMES = {
 // Blob URLs are publicly accessible, so the secrets store is encrypted
 // at rest with a key derived from the blob token (never leaves Vercel).
 function getEncryptionKey() {
-    return crypto.createHash('sha256').update(process.env.BLOB_READ_WRITE_TOKEN).digest();
+    return crypto.createHash('sha256').update(BLOB_TOKEN).digest();
 }
 
 function encryptPayload(text) {
@@ -106,7 +116,7 @@ function decryptPayload(text) {
 // Each write creates a new random-suffixed blob (avoids CDN cache staleness
 // on overwrites); reads pick the newest and writes clean up older versions.
 async function blobReadStore(name) {
-    const { blobs } = await blobList({ prefix: `herban/${name}` });
+    const { blobs } = await blobList({ prefix: `herban/${name}`, token: BLOB_TOKEN });
     if (!blobs || blobs.length === 0) return null;
     const latest = blobs.reduce((a, b) => new Date(a.uploadedAt) > new Date(b.uploadedAt) ? a : b);
     const res = await fetch(latest.url, { cache: 'no-store' });
@@ -122,13 +132,14 @@ async function blobWriteStore(name, data) {
     const written = await blobPut(`herban/${name}.json`, body, {
         access: 'public',
         addRandomSuffix: true,
-        contentType: 'application/json'
+        contentType: 'application/json',
+        token: BLOB_TOKEN
     });
     // Best-effort cleanup of superseded versions
     try {
-        const { blobs } = await blobList({ prefix: `herban/${name}` });
+        const { blobs } = await blobList({ prefix: `herban/${name}`, token: BLOB_TOKEN });
         const stale = blobs.filter(b => b.url !== written.url);
-        if (stale.length > 0) await blobDel(stale.map(b => b.url));
+        if (stale.length > 0) await blobDel(stale.map(b => b.url), { token: BLOB_TOKEN });
     } catch (err) {
         console.error(`Blob cleanup error for ${name}:`, err);
     }
@@ -635,7 +646,19 @@ app.get('/api/admin-status', async (req, res) => {
     const adminPassword = await getAdminPassword();
     // Persistent unless we're on Vercel with no Blob store (then writes hit ephemeral /tmp).
     const persistentStorage = useBlob || !process.env.VERCEL;
-    res.json({ configured: !!adminPassword, persistentStorage });
+    // Diagnostic (names only, no secret values) to confirm whether the deployment can
+    // see a Blob token and under what env-var name. Helps debug an already-connected store.
+    const blobTokenVars = Object.keys(process.env).filter(k => /_READ_WRITE_TOKEN$/.test(k));
+    res.json({
+        configured: !!adminPassword,
+        persistentStorage,
+        storage: {
+            blobDetected: useBlob,
+            defaultVarPresent: !!process.env.BLOB_READ_WRITE_TOKEN,
+            blobTokenVars,
+            onVercel: !!process.env.VERCEL
+        }
+    });
 });
 
 // FIRST-RUN ADMIN SETUP — lets the owner create the admin login from the page itself,
