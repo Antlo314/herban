@@ -119,8 +119,18 @@ async function blobReadStore(name) {
     const { blobs } = await blobList({ prefix: `herban/${name}`, token: BLOB_TOKEN });
     if (!blobs || blobs.length === 0) return null;
     const latest = blobs.reduce((a, b) => new Date(a.uploadedAt) > new Date(b.uploadedAt) ? a : b);
-    const res = await fetch(latest.url, { cache: 'no-store' });
-    if (!res.ok) throw new Error(`Blob fetch failed: ${res.status}`);
+    // Private-store blobs aren't publicly fetchable — read them with auth. Try the
+    // pre-signed downloadUrl first, then the URL with the read-write token as a bearer.
+    const attempts = [];
+    if (latest.downloadUrl) attempts.push([latest.downloadUrl, {}]);
+    if (latest.url) attempts.push([latest.url, { Authorization: `Bearer ${BLOB_TOKEN}` }]);
+    if (latest.downloadUrl) attempts.push([latest.downloadUrl, { Authorization: `Bearer ${BLOB_TOKEN}` }]);
+    let res = null;
+    for (const [u, headers] of attempts) {
+        res = await fetch(u, { cache: 'no-store', headers });
+        if (res && res.ok) break;
+    }
+    if (!res || !res.ok) throw new Error(`Blob fetch failed: ${res ? res.status : 'no response'}`);
     const text = await res.text();
     if (name === 'secrets') return decryptPayload(text);
     return JSON.parse(text);
@@ -130,7 +140,7 @@ async function blobWriteStore(name, data) {
     let body = JSON.stringify(data, null, 2);
     if (name === 'secrets') body = encryptPayload(body);
     const written = await blobPut(`herban/${name}.json`, body, {
-        access: 'public',
+        access: 'private',
         addRandomSuffix: true,
         contentType: 'application/json',
         token: BLOB_TOKEN
