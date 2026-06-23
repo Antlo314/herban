@@ -661,6 +661,27 @@ app.get('/api/admin-status', async (req, res) => {
     });
 });
 
+// TEMPORARY storage round-trip self-test — writes and reads a throwaway blob and reports
+// the real result (surfaces any private-store/access errors). Remove once confirmed.
+app.get('/api/storage-test', async (req, res) => {
+    if (!useBlob) {
+        return res.json({ blob: false, note: 'No Blob token detected; app is using local/tmp storage.' });
+    }
+    const stamp = Date.now();
+    try {
+        await blobWriteStore('storage_test', { marker: 'ok', stamp });
+        const readBack = await blobReadStore('storage_test');
+        const roundTripMatch = !!readBack && readBack.stamp === stamp;
+        try {
+            const { blobs } = await blobList({ prefix: 'herban/storage_test', token: BLOB_TOKEN });
+            if (blobs && blobs.length) await blobDel(blobs.map(b => b.url), { token: BLOB_TOKEN });
+        } catch (e) { /* best-effort cleanup */ }
+        res.json({ blob: true, writeOk: true, readOk: !!readBack, roundTripMatch });
+    } catch (err) {
+        res.json({ blob: true, writeOk: false, error: err.message, code: err.code || null });
+    }
+});
+
 // FIRST-RUN ADMIN SETUP — lets the owner create the admin login from the page itself,
 // with no Vercel env var. Works ONLY while no admin password exists yet; once one is
 // set it returns 403, so it can't hijack a configured panel.
